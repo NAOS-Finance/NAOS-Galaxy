@@ -42,7 +42,7 @@ import { CoordinatorFab } from "../../lender/fabs/coordinator.sol";
 import { OperatorFab } from "../../lender/fabs/operator.sol";
 import { LenderDeployer } from "../../lender/deployer.sol";
 
-import { Title } from "tinlake-title/title.sol";
+import { Title } from "../../../lib/tinlake-title/src/title.sol";
 import { Pile } from "../../borrower/pile.sol";
 import { Shelf } from "../../borrower/shelf.sol";
 import { Collector } from "../../borrower/collect/collector.sol";
@@ -52,7 +52,7 @@ import { TestRoot } from "./root.sol";
 
 import "../simple/token.sol";
 import "../simple/distributor.sol";
-import "tinlake-erc20/erc20.sol";
+import "../../../lib/tinlake-erc20/src/erc20.sol";
 
 import { TokenLike, NFTFeedLike } from "./interfaces.sol";
 

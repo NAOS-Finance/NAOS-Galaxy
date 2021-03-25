@@ -15,8 +15,8 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "ds-test/test.sol";
-import "tinlake-math/math.sol";
+import "../../../lib/ds-test/src/test.sol";
+import "../../../lib/tinlake-math/src/math.sol";
 
 import "./../tranche.sol";
 import "../../test/simple/token.sol";

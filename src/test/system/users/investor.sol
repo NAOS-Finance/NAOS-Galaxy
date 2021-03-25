@@ -14,7 +14,7 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "../interfaces.sol";
-import "ds-test/test.sol";
+import "./../../../lib/ds-test/src/test.sol";
 
 interface InvestorOperator {
     function supplyOrder(uint currencyAmount) external;

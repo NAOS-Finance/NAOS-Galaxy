@@ -14,9 +14,9 @@
 pragma solidity >=0.5.15 <0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "ds-note/note.sol";
-import "tinlake-auth/auth.sol";
-import "tinlake-math/interest.sol";
+import "../../../lib/ds-note/src/note.sol";
+import "../../../lib/tinlake-auth/src/auth.sol";
+import "../../../lib/tinlake-math/src/interest.sol";
 import "./nftfeed.sol";
 import "./buckets.sol";
 import "../../fixed_point.sol";

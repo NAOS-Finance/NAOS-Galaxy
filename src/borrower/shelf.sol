@@ -16,11 +16,11 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "ds-note/note.sol";
-import "tinlake-math/math.sol";
-import "tinlake-auth/auth.sol";
-import "ds-test/test.sol";
-import { TitleOwned } from "tinlake-title/title.sol";
+import "../../lib/ds-note/src/note.sol";
+import "../../lib/tinlake-math/src/math.sol";
+import "../../lib/tinlake-auth/src/auth.sol";
+import "../../lib/ds-test/src/test.sol";
+import { TitleOwned } from "../../lib/tinlake-title/src/title.sol";
 
 contract NFTLike {
     function ownerOf(uint256 tokenId) public view returns (address owner);

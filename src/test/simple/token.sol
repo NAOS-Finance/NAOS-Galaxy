@@ -15,9 +15,9 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "tinlake-math/math.sol";
-import "tinlake-auth/auth.sol";
-import "tinlake-erc20/erc20.sol";
+import "../../../lib/tinlake-math/src/math.sol";
+import "../../../lib/tinlake-auth/src/auth.sol";
+import "../../../lib/tinlake-erc20/src/erc20.sol";
 
 contract SimpleToken is Auth, Math, ERC20{
 
