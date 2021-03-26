@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { Title } from "tinlake-title/title.sol";
+import { Title } from "../../../lib/tinlake-title/src/title.sol";
 
 contract TitleFab {
     function newTitle(string memory name, string memory symbol) public returns (address) {

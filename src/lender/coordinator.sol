@@ -16,8 +16,8 @@ pragma solidity >=0.5.15 <0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "./../fixed_point.sol";
-import "tinlake-auth/auth.sol";
-import "tinlake-math/math.sol";
+import "../../lib/tinlake-auth/src/auth.sol";
+import "../../lib/tinlake-math/src/math.sol";
 
 interface EpochTrancheLike {
     function epochUpdate(uint epochID, uint supplyFulfillment_,

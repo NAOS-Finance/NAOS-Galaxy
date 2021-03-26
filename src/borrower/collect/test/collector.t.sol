@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "ds-test/test.sol";
+import "../../../../lib/ds-test/src/test.sol";
 
 import "../../test/mock/shelf.sol";
 import "../../test/mock/distributor.sol";

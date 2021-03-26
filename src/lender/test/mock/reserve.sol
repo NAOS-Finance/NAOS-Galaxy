@@ -15,8 +15,8 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "ds-test/test.sol";
-import "tinlake-auth/auth.sol";
+import "../../../../lib/ds-test/src/test.sol";
+import "../../../../lib/tinlake-auth/src/auth.sol";
 import "../../../test/mock/mock.sol";
 
 interface CurrencyLike {

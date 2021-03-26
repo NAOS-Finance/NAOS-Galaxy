@@ -15,8 +15,8 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "ds-test/test.sol";
-import { Title } from "tinlake-title/title.sol";
+import "../../../lib/ds-test/src/test.sol";
+import { Title } from "../../../lib/tinlake-title/src/title.sol";
 import { TitleFab } from "../fabs/title.sol";
 import { PileFab } from "../fabs/pile.sol";
 import { ShelfFab} from "../fabs/shelf.sol";
