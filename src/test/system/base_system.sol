@@ -15,14 +15,14 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "ds-test/test.sol";
+import "../../../lib/ds-test/src/test.sol";
 import "./setup.sol";
 
 import "./users/admin.sol";
 import "./users/investor.sol";
 import "./users/borrower.sol";
 import "./users/keeper.sol";
-import "tinlake-math/math.sol";
+import "../../../lib/tinlake-math/src/math.sol";
 
 contract BaseSystemTest is TestSetup, Math, DSTest {
     // users
