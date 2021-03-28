@@ -23,7 +23,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: install dependencies
         run: npm install
+      - name: generate random key
+        run: hexdump -n 32 -e '4/4 "%08X"' /dev/random > .pv
       - name: compile
-        run: npx hardhat compile
+        run: PV_PATH=.pv npx hardhat compile
       # - name: test
       #   run: npm run test

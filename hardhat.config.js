@@ -5,7 +5,7 @@ require("@nomiclabs/hardhat-ethers")
 
 const { readFileSync } = require('fs')
 const infuraToken = process.env.INFURA_TOKEN ? process.env.INFURA_TOKEN : ''
-const pvPath = process.env.PV_PATH
+const pvPath = process.env.PV_PATH ? process.env.PV_PATH : ''
 const pvStr = readFileSync(pvPath, { encoding: 'utf8' })
 
 module.exports = {
