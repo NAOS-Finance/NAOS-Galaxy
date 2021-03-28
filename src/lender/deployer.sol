@@ -182,11 +182,11 @@ contract LenderDeployer is FixedPoint {
         DependLike(seniorTranche).depend("epochTicker", coordinator);
         DependLike(juniorTranche).depend("epochTicker", coordinator);
 
-        //restricted token
+        // restricted token
         DependLike(seniorToken).depend("memberlist", seniorMemberlist);
         DependLike(juniorToken).depend("memberlist", juniorMemberlist);
 
-        //allow tinlake contracts to hold drop/tin tokens
+        // allow tinlake contracts to hold drop/tin tokens
         MemberlistLike(juniorMemberlist).updateMember(juniorTranche, uint(-1));
         MemberlistLike(seniorMemberlist).updateMember(seniorTranche, uint(-1));
 
