@@ -6,6 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
+        node-version: [12.x, 14.x, 15.x]
         os: [ ubuntu-latest, ]
         # we need this to map platform names as used by github to
         # the attribute names defined in release.nix
@@ -16,15 +17,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
-        run: git submodule update --init --recursive
-      - uses: cachix/install-nix-action@ef4324316b96b50b4671cecef9ecc6fd286f224a
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
         with:
-          skip_adding_nixpkgs_channel: false
-      - uses: cachix/cachix-action@6e4751ed42b22f60165d3f266cfa4cce66ae406d
-        with:
-          name: dapp
-          skipPush: true
-          signingKey: ''
-      - name: test
-        run: nix-shell --pure --command "make test"
+          node-version: ${{ matrix.node-version }}
+      - name: install dependencies
+        run: npm install
+      - name: generate random key
+        run: hexdump -n 32 -e '4/4 "%08X"' /dev/random > .pv
+      - name: compile
+        run: PV_PATH=.pv npx hardhat compile
+      # - name: test
+      #   run: npm run test
