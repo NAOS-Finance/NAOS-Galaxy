@@ -82,10 +82,10 @@ async function main() {
   await lender.init(BigNumber.from(75).mul(tenp25), BigNumber.from(85).mul(tenp25), 10, 60*60, BigNumber.from('1000000229200000000000000000'), "Drop Token", "Drop", "Tin Token", "Tin")
   await lender.deployJunior()
   await lender.deploySenior()
+  await lender.deployReserve()
   await lender.deployAssessor()
   await lender.deployCoordinator()
   await lender.deploy()
-  console.log('deployed!!!')
 
   await root.prepare(lender.address, borrower.address, signer.address)
   await root.deploy()
