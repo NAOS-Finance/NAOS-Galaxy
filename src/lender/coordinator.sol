@@ -96,6 +96,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint  {
     uint                public epochReserve;
                         // flag which indicates if the coordinator is currently in a submission period
     bool                public submissionPeriod;
+    int256              public submissionResult;
 
                         // weights of the scoring function
                         // highest priority senior redeem and junior redeem before junior and senior supply
@@ -207,14 +208,15 @@ contract EpochCoordinator is Auth, Math, FixedPoint  {
         order.juniorRedeem = rmul(orderJuniorRedeem, epochJuniorTokenPrice.value);
         order.juniorSupply = orderJuniorSupply;
         order.seniorSupply = orderSeniorSupply;
+        int256 result = validate(order.seniorRedeem, order.juniorRedeem, order.seniorSupply, order.juniorSupply);
 
         // epoch is executed if orders can be fulfilled to 100% without constraint violation
-        if (validate(order.seniorRedeem , order.juniorRedeem,
-            order.seniorSupply, order.juniorSupply) == SUCCESS) {
+        if (result == SUCCESS) {
             _executeEpoch(order.seniorRedeem, order.juniorRedeem,
                 orderSeniorSupply, orderJuniorSupply);
             return;
         }
+        submissionResult = result;
         // if 100% order fulfillment is not possible submission period starts
         // challenge period time starts after first valid submission is received
         submissionPeriod = true;
