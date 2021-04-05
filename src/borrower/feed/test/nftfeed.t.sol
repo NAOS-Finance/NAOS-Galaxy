@@ -15,7 +15,7 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "../../../../lib/ds-test/src/test.sol";
-import "../../../../lib/tinlake-math/src/interest.sol";
+import "../../../../lib/galaxy-math/src/interest.sol";
 import "./../nftfeed.sol";
 import "./../../test/mock/shelf.sol";
 import "./../../test/mock/pile.sol";

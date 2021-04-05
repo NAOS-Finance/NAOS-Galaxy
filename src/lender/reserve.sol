@@ -1,7 +1,7 @@
 pragma solidity >=0.5.15 <0.6.0;
 
-import "../../lib/tinlake-math/src/math.sol";
-import "../../lib/tinlake-auth/src/auth.sol";
+import "../../lib/galaxy-math/src/math.sol";
+import "../../lib/galaxy-auth/src/auth.sol";
 
 contract ERC20Like {
     function balanceOf(address) public view returns (uint256);

@@ -17,7 +17,7 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import { ERC721Metadata } from "./openzeppelin-solidity/token/ERC721/ERC721Metadata.sol";
-import { Auth } from "../../tinlake-auth/src/auth.sol";
+import { Auth } from "../../galaxy-auth/src/auth.sol";
 
 contract Title is Auth, ERC721Metadata {
     // --- Data ---

@@ -17,7 +17,7 @@ pragma solidity >=0.5.15 <0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "../base_system.sol";
-import "../../../../lib/tinlake-math/src/interest.sol";
+import "../../../../lib/galaxy-math/src/interest.sol";
 import {BaseTypes} from "../../../lender/test/coordinator-base.t.sol";
 
 contract LenderSystemTest is BaseSystemTest, BaseTypes, Interest {

@@ -16,8 +16,8 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "../../../lib/ds-note/src/note.sol";
-import "../../../lib/tinlake-auth/src/auth.sol";
-import "../../../lib/tinlake-math/src/math.sol";
+import "../../../lib/galaxy-auth/src/auth.sol";
+import "../../../lib/galaxy-math/src/math.sol";
 
 contract ShelfLike {
     function shelf(uint loan) public view returns (address registry, uint tokenId);
@@ -36,8 +36,8 @@ contract PileLike {
     function rateDebt(uint rate) public view returns (uint);
 }
 
-// The NFTFeed stores values and risk group of nfts that are used as collateral in tinlake. A risk group contains: thresholdRatio, ceilingRatio & interstRate.
-// The risk groups for a tinlake deployment are defined on contract creation and can not be changed afterwards.
+// The NFTFeed stores values and risk group of nfts that are used as collateral in galaxy. A risk group contains: thresholdRatio, ceilingRatio & interstRate.
+// The risk groups for a galaxy deployment are defined on contract creation and can not be changed afterwards.
 // Loan parameters like interstRate, max borrow amount and liquidation threshold are determined based on the value and risk group of the underlying collateral nft.
 contract BaseNFTFeed is DSNote, Auth, Math {
 

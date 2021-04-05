@@ -8,7 +8,7 @@ let
 in
   pkgs.mkShell {
     src = null;
-    name = "tinlake-maker-lib";
+    name = "galaxy-maker-lib";
     buildInputs = with pkgs; [
       pkgs.dapp
     ];

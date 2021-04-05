@@ -22,7 +22,7 @@ import "./users/admin.sol";
 import "./users/investor.sol";
 import "./users/borrower.sol";
 import "./users/keeper.sol";
-import "../../../lib/tinlake-math/src/math.sol";
+import "../../../lib/galaxy-math/src/math.sol";
 
 contract BaseSystemTest is TestSetup, Math, DSTest {
     // users

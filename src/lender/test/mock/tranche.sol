@@ -17,7 +17,7 @@ pragma solidity >=0.5.15 <0.6.0;
 
 import "../../../../lib/ds-test/src/test.sol";
 import "../../../test/mock/mock.sol";
-import "../../../../lib/tinlake-auth/src/auth.sol";
+import "../../../../lib/galaxy-auth/src/auth.sol";
 
 contract TrancheMock is Mock, Auth, DSTest {
     uint epochTotalSupply;

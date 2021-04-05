@@ -17,7 +17,7 @@ pragma solidity >=0.5.15 <0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "../../../lib/ds-test/src/test.sol";
-import "../../../lib/tinlake-math/src/math.sol";
+import "../../../lib/galaxy-math/src/math.sol";
 
 import "./../coordinator.sol";
 import "./mock/tranche.sol";

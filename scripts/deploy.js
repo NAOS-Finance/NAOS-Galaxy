@@ -10,7 +10,7 @@ async function main() {
   const erc20 = await ERC20.deploy(tokenName, tokenSymbol)
   console.log("NAOS deployed at:", erc20.address)
 
-  const Root = await hardhat.ethers.getContractFactory("TinlakeRoot")
+  const Root = await hardhat.ethers.getContractFactory("GalaxyRoot")
   const root = await Root.deploy(signer.address)
   console.log("Root deployed at:", root.address)
 
@@ -79,7 +79,7 @@ async function main() {
   const lender = await LenderDeployer.deploy(root.address, erc20.address, trancheFab.address, memberlistFab.address, restrictedTokenFab.address, reserveFab.address, assessorFab.address, coordinatorFab.address, operatorFab.address)
   console.log("Lender deployed at:", lender.address)
   const tenp25 = BigNumber.from(10).pow(25)
-  await lender.init(BigNumber.from(75).mul(tenp25), BigNumber.from(85).mul(tenp25), 10, 60*60, BigNumber.from('1000000229200000000000000000'), "Drop Token", "Drop", "Tin Token", "Tin")
+  await lender.init(BigNumber.from(75).mul(tenp25), BigNumber.from(85).mul(tenp25), 10, 60*60, BigNumber.from('1000000229200000000000000000'), "Alpha Token", "Alpha", "Beta Token", "Beta")
   await lender.deployJunior()
   await lender.deploySenior()
   await lender.deployReserve()

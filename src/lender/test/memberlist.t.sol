@@ -17,7 +17,7 @@ pragma solidity >=0.5.15 <0.6.0;
 
 import "../../../lib/ds-test/src/test.sol";
 import "../token/memberlist.sol";
-import "../../../lib/tinlake-math/src/math.sol";
+import "../../../lib/galaxy-math/src/math.sol";
 
 
 contract MemberlistTest is Math, DSTest {

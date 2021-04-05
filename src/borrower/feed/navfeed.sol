@@ -15,13 +15,13 @@ pragma solidity >=0.5.15 <0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "../../../lib/ds-note/src/note.sol";
-import "../../../lib/tinlake-auth/src/auth.sol";
-import "../../../lib/tinlake-math/src/interest.sol";
+import "../../../lib/galaxy-auth/src/auth.sol";
+import "../../../lib/galaxy-math/src/interest.sol";
 import "./nftfeed.sol";
 import "./buckets.sol";
 import "../../fixed_point.sol";
 
-// The Nav Feed contract extends the functionality of the NFT Feed by the Net Asset Value (NAV) computation of a Tinlake pool.
+// The Nav Feed contract extends the functionality of the NFT Feed by the Net Asset Value (NAV) computation of a Galaxy pool.
 // NAV is computed as the sum of all discounted future values (fv) of ongoing loans (debt > 0) in the pool.
 // The applied discountRate is dependant on the maturity data of the underlying collateral. The discount decreases with the maturity date approaching.
 // To optimize the NAV calculation the discounting of future values happens bucketwise. FVs from assets with the same maturity date are added to one bucket.

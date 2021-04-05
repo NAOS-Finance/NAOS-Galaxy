@@ -16,7 +16,7 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "../../lib/ds-note/src/note.sol";
-import "../../lib/tinlake-auth/src/auth.sol";
+import "../../lib/galaxy-auth/src/auth.sol";
 
 contract TrancheLike {
     function supplyOrder(address usr, uint currencyAmount) public;

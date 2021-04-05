@@ -13,7 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity >=0.5.15 <0.6.0;
 
-import "../lib/tinlake-auth/src/auth.sol";
+import "../lib/galaxy-auth/src/auth.sol";
 
 interface AuthLike {
     function rely(address) external;
@@ -36,7 +36,7 @@ interface LenderDeployerLike {
 }
 
 
-contract TinlakeRoot is Auth {
+contract GalaxyRoot is Auth {
     BorrowerDeployerLike public borrowerDeployer;
     LenderDeployerLike public  lenderDeployer;
 
@@ -82,8 +82,8 @@ contract TinlakeRoot is Auth {
     }
 
     // --- Governance Functions ---
-    // `relyContract` & `denyContract` can be called by any ward on the TinlakeRoot
-    // contract to make an arbitrary address a ward on any contract the TinlakeRoot
+    // `relyContract` & `denyContract` can be called by any ward on the GalaxyRoot
+    // contract to make an arbitrary address a ward on any contract the GalaxyRoot
     // is a ward on.
     function relyContract(address target, address usr) public auth {
         AuthLike(target).rely(usr);

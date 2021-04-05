@@ -21,7 +21,7 @@ import "./mock/tranche.sol";
 import "../operator.sol";
 import "../token/restricted.sol";
 import "../token/memberlist.sol";
-import "../../../lib/tinlake-math/src/math.sol";
+import "../../../lib/galaxy-math/src/math.sol";
 
 
 contract OperatorTest is Math, DSTest {

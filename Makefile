@@ -4,7 +4,7 @@ update:
 	dapp update
 test: update
 	dapp test
-deploy :; dapp create TinlakeMakerLib
+deploy :; dapp create GalaxyMakerLib
 
 export DAPP_TEST_TIMESTAMP=1234567
 export DAPP_SOLC_VERSION=0.5.15

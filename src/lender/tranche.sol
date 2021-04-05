@@ -16,8 +16,8 @@
 pragma solidity >=0.5.15 <0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "../../lib/tinlake-auth/src/auth.sol";
-import "../../lib/tinlake-math/src/math.sol";
+import "../../lib/galaxy-auth/src/auth.sol";
+import "../../lib/galaxy-math/src/math.sol";
 import "./../fixed_point.sol";
 
 interface ERC20Like {

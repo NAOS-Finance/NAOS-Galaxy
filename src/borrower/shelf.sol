@@ -17,10 +17,10 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "../../lib/ds-note/src/note.sol";
-import "../../lib/tinlake-math/src/math.sol";
-import "../../lib/tinlake-auth/src/auth.sol";
+import "../../lib/galaxy-math/src/math.sol";
+import "../../lib/galaxy-auth/src/auth.sol";
 import "../../lib/ds-test/src/test.sol";
-import { TitleOwned } from "../../lib/tinlake-title/src/title.sol";
+import { TitleOwned } from "../../lib/galaxy-title/src/title.sol";
 
 contract NFTLike {
     function ownerOf(uint256 tokenId) public view returns (address owner);
@@ -113,7 +113,7 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         return (shelf[loan].registry, shelf[loan].tokenId);
     }
 
-    /// issues a new loan in Tinlake - it requires the ownership of an nft
+    /// issues a new loan in Galaxy - it requires the ownership of an nft
     /// first step in the loan process - everyone could add an nft
     function issue(address registry_, uint token_) external note returns (uint) {
         require(NFTLike(registry_).ownerOf(token_) == msg.sender, "nft-not-owned");

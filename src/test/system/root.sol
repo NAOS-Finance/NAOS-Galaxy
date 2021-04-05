@@ -13,13 +13,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity >=0.5.15 <0.6.0;
 
-import { TinlakeRoot } from "../../root.sol";
+import { GalaxyRoot } from "../../root.sol";
 import { BorrowerDeployer } from "../../borrower/deployer.sol";
 import { LenderDeployer } from "../../lender/deployer.sol";
 
 import "../../../lib/ds-test/src/test.sol";
-contract TestRoot is TinlakeRoot {
-    constructor (address deployUsr) public TinlakeRoot(deployUsr) {
+contract TestRoot is GalaxyRoot {
+    constructor (address deployUsr) public GalaxyRoot(deployUsr) {
     }
     // Permissions
     // To simplify testing, we add helpers to authorize contracts on any component.

@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import "../../../lib/tinlake-erc20/src/erc20.sol";
+import "../../../lib/galaxy-erc20/src/erc20.sol";
 
 contract MemberlistLike {
     function hasMember(address) public view returns (bool);

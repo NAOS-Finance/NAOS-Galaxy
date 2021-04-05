@@ -1,5 +1,5 @@
 pragma solidity >=0.5.15 <0.6.0;
-import "../../../lib/tinlake-auth/src/auth.sol";
+import "../../../lib/galaxy-auth/src/auth.sol";
 
 contract DistTokenLike {
     function transferFrom(address, address, uint) public;

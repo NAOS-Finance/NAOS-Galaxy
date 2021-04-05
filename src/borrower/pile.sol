@@ -16,8 +16,8 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "../../lib/ds-note/src/note.sol";
-import "../../lib/tinlake-math/src/interest.sol";
-import "../../lib/tinlake-auth/src/auth.sol";
+import "../../lib/galaxy-math/src/interest.sol";
+import "../../lib/galaxy-auth/src/auth.sol";
 
 // ## Interest Group based Pile
 // The following is one implementation of a debt module. It keeps track of different buckets of interest rates and is optimized for many loans per interest bucket. It keeps track of interest

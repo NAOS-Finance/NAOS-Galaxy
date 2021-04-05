@@ -15,8 +15,8 @@
 pragma solidity >=0.5.15 <0.6.0;
 
 import "./../fixed_point.sol";
-import "../../lib/tinlake-auth/src/auth.sol";
-import "../../lib/tinlake-math/src/interest.sol";
+import "../../lib/galaxy-auth/src/auth.sol";
+import "../../lib/galaxy-math/src/interest.sol";
 
 interface NAVFeedLike {
     function calcUpdateNAV() external returns (uint);
