@@ -6,6 +6,7 @@ async function main() {
   const tokenName = "NAOS Loan Token"
   const tokenSymbol = "naos"
   const signer = await hardhat.ethers.getSigner()
+  console.log(`Deployer address: ${await signer.getAddress()}`)
   const ERC20 = await hardhat.ethers.getContractFactory("ERC20")
   const erc20 = await ERC20.deploy(tokenName, tokenSymbol)
   console.log("NAOS deployed at:", erc20.address)

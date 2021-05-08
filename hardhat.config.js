@@ -2,11 +2,10 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 require("@nomiclabs/hardhat-ethers")
+require('dotenv').config()
 
-const { readFileSync } = require('fs')
-const infuraToken = process.env.INFURA_TOKEN ? process.env.INFURA_TOKEN : ''
-const pvPath = process.env.PV_PATH ? process.env.PV_PATH : ''
-const pvStr = readFileSync(pvPath, { encoding: 'utf8' })
+const infuraToken = process.env.INFURA_TOKEN
+const pvStr = process.env.PV
 
 module.exports = {
   defaultNetwork: "rinkeby",
