@@ -1,4 +1,12 @@
 {
+  "author": "NAOS Finance",
+  "license": "UNLICENSED",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat --network $network run scripts/deploy.js",
+    "clean": "npx hardhat clean",
+    "test": "npx hardhat test"
+  },
   "dependencies": {
     "dotenv": "^9.0.0",
     "hardhat": "^2.1.2"
