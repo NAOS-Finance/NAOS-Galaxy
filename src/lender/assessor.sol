@@ -30,6 +30,7 @@ interface TrancheLike {
 
 interface ReserveLike {
     function totalBalance() external view returns(uint);
+    function payoutTo(address to, uint currencyAmount) external;
 }
 
 contract Assessor is Auth, FixedPoint, Interest {
@@ -45,6 +46,9 @@ contract Assessor is Auth, FixedPoint, Interest {
 
     // interest rate per second for senior tranche
     Fixed27         public seniorInterestRate;
+
+    // withdraw fee rate
+    Fixed27         public withdrawFeeRate;
 
     // last time the senior interest has been updated
     uint            public lastUpdateSeniorInterest;
@@ -62,6 +66,7 @@ contract Assessor is Auth, FixedPoint, Interest {
     constructor() public {
         wards[msg.sender] = 1;
         seniorInterestRate.value = ONE;
+        withdrawFeeRate.value = ONE;
         lastUpdateSeniorInterest = block.timestamp;
         seniorRatio.value = 0;
     }
@@ -90,6 +95,9 @@ contract Assessor is Auth, FixedPoint, Interest {
         else if (name == "minSeniorRatio") {
             require(value < maxSeniorRatio.value, "value-too-big");
             minSeniorRatio = Fixed27(value);
+        }
+        else if(name == "withdrawFeeRate") {
+            withdrawFeeRate = Fixed27(value);
         }
         else {revert("unknown-variable");}
     }
@@ -235,5 +243,14 @@ contract Assessor is Auth, FixedPoint, Interest {
 
     function seniorBalance() public view returns (uint) {
         return seniorBalance_;
+    }
+
+    /// withdraw fee
+    function withdrawFee(uint currencyAmount) public auth {
+        uint totalBalance = ReserveLike(reserve).totalBalance();
+        require(totalBalance > 0, "insufficient reserve balance");
+        uint withdrawFeeAmount = rmul(safeSub(totalBalance, seniorBalance_), withdrawFeeRate.value);
+        require(withdrawFeeAmount >= currencyAmount, "insufficient currency left in reserve");
+        ReserveLike(reserve).payoutTo(msg.sender, currencyAmount);
     }
 }

@@ -85,6 +85,11 @@ contract Reserve is Math, Auth {
         _payout(msg.sender, currencyAmount);
     }
 
+    // remove currency from the reserve and send to user
+    function payoutTo(address to, uint currencyAmount) public auth {
+        _payout(to, currencyAmount);
+    }
+
     function _payout(address usr, uint currencyAmount)  internal {
       require(currency.transferFrom(self, usr, currencyAmount), "reserve-payout-failed");
       balance_ = safeSub(balance_, currencyAmount);
