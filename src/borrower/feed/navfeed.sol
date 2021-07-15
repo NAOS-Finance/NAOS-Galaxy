@@ -119,6 +119,15 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
             ONE                                     // recoveryRatePD:  1.0
         );
 
+        // risk group: 6 Galaxy
+        file("riskGroup",
+            6,                                      // riskGroup:       2
+            105**26,                                // thresholdRatio   105%
+            ONE,                                // ceilingRatio     100%
+            uint(1000000564701133626865910626),     // interestRate     5% per day
+            90 * 10**25                             // recoveryRatePD:  0.9
+        );
+
         /// Overdue loans (= loans that were not repaid by the maturityDate) are moved to write Offs
         // 6% interest rate & 60% write off
         setWriteOff(0, WRITE_OFF_PHASE_A, uint(1000000674400000000000000000), 6 * 10**26);
