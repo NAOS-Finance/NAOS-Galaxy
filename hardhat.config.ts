@@ -1,8 +1,8 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-require("@nomiclabs/hardhat-ethers")
-require('dotenv').config()
+import "dotenv/config"
+import "@nomiclabs/hardhat-ethers"
 
 const infuraToken = process.env.INFURA_TOKEN
 const pvStr = process.env.PV
