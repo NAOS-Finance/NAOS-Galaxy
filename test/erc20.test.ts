@@ -1,7 +1,6 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract } from "ethers"
-import { assert } from "console"
 
 // Since erc20 is different with openzeppelin library, we migrate some test
 describe("ERC20", function () {
