@@ -23,9 +23,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: install dependencies
         run: npm install
-      # - name: generate random key
-      #   run: hexdump -n 32 -e '4/4 "%08X"' /dev/random > .pv
-      - name: compile
-        run: npm run compile
       - name: test
         run: npm run test
