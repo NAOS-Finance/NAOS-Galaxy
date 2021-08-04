@@ -5,24 +5,25 @@ import "dotenv/config"
 import "@nomiclabs/hardhat-ethers"
 import "@nomiclabs/hardhat-ganache"
 
-const infuraToken = process.env.INFURA_TOKEN
+const INFURA_TOKEN = process.env.INFURA_TOKEN
 const pvStr = process.env.PV
 
 module.exports = {
   defaultNetwork: "ganache",
   networks: {
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${infuraToken}`,
+      url: `https://rinkeby.infura.io/v3/${INFURA_TOKEN}`,
       accounts: [ pvStr ]
     },
     kovan: {
-      url: `https://kovan.infura.io/v3/${infuraToken}`,
+      url: `https://kovan.infura.io/v3/${INFURA_TOKEN}`,
       accounts: [ pvStr ]
     },
     ganache: {
       gasLimit: 10000000,
       defaultBalanceEther: 100,
       url: "http://localhost:8545",
+      hardfork: "istanbul"
     }
   },
   solidity: {
