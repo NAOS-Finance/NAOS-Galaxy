@@ -1,15 +1,11 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
+import { timeFly } from "./utils"
 
 describe("Interest", function () {
   let interest: Contract
   const ONE: BigNumber = BigNumber.from(10).pow(27)
-
-  const timeFly = async (days:number) => {
-    await ethers.provider.send('evm_increaseTime', [ Math.floor(days * 86400) ])
-    return await ethers.provider.send('evm_mine', [])
-  }
 
   beforeEach(async function () {
     interest = await (await ethers.getContractFactory('Interest')).deploy()
