@@ -24,4 +24,6 @@ jobs:
       - name: install dependencies
         run: npm install
       - name: test
+        env:
+          INFURA_TOKEN: ${{ secrets.INFURA_TOKEN }}
         run: npm run test

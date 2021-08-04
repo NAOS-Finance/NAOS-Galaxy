@@ -5,8 +5,8 @@ import "dotenv/config"
 import "@nomiclabs/hardhat-ethers"
 import "@nomiclabs/hardhat-ganache"
 
-const INFURA_TOKEN = process.env.INFURA_TOKEN
-const pvStr = process.env.PV
+const INFURA_TOKEN = process.env.INFURA_TOKEN ? process.env.INFURA_TOKEN : ''
+const pvStr = process.env.PV ? process.env.PV : ''
 
 module.exports = {
   defaultNetwork: "ganache",
