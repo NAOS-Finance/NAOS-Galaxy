@@ -1,8 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { timeFly } from "./utils"
-import { AbiCoder } from "ethers/lib/utils"
+import { timeFly, zeroPadEnd } from "./utils"
 
 describe("Pile", function () {
   let accounts: Signer[]
@@ -12,13 +11,10 @@ describe("Pile", function () {
     accounts = await ethers.getSigners()
     pile = await (await ethers.getContractFactory('Pile')).deploy()
   })
+  
 
   const setupLoan = async (loan: number, rate: BigNumber) => {
-    let shuffle = utils.zeroPad([], 32)
-    let data = utils.zeroPad(utils.toUtf8Bytes("rate"), 32)
-    for (let i = 28; i < 32; i++) {
-      shuffle[i - 28] = data[i]
-    }
+    let shuffle = zeroPadEnd(utils.toUtf8Bytes("rate"), 32)
     await pile.file(shuffle, rate, rate)
     await pile.setRate(loan, rate)
   }
@@ -39,5 +35,14 @@ describe("Pile", function () {
     await timeFly(365)
     await pile.accrue(loan)
     expect((await pile.debt(loan)).toString()).to.be.eq(utils.parseEther('73.92').toString())
+  })
+
+  it("Should IncDebtNoFixedFee", async function () {
+    const loan = 1
+    const amount = utils.parseEther('66')
+    // 12 % per year compound in seconds
+    const rate = BigNumber.from('1000000003593629043335673583')
+    await setupLoan(loan, rate)
+    await increaseDebt(loan, amount)
   })
 })
