@@ -18,7 +18,7 @@ describe("Interest", function () {
     const timestamp = currentBlock.timestamp
     const chi = await interest.chargeInterest(ONE, rate, timestamp)
     // add one day
-    await timeFly(1)
+    await timeFly(1, true)
     const _chi = await interest.chargeInterest(chi, rate, timestamp)
     expect(_chi.toString()).to.be.eq('1052608164847005065391965708')
   })
@@ -30,7 +30,7 @@ describe("Interest", function () {
     const timestamp = currentBlock.timestamp
     const chi = await interest.chargeInterest(ONE, rate, timestamp)
     // add two days
-    await timeFly(2)
+    await timeFly(2, true)
     const _chi = await interest.chargeInterest(chi, rate, timestamp)
     expect(_chi.toString()).to.be.eq('1102500000000000000000033678')
   })
@@ -44,7 +44,7 @@ describe("Interest", function () {
     const [ chi, delta] = await interest.compounding(ONE, rate, timestamp, pie)
     expect(delta.toString()).to.be.eq('0')
     // add one day
-    await timeFly(1)
+    await timeFly(1, true)
     const [ _chi, _delta] = await interest.compounding(ONE, rate, timestamp, pie)
     expect(_delta.toString()).to.be.eq('5000000000000000000')
     const oAmount = await interest.toAmount(pie, chi)
@@ -60,7 +60,7 @@ describe("Interest", function () {
     const timestamp = currentBlock.timestamp
     const pie = await interest.toPie(ONE, utils.parseEther('10'))
     // add one day and 666 seconds
-    await timeFly(3 + 666 / 86400)
+    await timeFly(3 + 666 / 86400, true)
     const [ chi, delta] = await interest.compounding(rate, rate, timestamp, pie)
     const oAmount = await interest.toAmount(rate, pie)
     const nAmount = await interest.toAmount(chi, pie)
@@ -74,7 +74,7 @@ describe("Interest", function () {
     const currentBlock = await ethers.provider.getBlock('latest')
     const timestamp = currentBlock.timestamp
     // add one day
-    await timeFly(1)
+    await timeFly(1, true)
     const chi = await interest.chargeInterest(utils.parseEther('100'), rate, timestamp)
     expect(chi.toString()).to.be.eq(utils.parseEther('105').toString())
   })
