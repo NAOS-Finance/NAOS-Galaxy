@@ -2,7 +2,6 @@ import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
 import { timeFly, zeroPadEnd, ONE, div, mul } from "./utils"
-import { time } from "console"
 
 describe("Pile", function () {
   let accounts: Signer[]
