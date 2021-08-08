@@ -1,8 +1,11 @@
 import { ethers } from "hardhat"
 import { BigNumber, utils } from "ethers"
 
-export const timeFly = async (days:number,mine:boolean=false) => {
-  await ethers.provider.send('evm_increaseTime', [ Math.round(days * 86400) ])
+// There are some issues with ganache increase time, have
+// to fix this later.
+export const timeFly = async (days:number, mine:boolean=false) => {
+  const timeDiff = Math.round(days * 86400)
+  await ethers.provider.send('evm_increaseTime', [ timeDiff ])
   if (mine) {
     return await ethers.provider.send('evm_mine', [])
   }

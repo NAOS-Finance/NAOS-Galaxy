@@ -52,9 +52,9 @@ describe("Pile", function () {
     const rate = BigNumber.from('1000000003593629043335673583')
     await setupLoan(loan, rate)
     await increaseDebt(loan, amount)
-    await timeFly(365)
+    await timeFly(365, true)
     await pile.accrue(loan)
-    expect((await pile.debt(loan)).toString()).to.be.eq(utils.parseEther('73.92').toString())
+    expect(await pile.debt(loan)).to.be.eq(utils.parseEther('73.92'))
   })
 
   it("Should IncDebtNoFixedFee", async function () {
@@ -98,7 +98,7 @@ describe("Pile", function () {
   it("Should UpdateRateGroup", async function () {
     const rateGroup = BigNumber.from('1000000003593629043335673583')
     await initRateGroup(rateGroup, rateGroup)
-    await timeFly(1)
+    await timeFly(1, true)
     const nRateGroup = BigNumber.from('1000000564701133626865910626')
     const padded = zeroPadEnd(utils.toUtf8Bytes("rate"), 32)
     await pile.file(padded, rateGroup, nRateGroup)
@@ -113,7 +113,7 @@ describe("Pile", function () {
     // 12 % per year compound in seconds
     const rate = BigNumber.from('1000000003593629043335673583')
     await setupLoan(loan, rate)
-    await timeFly(1)
+    await timeFly(1, true)
     await expect(
       increaseDebt(loan, amount)
     ).to.be.revertedWith('rate-group-not-updated')
@@ -136,7 +136,7 @@ describe("Pile", function () {
     const rate = BigNumber.from('1000000003593629043335673583')
     await setupLoan(loan, rate)
     await increaseDebt(loan, amount)
-    await timeFly(1)
+    await timeFly(1, true)
     await expect(
       decreaseDebt(loan, amount)
     ).to.be.revertedWith('rate-group-not-updated')
@@ -152,7 +152,7 @@ describe("Pile", function () {
     // await fileRate(lowRate, lowRate)
     await setupLoan(loan, lowRate)
     await increaseDebt(loan, amount)
-    await timeFly(1)
+    await timeFly(1, true)
     await pile.drip(lowRate)
     await pile.drip(highRate)
     expect(await pile.debt(loan)).to.be.eq(utils.parseEther('105'))
@@ -166,7 +166,7 @@ describe("Pile", function () {
     expect(await pile.rateDebt(highRate)).to.be.eq(utils.parseEther('105'))
     expect(await pile.total()).to.be.eq(utils.parseEther('105'))
 
-    await timeFly(1)
+    await timeFly(1, true)
     await pile.drip(highRate)
     expect(await pile.debt(loan)).to.be.eq(utils.parseEther('117.6'))
   })
@@ -181,7 +181,7 @@ describe("Pile", function () {
     // await fileRate(lowRate, lowRate)
     await setupLoan(loan, lowRate)
     expect(await pile.debt(loan)).to.be.eq(0)
-    await timeFly(1)
+    await timeFly(1, true)
     await pile.drip(lowRate)
     await pile.drip(highRate)
 
@@ -189,7 +189,7 @@ describe("Pile", function () {
     expect(await pile.debt(loan)).to.be.eq(0)
 
     await increaseDebt(loan, amount)
-    await timeFly(1)
+    await timeFly(1, true)
     await pile.drip(highRate)
     expect(await pile.debt(loan)).to.be.eq(utils.parseEther('112'))
   })
@@ -224,7 +224,7 @@ describe("Pile", function () {
     await setupLoan(loan, rate)
     await pile.drip(rate)
     await increaseDebt(loan, amount)
-    await timeFly(1)
+    await timeFly(1, true)
     await pile.drip(rate)
     // expect((await pile.debt(loan))).to.be.eq(utils.parseEther('66').mul((rate.pow(3600*24))))
   })
@@ -264,7 +264,7 @@ describe("Pile", function () {
     expect(rates.ratePerSecond).to.be.eq(rate)
     expect(rates.pie).to.be.eq(0)
 
-    await timeFly(1)
+    await timeFly(1, true)
     rates = await pile.rates(rate)
     const oRateIndex = rates.chi
     const oLastUpdated = rates.lastUpdated
@@ -290,11 +290,11 @@ describe("Pile", function () {
     await pile.drip(rate)
   })
 
-  it("Should FailrateIndexTooHigh", async function () {
+  it("Should FailRateIndexTooHigh", async function () {
     // 5 % per day
     const rate = BigNumber.from('1000000564701133626865910626')
     await fileRate(rate, rate)
-    await timeFly(1100) // 1,05 ^1100 = 2.0334288e+23
+    await timeFly(1100, true) // 1,05 ^1100 = 2.0334288e+23
     
     // should revert because value exceeds uint max
     await expect(
