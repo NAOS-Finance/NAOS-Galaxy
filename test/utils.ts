@@ -1,6 +1,8 @@
 import { ethers } from "hardhat"
 import { BigNumber, utils } from "ethers"
 
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 // There are some issues with ganache increase time, have
 // to fix this later.
 export const timeFly = async (days:number, mine:boolean=false) => {
