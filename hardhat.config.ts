@@ -2,8 +2,9 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 import "dotenv/config"
-import "@nomiclabs/hardhat-waffle"
+import "@typechain/hardhat"
 import "@nomiclabs/hardhat-ethers"
+import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-ganache"
 
 const INFURA_TOKEN = process.env.INFURA_TOKEN ? process.env.INFURA_TOKEN : ''
@@ -26,6 +27,12 @@ module.exports = {
       url: "http://localhost:8545",
       hardfork: "istanbul"
     }
+  },
+  typechain: {
+    outDir: './types',
+    target: 'ethers-v5',
+    alwaysGenerateOverloads: false,
+    // externalArtifacts: [],
   },
   solidity: {
     version: "0.5.15",
