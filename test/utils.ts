@@ -14,6 +14,11 @@ export const timeFly = async (days:number, mine:boolean=false) => {
   return true
 }
 
+export const now = async () => {
+  const currentBlock = await ethers.provider.getBlock('latest')
+  return currentBlock.timestamp
+}
+
 export const zeroPadEnd = (src: Uint8Array, length:number): Uint8Array => {
   if (src.length >= length) {
     return src
@@ -27,6 +32,14 @@ export const zeroPadEnd = (src: Uint8Array, length:number): Uint8Array => {
 }
 
 export const ONE = BigNumber.from('1000000000000000000000000000')
+
+export const percentToBig = (percent: number): BigNumber => {
+  if (percent <= 0 || percent >= 100) {
+    throw new Error('invalid percent value')
+  }
+  const bigPercent = BigNumber.from(percent)
+  return bigPercent.mul(ONE).div(100)
+}
 
 export const div = (x:BigNumber, y:BigNumber): BigNumber => {
   return x.div(y)
