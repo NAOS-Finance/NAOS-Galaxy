@@ -506,10 +506,12 @@ async function main() {
         continue
       }
       const userAddress = await user.getAddress()
-      await erc20.mint(userAddress, iAmount)
-      await erc20.connect(user).approve(tranche.address, iAmount)
-      const orderTx = await operator.connect(user).supplyOrder(iAmount)
-      await orderTx.wait()
+      let tx = await erc20.mint(userAddress, iAmount)
+      await tx.wait()
+      tx = await erc20.connect(user).approve(tranche.address, iAmount)
+      await tx.wait()
+      tx = await operator.connect(user).supplyOrder(iAmount)
+      await tx.wait()
       count += 1
     }
     return count
@@ -531,7 +533,7 @@ async function main() {
 
   console.log('Setup 20 naos debt for borrower 1 / 30 naos for borrower 2')
   const borrowRes1 = await setupLoan(borrower1, utils.parseEther('20'))
-  const borrowRes2 = await setupLoan(borrower1, utils.parseEther('30'))
+  const borrowRes2 = await setupLoan(borrower2, utils.parseEther('30'))
   const totalCeiling = borrowRes1.ceiling.add(borrowRes2.ceiling)
   const investAmount = totalCeiling.mul(TENP25).mul(80).div(ONE)
   await supplyOrder(erc20, seniorTranche, seniorOperator, investAmount, [investor1, investor2])
