@@ -6,20 +6,22 @@ import "@typechain/hardhat"
 import "@nomiclabs/hardhat-ethers"
 import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-ganache"
+import "@nomiclabs/hardhat-etherscan"
 
 const INFURA_TOKEN = process.env.INFURA_TOKEN ? process.env.INFURA_TOKEN : ''
-const pvStr = process.env.PV ? process.env.PV : ''
+const accounts = process.env.PVS ? process.env.PVS.split(',') : []
+const ETHERSCAN_TOKEN = process.env.ETHERSCAN_TOKEN ? process.env.ETHERSCAN_TOKEN : ''
 
 module.exports = {
   defaultNetwork: "ganache",
   networks: {
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_TOKEN}`,
-      accounts: [ pvStr ]
+      accounts
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_TOKEN}`,
-      accounts: [ pvStr ]
+      accounts
     },
     ganache: {
       gasLimit: 10000000,
@@ -33,6 +35,9 @@ module.exports = {
     target: 'ethers-v5',
     alwaysGenerateOverloads: false,
     // externalArtifacts: [],
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_TOKEN
   },
   solidity: {
     version: "0.5.15",
