@@ -48,3 +48,7 @@ export const div = (x:BigNumber, y:BigNumber): BigNumber => {
 export const mul = (x:BigNumber, y:BigNumber): BigNumber => {
   return x.mul(y).div(ONE)
 }
+
+export const rdiv = (x:BigNumber, y:BigNumber): BigNumber => {
+  return x.mul(ONE).add(y.div(2)).div(y)
+}
