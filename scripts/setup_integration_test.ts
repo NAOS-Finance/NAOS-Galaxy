@@ -28,38 +28,38 @@ async function main() {
   }
   const signer = signers[0]
   const addressBook = {
-    erc20: '0xdcc5e988c4523bd405135fc299ba9027d0c28a77',
-    root: '0x178966821b198fd5a09b5c47969430c62753fd97',
-    titleFab: '0xD59CC4bE93de411055bFf07458229fa9c9315d36',
-    shelfFab: '0x4619b39FcedA14a53b00ebAE1Cebe73eD595850B',
-    pileFab: '0xE79397B44b91fD987B37D90913f308FA439f6E33',
-    collectorFab: '0x80CC228Abd5CFA61C914A3bcc67a2df21a080dc6',
-    navFeedFab: '0x811982F4CDF707fdE23Fe6Ef1cf83176faaDc263',
-    title: '0x3671cdEc7244C4FcB8B282641d0F913E5AF16C75',
-    shelf: '0x4a6087Ea8Ed46773971C675b1019C7Fe293b24f6',
-    pile: '0x7f87bF6f6431DeD22a915c85Aeb9C08F6BEb56A2',
-    collector: '0x42263E16d438267ccd16C4014de00c25eEAaB672',
-    navFeed: '0xec53C20E492cb5eA5D44552d05c44B7157b0d189',
-    borrowerDeployer: '0x52f1774e0CD908FC187aC118e43A313C3a7eb131',
-    reserveFab: '0x69546a97b30Dce1Ed0e9a33a3202Fd97636EC7c1',
-    assessorFab: '0x9e8BcF5B2D558361393f1FF89950780f3CFF3Ca0',
-    trancheFab: '0x3b7EE471971E8E9D70c97d6ba18535A999d4fa3f',
-    memberlistFab: '0xEd5374208A99519272e74A20fB6Ff29bf8a858ce',
-    restrictedTokenFab: '0x2f430AFf21EcCf7C85C2475f1c01E8BA195364d0',
-    operatorFab: '0x2Ea881b1BB1ec14bf2aCedae500854F077a504cD',
-    coordinatorFab: '0x8aEb37342390A64242a7D1d54cA2345F06a052F0',
-    reserve: '0xcEF6D8C6c6d631dB4f9c570b6D430b7602aeeEBb',
-    assessor: '0x29fC94A2980a46cbBC460DBF076732C70CA639b2',
-    coordinator: '0x30478210E8fD149f964D228E1D24693b29658ACb',
-    juniorTranche: '0xAd53AbA0A64D7B8fccbf2d6dc694cdEAf9cF5516',
-    juniorMemberlist: '0xdFC4859C02395198DdEE37659F210310392370A8',
-    juniorToken: '0x4D138e4B6971a094e1F920D8d5Ec4F6B557E1C8a',
-    juniorOperator: '0xBf5f2Ee4EC1d04d02EB313Bd0536aD9E29D4211f',
-    seniorTranche: '0xD781246f1d5f10a054956A9aC247a6c23BA4Bd97',
-    seniorMemberlist: '0x3b1B42f9130fC3D1B5f53b5e60B68CB677F81d9a',
-    seniorToken: '0x387d803850451AfcCEb5Cf6321DB2924479B3483',
-    seniorOperator: '0x811A46d1004047118f1b6f8319F3d0Fc10Ad62b1',
-    lenderDeployer: '0x0f6A726717481061ceD89b8f9bD9cEbB08544644',
+    erc20: '0x6897B9D65dB1c348C81c895551705bB3f9FD2301',
+    root: '0x254fe9f22586C32d259fc581B616b8f928B35aa8',
+    titleFab: '0xC832E5Aed1a5B14b86D86f9C5CC1B1E83b8b7720',
+    shelfFab: '0xd053c7F92272233DfD8349a0Ce1c2681b284cCcB',
+    pileFab: '0x7F6785EaF51F67b58c08B47cCa315aFd226aBf8b',
+    collectorFab: '0x364A29a4eC35daf56a745FB667aEcD5f7885c9C8',
+    navFeedFab: '0x7aBC54305d5a6fb2299cbAB56a688C10aB6df868',
+    title: '0x483D22402E3f3361f9c29051F4DFf57B5286f3C6',
+    shelf: '0xfA51964E9f0feA5b67F7d46dB5E37097E8941c5D',
+    pile: '0x5c9bFa27A697B3A7Ac60Bb25AC0FB5C983897AA2',
+    collector: '0x93e4DbD9a341014c475434129C0C0Ce2EaFd4c3d',
+    navFeed: '0xD770cE25E027984B68a9CFea2B28Eba0259B4eb4',
+    borrowerDeployer: '0x0AD0623dB96c77Fa946Fa5c87CB7aFed97bA9B2B',
+    reserveFab: '0x3e5263F2b00585cf025397d233C9252b45187515',
+    assessorFab: '0x8F89dBc3dd9EB009f6e707eAe97b31642dE1976d',
+    trancheFab: '0xD220BdCA0487D41F28ff63cD30642B9BFa50eD3d',
+    memberlistFab: '0x7dc5D2C8f55715c5734de995fdEfCc078cd2545A',
+    restrictedTokenFab: '0x0F13F29060F6Fc0d3C0b6a1Ae48CD68a2e05B7e8',
+    operatorFab: '0x11E94dC72259bD8bCE66a4416d76584305AbA7D7',
+    coordinatorFab: '0xf33C748ea7Cb54007651143F649a8a7fBd295A63',
+    reserve: '0x039d9989D93cC374203Ec7D089b877a419C62E26',
+    assessor: '0x4ffb5e18361Ef45C2e71c7951C8D228e6b50Ad05',
+    coordinator: '0x06BdE99A471e5BF1Cb3425955854424DC2c81822',
+    juniorTranche: '0xAEFa643cEa8F99D4462FC97dDa5feD3FE673C96C',
+    juniorMemberlist: '0x0235746Eaa42d69131306032d53034Bf48B37788',
+    juniorToken: '0xaE48c97D32eFCef8a9bf648cF6B3bca31a60dF51',
+    juniorOperator: '0x1dEa8dB16BF85123c92c89e02a5e4E7811baD37E',
+    seniorTranche: '0xD84817da6a517bF8A1981b24B9c01f3b1C8Ec779',
+    seniorMemberlist: '0xFB3c697320E10772aC36De174E6EB8E99da94306',
+    seniorToken: '0x191427faaB0252607c2dDc68140154Ba4F32c99A',
+    seniorOperator: '0x4746390Cb37Dd029850CA9538dc60b13d63b201E',
+    lenderDeployer: '0xdcfC7a19bEF9fB4F87a77Da9D6f4D8177C5E5D9a',
   }
   const ERC20 = await ethers.getContractFactory("ERC20")
   const Root = await ethers.getContractFactory("GalaxyRoot")
@@ -361,7 +361,8 @@ async function main() {
   const maxReserve = BigNumber.from('10000000000000000001')
   const maxSeniorInterestRate = BigNumber.from('1000000229200000000000000000')
   if (!lenderDeployed) {
-    await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 60 * 60, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
+    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 60 * 60, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
+    await tx.wait()
   }
 
   if (addressBook.juniorToken) {
@@ -466,8 +467,13 @@ async function main() {
     return count
   }
 
-  const setupLoan = async (borrower: Signer, nftPrice: BigNumber, riskGroup: number = 2, maturityDate: number = 1700000000) => {
-    const nft = title
+  async function setupNFT(count: number, ) {
+    const Title = await ethers.getContractFactory("Title")
+    return await Title.deploy(`Collateral NFT ${count}`, `collateralNFT${count}`)
+  }
+
+  const setupLoan = async (count: number, borrower: Signer, nftPrice: BigNumber, riskGroup: number = 2, maturityDate: number = 1700000000) => {
+    const nft = await setupNFT(count)
     const borrowerAddress = await borrower.getAddress()
     let tx
     tx = await nft.issue(borrowerAddress)
@@ -529,11 +535,14 @@ async function main() {
   const validUntil = Math.floor((new Date).getTime() / 1000 + 30 * 86400)
   console.log(await investor1.getAddress())
   console.log(await investor2.getAddress())
+  console.log("Register")
   await registerInvestors(seniorMemberlist, [investor1, investor2], validUntil)
+  console.log("Registered")
 
-  console.log('Setup 20 naos debt for borrower 1 / 30 naos for borrower 2')
-  const borrowRes1 = await setupLoan(borrower1, utils.parseEther('20'))
-  const borrowRes2 = await setupLoan(borrower2, utils.parseEther('30'))
+  console.log('Setup 20 naos debt for borrower 1')
+  const borrowRes1 = await setupLoan(1, borrower1, utils.parseEther('20'))
+  console.log('Setup 30 naos debt for borrower 2')
+  const borrowRes2 = await setupLoan(2, borrower2, utils.parseEther('30'))
   const totalCeiling = borrowRes1.ceiling.add(borrowRes2.ceiling)
   const investAmount = totalCeiling.mul(TENP25).mul(80).div(ONE)
   await supplyOrder(erc20, seniorTranche, seniorOperator, investAmount, [investor1, investor2])
