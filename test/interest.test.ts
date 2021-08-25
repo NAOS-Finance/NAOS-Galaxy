@@ -1,6 +1,6 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
-import { Signer, Contract, BigNumber, utils } from "ethers"
+import { Contract, BigNumber, utils } from "ethers"
 import { timeFly } from "./utils"
 
 describe("Interest", function () {

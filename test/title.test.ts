@@ -1,6 +1,6 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
-import { Signer, Contract, BigNumber, utils } from "ethers"
+import { Signer, Contract } from "ethers"
 
 describe("Title", function () {
   let accounts: Signer[]

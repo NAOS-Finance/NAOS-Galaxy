@@ -5,8 +5,7 @@ import { zeroPadEnd, percentToBig, timeFly, now, ONE } from "./utils"
 import { NAVFeedMock } from '../types/NAVFeedMock'
 import { TrancheMock } from '../types/TrancheMock'
 import { Assessor } from '../types/Assessor'
-import { parseEther, toUtf8Bytes } from "ethers/lib/utils"
-import { ContractFunctionVisibility } from "hardhat/internal/hardhat-network/stack-traces/model"
+import { toUtf8Bytes } from "ethers/lib/utils"
 
 describe("Assessor", function () {
   let accounts: Signer[]
