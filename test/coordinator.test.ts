@@ -82,6 +82,13 @@ describe("Coordinator", function () {
     return 86400 - (await now() - (await coordinator.lastEpochClosed()).toNumber())
   }
 
+  const calcNewSeniorRatio = (model: Record<string,any>, input: Record<string,any>) => {
+    let currencyAvailable = model.reserve.add(input.seniorSupply).add(input.juniorSupply)
+    let currencyOut = input.seniorRedeem.add(input.juniorRedeem)
+    let seniorAsset = model.seniorBalance.add(model.seniorDebt).add(input.seniorSupply).sub(input.seniorRedeem)
+
+    return rdiv(seniorAsset, model.NAV.add(currencyAvailable).sub(currencyOut))
+  }
   beforeEach(async () => {
     accounts = await ethers.getSigners()
     seniorTranche = await (await ethers.getContractFactory("TrancheMock")).deploy() as TrancheMock
@@ -328,5 +335,186 @@ describe("Coordinator", function () {
       seniorAsset = await coordinator.calcSeniorAssetValue(seniorRedeem, seniorSupply, currSeniorAsset, newReserve, model.NAV)
       expect(seniorAsset).to.be.eq(utils.parseEther("90"))
     })
+  })
+
+  describe("ImprovementScore", function () {
+    it("Should ScoreRatioImprovement", async () => {
+      const model = defaultModel
+      await initTestConfig(model)
+
+      let newSeniorRatio = percentToBig(92)
+
+      let score = await coordinator.scoreRatioImprovement({ value: newSeniorRatio })
+
+      newSeniorRatio = percentToBig(91)
+      let betterScore = await coordinator.scoreRatioImprovement({ value: newSeniorRatio })
+
+      expect(betterScore).to.be.gt(score)
+
+      // healthy
+      newSeniorRatio = percentToBig(83)
+      let healthyRatio = percentToBig(81)
+      let healthyScore1 = await coordinator.scoreRatioImprovement({ value: newSeniorRatio })
+      let healthyScore2 = await coordinator.scoreRatioImprovement({ value: healthyRatio })
+      expect(healthyScore1).to.be.eq(healthyScore2)
+    })
+
+    it("Should ReserveImprovement", async () => {
+      const model = defaultModel
+      model.maxReserve = utils.parseEther("1000")
+      await initTestConfig(model)
+
+      let score = await coordinator.scoreReserveImprovement(utils.parseEther("1200"))
+      let betterScore = await coordinator.scoreReserveImprovement(utils.parseEther("1100"))
+
+      expect(betterScore).to.be.gt(score)
+
+      let healthyScore1 = await coordinator.scoreReserveImprovement(utils.parseEther("1000"))
+      let healthyScore2 = await coordinator.scoreReserveImprovement(utils.parseEther("900"))
+      expect(healthyScore1).to.be.eq(healthyScore2)
+    })
+
+    it("Should ScoreImprovementRatio", async () => {
+      const model = defaultModel
+      model.seniorRedeemOrder = utils.parseEther("1000")
+      model.maxReserve = utils.parseEther("1000")
+
+      // sets ratio to 0.9230
+      model.seniorBalance = utils.parseEther("500")
+      model.reserve = utils.parseEther("500")
+      await initTestConfig(model)
+      await timeFly(1, true)
+      await coordinator.closeEpoch()
+
+      let seniorAsset = await coordinator.calcSeniorAssetValue(0, 0, model.seniorDebt.add(model.seniorBalance), model.reserve, model.NAV)
+      let currRatio = await coordinator.calcSeniorRatio(seniorAsset, model.reserve, model.NAV)
+      expect(currRatio).to.be.gt(model.maxSeniorRatio)
+
+      let solution = {
+        seniorRedeem : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorSupply : utils.parseEther("20"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      let newRatio = calcNewSeniorRatio(model, solution)
+      expect(newRatio).to.be.gt(currRatio)
+
+      let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+      expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+      expect(await coordinator.bestSubScore()).to.be.eq(0)
+
+      solution = {
+        seniorRedeem : utils.parseEther("20"),
+        juniorSupply : utils.parseEther("0"),
+        seniorSupply : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      newRatio = calcNewSeniorRatio(model, solution)
+      expect(newRatio).to.be.gt(model.maxSeniorRatio)
+
+      res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.NEW_BEST())
+      expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+      expect(await coordinator.bestSubScore()).to.be.eq(0)
+
+      solution = {
+        seniorRedeem : utils.parseEther("80"),
+        juniorSupply : utils.parseEther("0"),
+        seniorSupply : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      newRatio = calcNewSeniorRatio(model, solution)
+      expect(newRatio).to.be.gt(model.maxSeniorRatio)
+
+      res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.NEW_BEST())
+      expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+      expect(await coordinator.bestSubScore()).to.be.eq(0)
+
+      solution = {
+        seniorRedeem : utils.parseEther("500"),
+        juniorSupply : utils.parseEther("100"),
+        seniorSupply : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      newRatio = calcNewSeniorRatio(model, solution)
+      expect(newRatio).to.be.lte(currRatio)
+
+      res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.NEW_BEST())
+      expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
+      expect(await coordinator.bestSubScore()).not.be.eq(0)
+    })
+
+    // it("Should ScoreImprovementMaxReserve", async () => {
+    //   const model = defaultModel
+    //   model.maxReserve = utils.parseEther("200")
+    //   model.reserve = utils.parseEther("210")
+    //   model.seniorSupplyOrder = utils.parseEther("300")
+    //   model.juniorRedeemOrder = utils.parseEther("300")
+    //   await initTestConfig(model)
+    //   await timeFly(1, true)
+    //   await coordinator.closeEpoch()
+
+    //   let seniorAsset = await coordinator.calcSeniorAssetValue(0, 0, model.seniorDebt.add(model.seniorBalance), model.reserve, model.NAV)
+    //   let currRatio = await coordinator.calcSeniorRatio(seniorAsset, model.reserve, model.NAV)
+    //   expect(currRatio).to.be.lte(model.maxSeniorRatio)
+    //   expect(currRatio).to.be.gte(model.minSeniorRatio)
+
+    //   let solution = {
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorSupply : utils.parseEther("10"),
+    //     juniorRedeem : utils.parseEther("0")
+    //   }
+
+    //   let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+
+    //   solution = {
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorSupply : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("5")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.NEW_BEST())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+
+    //   solution = {
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorSupply : utils.parseEther("270"),
+    //     juniorRedeem : utils.parseEther("300")
+    //   }
+    //   let newRatio = calcNewSeniorRatio(model, solution)
+    //   expect(newRatio).to.be.gt(model.maxSeniorRatio)
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+
+    //   solution = {
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorSupply : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("3")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.NEW_BEST())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
+    // })
   })
 })
