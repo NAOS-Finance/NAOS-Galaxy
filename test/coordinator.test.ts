@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { zeroPadEnd, percentToBig, timeFly, now, ONE, rdiv } from "./utils"
+import { zeroPadEnd, percentToBig, timeFly, now, ONE, MAX_UINT256, rdiv, rmul } from "./utils"
 import { NAVFeedMock } from '../types/NAVFeedMock'
 import { TrancheMock } from '../types/TrancheMock'
 import { AssessorMock } from '../types/AssessorMock'
@@ -89,6 +89,23 @@ describe("Coordinator", function () {
 
     return rdiv(seniorAsset, model.NAV.add(currencyAvailable).sub(currencyOut))
   }
+
+  const compareWithBest = async (model: Record<string,any>) => {
+    const bestSubmission = await coordinator.bestSubmission()
+    expect(bestSubmission.seniorRedeem).to.be.eq(model.seniorRedeem)
+    expect(bestSubmission.juniorRedeem).to.be.eq(model.juniorRedeem)
+    expect(bestSubmission.seniorSupply).to.be.eq(model.seniorSupply)
+    expect(bestSubmission.juniorSupply).to.be.eq(model.juniorSupply)
+  }
+
+  const checkPoolPrecondition = async (model: Record<string,any>, currSeniorRatioInRange: boolean, reserveHealthy: boolean) => {
+    // check if current ratio is healthy
+    const currSeniorRatio = await coordinator.calcSeniorRatio(await coordinator.epochSeniorAsset(), await coordinator.epochNAV(), await coordinator.epochReserve())
+
+    expect(await coordinator.checkRatioInRange({ value: currSeniorRatio }, { value: model.minSeniorRatio }, { value: model.maxSeniorRatio })).to.be.eq(currSeniorRatioInRange)
+    expect(((await coordinator.epochReserve()).lte(await assessor.maxReserve()))).to.be.eq(reserveHealthy)
+}
+
   beforeEach(async () => {
     accounts = await ethers.getSigners()
     seniorTranche = await (await ethers.getContractFactory("TrancheMock")).deploy() as TrancheMock
@@ -462,7 +479,7 @@ describe("Coordinator", function () {
     //   await coordinator.closeEpoch()
 
     //   let seniorAsset = await coordinator.calcSeniorAssetValue(0, 0, model.seniorDebt.add(model.seniorBalance), model.reserve, model.NAV)
-    //   let currRatio = await coordinator.calcSeniorRatio(seniorAsset, model.reserve, model.NAV)
+    //   let currRatio = await coordinator.calcSeniorRatio(seniorAsset, model.NAV, model.reserve)
     //   expect(currRatio).to.be.lte(model.maxSeniorRatio)
     //   expect(currRatio).to.be.gte(model.minSeniorRatio)
 
@@ -516,5 +533,280 @@ describe("Coordinator", function () {
     //   expect(res).to.be.eq(await coordinator.NEW_BEST())
     //   expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
     // })
+  })
+
+  describe("SubmitEpoch", function () {
+    it("Should MaxImprovementScore", async () => {
+      const maxOrder = BigNumber.from(10).pow(36)
+      const score = await coordinator.scoreSolution(maxOrder, maxOrder, maxOrder, maxOrder)
+      expect(score).to.be.lte(MAX_UINT256)
+      let maxDistancePoints = rmul(await coordinator.IMPROVEMENT_WEIGHT(), rdiv(ONE, BigNumber.from(1)))
+      expect(await coordinator.BIG_NUMBER()).to.be.gt(maxDistancePoints)
+      // maxDistancePoints = rmul(await coordinator.IMPROVEMENT_WEIGHT(), rdiv(ONE, BigNumber.from(1)))
+      // expect(await coordinator.BIG_NUMBER()).to.be.gt(maxDistancePoints)
+    })
+
+    it("Should FailNoSubmission", async () => {
+      await expect(
+        coordinator.submitSolution(utils.parseEther("10"), utils.parseEther("10"), utils.parseEther("10"), utils.parseEther("10"))
+      ).to.be.revertedWith("")
+    })
+
+    it("Should FailNoSubmissionLongTime", async () => {
+      await timeFly(10, true)
+      await expect(
+        coordinator.submitSolution(utils.parseEther("10"), utils.parseEther("10"), utils.parseEther("10"), utils.parseEther("10"))
+      ).to.be.revertedWith("")
+    })
+
+    it("Should FailNoSubmissionRequired", async () => {
+      let model = defaultModel
+      await initTestConfig(model)
+      await timeFly(1, true)
+      await coordinator.closeEpoch()
+      await coordinator.submitSolution(utils.parseEther("10"), utils.parseEther("10"), utils.parseEther("10"), utils.parseEther("10"))
+    })
+
+    // it("Should SubmitSolution", async () => {
+    //   const model = defaultModel
+    //   model.seniorSupplyOrder = utils.parseEther("10000")
+    //   await initTestConfig(model)
+    //   await timeFly(1, true)
+    //   await coordinator.closeEpoch()
+
+    //   let solution = {
+    //     seniorSupply : utils.parseEther("1"),
+    //     juniorSupply : utils.parseEther("2"),
+    //     seniorRedeem : utils.parseEther("3"),
+    //     juniorRedeem : utils.parseEther("4")
+    //   }
+
+    //   let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+    //   await compareWithBest(solution)
+
+    //   let challengeEnd = (await now()) + 3600
+    //   expect(await coordinator.minChallengePeriodEnd()).to.be.eq(challengeEnd)
+    //   await timeFly(1/12, true)
+
+    //   let betterSolution = {
+    //     seniorSupply : utils.parseEther("2"),
+    //     juniorSupply : utils.parseEther("3"),
+    //     seniorRedeem : utils.parseEther("4"),
+    //     juniorRedeem : utils.parseEther("5")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(betterSolution.seniorRedeem, betterSolution.juniorRedeem, betterSolution.juniorSupply, betterSolution.seniorSupply)
+    //   await coordinator.submitSolution(betterSolution.seniorRedeem, betterSolution.juniorRedeem, betterSolution.juniorSupply, betterSolution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.SUCCESS())
+    //   await compareWithBest(betterSolution)
+
+    //   expect(await coordinator.minChallengePeriodEnd()).to.be.eq(challengeEnd)
+    //   await timeFly(1/12, true)
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+
+    //   solution.seniorSupply = utils.parseEther("2")
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+
+    //   solution.seniorSupply = utils.parseEther("100000000")
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_MAX_ORDER())
+    // })
+
+    it("Should SubmitEpochUnhealthyState", async () => {
+      const model = defaultModel
+      model.seniorSupplyOrder = utils.parseEther("10000")
+      model.maxReserve = utils.parseEther("1000")
+      model.reserve = utils.parseEther("1150")
+      model.seniorBalance = utils.parseEther("850")
+      await initTestConfig(model)
+      await timeFly(1, true)
+      await coordinator.closeEpoch()
+
+      let currSeniorRatioInRange = true
+      let reserveHealthy = false
+      await checkPoolPrecondition(model, currSeniorRatioInRange, reserveHealthy)
+
+      let solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("100"),
+        juniorRedeem : utils.parseEther("100")
+      }
+
+      let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.SUCCESS())
+      expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
+    })
+
+    // it("Should SubmitImprovement", async () => {
+    //   const model = defaultModel
+    //   model.seniorSupplyOrder = utils.parseEther("10000")
+    //   model.juniorRedeemOrder = utils.parseEther("10000")
+    //   model.maxReserve = utils.parseEther("1000")
+    //   model.reserve = utils.parseEther("1150")
+    //   await initTestConfig(model)
+    //   await timeFly(1, false)
+    //   await coordinator.closeEpoch()
+
+    //   let currSeniorRatioInRange = false
+    //   let reserveHealthy = false
+    //   await checkPoolPrecondition(model, currSeniorRatioInRange, reserveHealthy)
+
+    //   let solution = {
+    //     seniorSupply : utils.parseEther("800"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("0")
+    //   }
+
+    //   let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.SUCCESS())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+
+    //   solution = {
+    //     seniorSupply : utils.parseEther("800"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("500")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.SUCCESS())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+
+    //   solution = {
+    //     seniorSupply : utils.parseEther("300"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("1000")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.SUCCESS())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(false)
+
+    //   solution = {
+    //     seniorSupply : utils.parseEther("0"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("950")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.SUCCESS())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
+
+    //   solution = {
+    //     seniorSupply : utils.parseEther("300"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorRedeem : utils.parseEther("0"),
+    //     juniorRedeem : utils.parseEther("1000")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
+
+    //   solution = {
+    //     seniorSupply : utils.parseEther("250"),
+    //     juniorSupply : utils.parseEther("0"),
+    //     seniorRedeem : utils.parseEther("50"),
+    //     juniorRedeem : utils.parseEther("950")
+    //   }
+
+    //   res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+    //   expect(res).to.be.eq(await coordinator.SUCCESS())
+    //   expect(await coordinator.gotFullValidSolution()).to.be.eq(true)
+    // })
+
+    it("Should NoImprovementPossibleReserveViolated", async () => {
+      const model = defaultModel
+      model.seniorRedeemOrder = 0
+      model.juniorRedeemOrder = 0
+      model.maxReserve = utils.parseEther("200")
+      model.reserve = utils.parseEther("210")
+      await initTestConfig(model)
+      await timeFly(1, false)
+      await coordinator.closeEpoch()
+
+      // let currSeniorRatioInRange = true
+      // let reserveHealthy = false
+      // await checkPoolPrecondition(model, currSeniorRatioInRange, reserveHealthy)
+
+      let solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      expect(await coordinator.minChallengePeriodEnd()).to.be.eq(0)
+
+      let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.NEW_BEST())
+      expect(await coordinator.minChallengePeriodEnd()).to.be.gt(0)
+
+      solution = {
+        seniorSupply : utils.parseEther("1"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+
+      res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.ERR_NOT_NEW_BEST())
+    })
+
+    it("Should NoImprovementPossibleRatioViolated", async () => {
+      const model = defaultModel
+      model.seniorRedeemOrder = 0
+      model.juniorRedeemOrder = 0
+      model.maxReserve = utils.parseEther("10000")
+      model.reserve = utils.parseEther("1000")
+      await initTestConfig(model)
+      await timeFly(1, false)
+      await coordinator.closeEpoch()
+
+      let currSeniorRatioInRange = false
+      let reserveHealthy = true
+      await checkPoolPrecondition(model, currSeniorRatioInRange, reserveHealthy)
+
+      let solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      expect(await coordinator.minChallengePeriodEnd()).to.be.eq(0)
+
+      let res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.NEW_BEST())
+      expect(await coordinator.minChallengePeriodEnd()).to.be.gt(0)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("1"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+
+      res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
+      expect(res).to.be.eq(await coordinator.NEW_BEST())
+    })
   })
 })

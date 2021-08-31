@@ -33,6 +33,8 @@ export const zeroPadEnd = (src: Uint8Array, length:number): Uint8Array => {
 
 export const ONE = BigNumber.from('1000000000000000000000000000')
 
+export const MAX_UINT256 = BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
+
 export const percentToBig = (percent: number): BigNumber => {
   if (percent <= 0 || percent >= 100) {
     throw new Error('invalid percent value')
@@ -51,4 +53,8 @@ export const mul = (x:BigNumber, y:BigNumber): BigNumber => {
 
 export const rdiv = (x:BigNumber, y:BigNumber): BigNumber => {
   return x.mul(ONE).add(y.div(2)).div(y)
+}
+
+export const rmul = (x:BigNumber, y:BigNumber): BigNumber => {
+  return x.mul(y).div(ONE)
 }
