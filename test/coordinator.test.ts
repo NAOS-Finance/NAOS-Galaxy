@@ -8,6 +8,7 @@ import { AssessorMock } from '../types/AssessorMock'
 import { ReserveMock } from '../types/ReserveMock'
 import { EpochCoordinator } from '../types/EpochCoordinator'
 import { toUtf8Bytes } from "ethers/lib/utils"
+import { stringify } from "querystring"
 
 describe("Coordinator", function () {
 
@@ -807,6 +808,193 @@ describe("Coordinator", function () {
       res = await coordinator.callStatic.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
       await coordinator.submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply)
       expect(res).to.be.eq(await coordinator.NEW_BEST())
+    })
+  })
+
+  describe("Validate", function () {
+    const cleanUpTestCase = async () => {
+      if(await coordinator.submissionPeriod() == true) {
+        const status = await coordinator.callStatic.submitSolution(0, 0, 0, 0)
+        await coordinator.submitSolution(0, 0, 0, 0)
+        expect(status).to.be.eq(await coordinator.SUCCESS())
+        await timeFly(1, true)
+        await coordinator.executeEpoch()
+      }
+    }
+
+  const executeTestCase = async (model: Record<string,any>, input: Record<string,any>, status: number) => {
+      await initTestConfig(model)
+      await timeFly(1, true)
+      await coordinator.closeEpoch()
+
+      let res = await coordinator.validate(input.seniorRedeem, input.juniorRedeem, input.seniorSupply, input.juniorSupply)
+
+      expect(status).to.be.eq(res)
+
+      await cleanUpTestCase()
+    }
+
+    it("Should BasicValidate", async () => {
+      let model = defaultModel
+
+      let solution = {
+        seniorSupply : utils.parseEther("10"),
+        juniorSupply : utils.parseEther("10"),
+        seniorRedeem : utils.parseEther("10"),
+        juniorRedeem : utils.parseEther("10")
+      }
+      await executeTestCase(model, solution, -2)
+
+      solution = {
+        seniorSupply : utils.parseEther("100"),
+        juniorSupply : utils.parseEther("100"),
+        seniorRedeem : utils.parseEther("100"),
+        juniorRedeem : utils.parseEther("100")
+      }
+      await executeTestCase(model, solution, -2)
+
+      solution = {
+        seniorSupply : utils.parseEther("101"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -5)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("101"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -2)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("101"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -2)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("101")
+      }
+      await executeTestCase(model, solution, -2)
+    })
+
+    it("Should CurrencyAvailable", async () => {
+      let model = defaultModel
+      model.seniorRedeemOrder = utils.parseEther("1000")
+      model.reserve = utils.parseEther("100")
+      model.NAV = utils.parseEther("900")
+
+      let solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("101"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -1)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("51"),
+        juniorRedeem : utils.parseEther("50")
+      }
+      await executeTestCase(model, solution, -1)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("50"),
+        juniorRedeem : utils.parseEther("50")
+      }
+      await executeTestCase(model, solution, -2)
+    })
+
+    it("Should MaxReserve", async () => {
+      let model = defaultModel
+      model.maxReserve = utils.parseEther("210")
+
+      let solution = {
+        seniorSupply : utils.parseEther("11"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      // why not -3
+      await executeTestCase(model, solution, -5)
+    })
+
+    it("Should SeniorRatioTooHigh", async () => {
+      let model = defaultModel
+      model.seniorSupplyOrder = utils.parseEther("1000")
+
+      let solution = {
+        seniorSupply : utils.parseEther("1000"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -3)
+
+      solution = {
+        seniorSupply : utils.parseEther("334"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -3)
+
+      solution = {
+        seniorSupply : utils.parseEther("333"),
+        juniorSupply : utils.parseEther("0"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -3)
+    })
+
+    it("Should SeniorRatioTooLow", async () => {
+      let model = defaultModel
+      model.juniorSupplyOrder = utils.parseEther("1000")
+
+      let solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("1000"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -3)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("50"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -5)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("66"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -5)
+
+      solution = {
+        seniorSupply : utils.parseEther("0"),
+        juniorSupply : utils.parseEther("67"),
+        seniorRedeem : utils.parseEther("0"),
+        juniorRedeem : utils.parseEther("0")
+      }
+      await executeTestCase(model, solution, -5)
     })
   })
 })
