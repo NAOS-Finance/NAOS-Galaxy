@@ -8,8 +8,6 @@ describe("Memberlist", function () {
 
   let accounts: Signer[]
   let memberlist: Contract
-  let testMemberlist1: Contract
-  let testMemberlist2: Contract
   let memberlistValidity:number
 
   beforeEach(async () => {
