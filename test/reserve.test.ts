@@ -15,7 +15,6 @@ describe("Reserve", function () {
   let reserve: Contract
   let token: Contract
   let assessor: Contract
-  let memberlistValidity:number
 
   const fundReserve = async (addr: string, amount: BigNumber) => {
     await token.mint(addr, amount)
