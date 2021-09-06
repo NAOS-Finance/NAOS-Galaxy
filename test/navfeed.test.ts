@@ -361,6 +361,47 @@ describe("NAVFeed", function () {
     expect(navDecrease).to.be.eq(repayAmount)
   })
 
+  it('Should RemoveBuckets', async () => {
+    const buckets = [
+      BigNumber.from('52500000000000000000'),
+      BigNumber.from('55125000000000000000'),
+      BigNumber.from('121550625000000000000'),
+      BigNumber.from('63814078125000000000')
+    ]
+    const tokenIdForBuckets = [
+      BigNumber.from('4'),
+      BigNumber.from('1'),
+      BigNumber.from('3'),
+      BigNumber.from('2')
+    ]
+    await setupLinkedListBuckets()
+
+    let idx = 1
+    let padded = zeroPadEnd(utils.toUtf8Bytes("shelf"), 32)
+    await shelf["setReturn(bytes32,address,uint256)"](padded, mockNFTRegistry, tokenIdForBuckets[idx])
+
+    padded = zeroPadEnd(utils.toUtf8Bytes("debt_loan"), 32)
+    await pile["setReturn(bytes32,uint256)"](padded, buckets[idx])
+    await feed.repay(tokenIdForBuckets[idx], buckets[idx])
+    expect(await listLen()).to.be.eq(3)
+
+    idx = 0
+    padded = zeroPadEnd(utils.toUtf8Bytes("shelf"), 32)
+    await shelf["setReturn(bytes32,address,uint256)"](padded, mockNFTRegistry, tokenIdForBuckets[idx])
+    padded = zeroPadEnd(utils.toUtf8Bytes("debt_loan"), 32)
+    await pile["setReturn(bytes32,uint256)"](padded, buckets[idx])
+    await feed.repay(tokenIdForBuckets[idx], buckets[idx])
+    expect(await listLen()).to.be.eq(2)
+
+    idx = 3
+    padded = zeroPadEnd(utils.toUtf8Bytes("shelf"), 32)
+    await shelf["setReturn(bytes32,address,uint256)"](padded, mockNFTRegistry, tokenIdForBuckets[idx])
+    padded = zeroPadEnd(utils.toUtf8Bytes("debt_loan"), 32)
+    await pile["setReturn(bytes32,uint256)"](padded, buckets[idx])
+    await feed.repay(tokenIdForBuckets[idx], buckets[idx])
+    expect(await listLen()).to.be.eq(1)
+  })
+
   it('Should WriteOffs', async () => {
     let amount = utils.parseEther('100')
     let padded = zeroPadEnd(utils.toUtf8Bytes("rate_debt"), 32)
