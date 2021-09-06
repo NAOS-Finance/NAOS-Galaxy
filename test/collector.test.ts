@@ -6,7 +6,7 @@ import { zeroPadEnd } from "./utils"
 describe("Collector", function () {
   const loan = BigNumber.from(1)
   const amount = BigNumber.from(100)
-  const tokenId = BigNumber.from(55)
+  const tokenId = BigNumber.from(123)
   let accounts: Signer[]
   let nft: Contract
   let pile: Contract
@@ -68,7 +68,7 @@ describe("Collector", function () {
   }
 
   it("Should SeizeCollect", async () => {
-    const signerAddress = await accounts[0].getAddress()
+    const signerAddress = collector.address
     await collector.relyCollector(signerAddress)
     const price = amount.sub(1)
     await setupLoan()
@@ -79,21 +79,21 @@ describe("Collector", function () {
     await collect(signerAddress, price)
   })
 
-  // it("Should SeizeCollectAnyUser", async () => {
-  //   const signerAddress = await accounts[0].getAddress()
-  //   const signerAddress2 = await accounts[1].getAddress()
-  //   await collector.relyCollector(signerAddress)
-  //   const price = amount.sub(1)
-  //   await setupLoan()
-  //   let padded = zeroPadEnd(utils.toUtf8Bytes("loan"), 32)
-  //   await collector.file(padded, loan, signerAddress2, price)
-  //   await nft.setThreshold(loan, price)
-  //   await seize()
-  //   await collect(signerAddress, price)
-  // })
+  it("Should SeizeCollectAnyUser", async () => {
+    const signerAddress = collector.address
+    const signerAddress2 = '0x0000000000000000000000000000000000000000'
+    await collector.relyCollector(signerAddress)
+    const price = amount.sub(1)
+    await setupLoan()
+    let padded = zeroPadEnd(utils.toUtf8Bytes("loan"), 32)
+    await collector.file(padded, loan, signerAddress2, price)
+    await nft.setThreshold(loan, price)
+    await seize()
+    await collect(signerAddress, price)
+  })
 
   it("Should FailSeizeThresholdNotReached", async () => {
-    const signerAddress = await accounts[0].getAddress()
+    const signerAddress = collector.address
     await collector.relyCollector(signerAddress)
     const price = amount.add(1)
     await setupLoan()
@@ -106,8 +106,8 @@ describe("Collector", function () {
   })
 
   it("Should FailSeizeCollectUnauthorizedUser", async () => {
-    const signerAddress = await accounts[0].getAddress()
-    const signerAddress2 = await accounts[1].getAddress()
+    const signerAddress = collector.address
+    const signerAddress2 = '0x0000000000000000000000000000000000000001'
     await collector.relyCollector(signerAddress)
     const price = amount.sub(1)
     await setupLoan()
@@ -121,7 +121,7 @@ describe("Collector", function () {
   })
 
   it("Should FailNoPriceDefined", async () => {
-    const signerAddress = await accounts[0].getAddress()
+    const signerAddress = collector.address
     await collector.relyCollector(signerAddress)
     const price = BigNumber.from(0)
     await setupLoan()
