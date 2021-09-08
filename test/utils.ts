@@ -1,4 +1,4 @@
-import { ethers } from "hardhat"
+import { ethers, network } from "hardhat"
 import { BigNumber, utils } from "ethers"
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -6,10 +6,12 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 // There are some issues with ganache increase time, have
 // to fix this later.
 export const timeFly = async (days:number, mine:boolean=false) => {
+  const blockNow = await now()
+  const dateNow = Math.round((new Date()).getTime() / 1000)
   const timeDiff = Math.round(days * 86400)
-  await ethers.provider.send('evm_increaseTime', [ timeDiff ])
+  await ethers.provider.send('evm_increaseTime', [ timeDiff + (blockNow - dateNow) ])
   if (mine) {
-    return await ethers.provider.send('evm_mine', [])
+    return await ethers.provider.send('evm_mine', [ blockNow + timeDiff ])
   }
   return true
 }
