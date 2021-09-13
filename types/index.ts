@@ -105,6 +105,7 @@ export type { CoordinatorSubmitEpochTest } from "./CoordinatorSubmitEpochTest";
 export type { CoordinatorValidateTest } from "./CoordinatorValidateTest";
 export type { MemberlistTest } from "./MemberlistTest";
 export type { AssessorMock } from "./AssessorMock";
+export type { EpochTickerMock } from "./EpochTickerMock";
 export type { NAVFeedMock } from "./NAVFeedMock";
 export type { PoolMock } from "./PoolMock";
 export type { CurrencyLike } from "./CurrencyLike";
@@ -255,6 +256,7 @@ export { CoordinatorSubmitEpochTest__factory } from "./factories/CoordinatorSubm
 export { CoordinatorValidateTest__factory } from "./factories/CoordinatorValidateTest__factory";
 export { MemberlistTest__factory } from "./factories/MemberlistTest__factory";
 export { AssessorMock__factory } from "./factories/AssessorMock__factory";
+export { EpochTickerMock__factory } from "./factories/EpochTickerMock__factory";
 export { NAVFeedMock__factory } from "./factories/NAVFeedMock__factory";
 export { PoolMock__factory } from "./factories/PoolMock__factory";
 export { CurrencyLike__factory } from "./factories/CurrencyLike__factory";

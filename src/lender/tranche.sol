@@ -23,6 +23,7 @@ import "./../fixed_point.sol";
 interface ERC20Like {
     function balanceOf(address) external view returns (uint);
     function transferFrom(address, address, uint) external returns (bool);
+    function transfer(address, uint) external returns (bool);
     function mint(address, uint) external;
     function burn(address, uint) external;
     function totalSupply() external view returns (uint);
@@ -202,7 +203,7 @@ contract Tranche is Math, Auth, FixedPoint {
         if(amount > max) {
             amount = max;
         }
-        require(erc20.transferFrom(self, usr, amount), "token-transfer-failed");
+        require(erc20.transfer(usr, amount), "token-transfer-failed");
     }
 
     // the disburse function can be used after an epoch is over to receive currency and tokens
@@ -336,7 +337,7 @@ contract Tranche is Math, Auth, FixedPoint {
 
     // recovery transfer can be used by governance to recover funds if tokens are stuck
     function authTransfer(address erc20, address usr, uint amount) public auth {
-        ERC20Like(erc20).transferFrom(self, usr, amount);
+        ERC20Like(erc20).transfer(usr, amount);
     }
 
     // due to rounding in token & currency conversions currency & token balances might be off by 1 wei with the totalSupply/totalRedeem amounts.

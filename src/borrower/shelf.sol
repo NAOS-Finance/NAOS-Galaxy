@@ -37,6 +37,7 @@ contract TokenLike {
     uint public totalSupply;
     function balanceOf(address) public view returns (uint);
     function transferFrom(address,address,uint) public returns (bool);
+    function transfer(address,uint) public returns (bool);
     function approve(address, uint) public;
 }
 
@@ -96,7 +97,9 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
     /// sets the dependency to another contract
     function depend(bytes32 contractName, address addr) external auth {
         if (contractName == "lender") {
-            currency.approve(lender, uint(0));
+            if (lender != address(0)) {
+                currency.approve(lender, uint(0));
+            }
             currency.approve(addr, uint(-1));
             lender = addr;
         }
@@ -176,7 +179,7 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         distributor.balance();
         balances[loan] = safeSub(balances[loan], currencyAmount);
         balance = safeSub(balance, currencyAmount);
-        require(currency.transferFrom(address(this), usr, currencyAmount), "currency-transfer-failed");
+        require(currency.transfer(usr, currencyAmount), "currency-transfer-failed");
     }
 
     /// repays the entire or partial debt of a loan

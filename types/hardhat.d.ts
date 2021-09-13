@@ -529,6 +529,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DistributorMock__factory>;
     getContractFactory(
+      name: "EpochTickerMock",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.EpochTickerMock__factory>;
+    getContractFactory(
       name: "NAVFeedMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.NAVFeedMock__factory>;

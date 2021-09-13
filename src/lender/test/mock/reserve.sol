@@ -21,6 +21,7 @@ import "../../../test/mock/mock.sol";
 
 interface CurrencyLike {
     function transferFrom(address from, address to, uint amount) external;
+    function transfer(address to,uint256 amount) external;
     function balanceOf(address usr) external returns (uint);
 }
 
@@ -49,7 +50,7 @@ contract ReserveMock is Mock, Auth {
     }
     function payout(uint amount) public {
         values_uint["deposit_amount"] = amount;
-        currency.transferFrom(address(this), msg.sender, amount);
+        currency.transfer(msg.sender, amount);
     }
 }
 

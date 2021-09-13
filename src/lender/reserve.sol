@@ -12,6 +12,11 @@ contract ERC20Like {
         uint256
     ) public returns (bool);
 
+    function transfer(
+        address,
+        uint256
+    ) public returns (bool);
+
     function mint(address, uint256) public;
 
     function burn(address, uint256) public;
@@ -91,7 +96,7 @@ contract Reserve is Math, Auth {
     }
 
     function _payout(address usr, uint currencyAmount)  internal {
-      require(currency.transferFrom(self, usr, currencyAmount), "reserve-payout-failed");
+      require(currency.transfer(usr, currencyAmount), "reserve-payout-failed");
       balance_ = safeSub(balance_, currencyAmount);
     }
 
