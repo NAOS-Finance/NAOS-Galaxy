@@ -189,6 +189,29 @@ describe("Tranche", function () {
     await tranche.epochUpdate(epochID, 0, 0, 0, 0, 0)
   })
 
+  it("Should getTokenPriceByEpoch", async () => {
+    let amount = parseEther("100")
+    await redeemOrder(accounts[0], amount)
+
+    let padded = zeroPadEnd(toUtf8Bytes("balance"), 32)
+    await reserve["setReturn(bytes32,uint256)"](padded, MAX_UINT256)
+
+    // 60 % fulfillment
+    let supplyFulfillment_ = BigNumber.from(0)
+    let redeemFulfillment_ = percentToBig(70)
+    let tokenPrice_ = ONE
+
+    await closeAndUpdate(supplyFulfillment_, redeemFulfillment_, tokenPrice_)
+    let epochID = await epochTicker.currentEpoch()
+    expect(await tranche.getTokenPriceByEpoch(epochID)).to.be.eq(BigNumber.from(0))
+
+    epochID = epochID.sub(1)
+    expect(await tranche.getTokenPriceByEpoch(epochID)).to.be.eq(tokenPrice_)
+
+    epochID = epochID.add(1)
+    expect(await tranche.getTokenPriceByEpoch(epochID)).to.be.eq(BigNumber.from(0))
+  })
+
   it("Should MultipleRedeem", async () => {
     let amount = parseEther("100")
     await redeemOrder(accounts[0], amount)

@@ -96,6 +96,10 @@ contract Tranche is Math, Auth, FixedPoint {
         return token.totalSupply();
     }
 
+    function getTokenPriceByEpoch(uint _epoch) external view returns (uint) {
+        return epochs[_epoch].tokenPrice.value;
+    }
+
     function depend(bytes32 contractName, address addr) public auth {
         if (contractName == "token") {token = ERC20Like(addr);}
         else if (contractName == "currency") {currency = ERC20Like(addr);}
