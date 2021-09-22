@@ -1,21 +1,16 @@
-import { ethers, run } from "hardhat"
+import { ethers } from "hardhat"
 import { Contract, Signer, utils, BigNumber } from "ethers"
+import { addressBook, verifyContract, ZERO_ADDRESS } from "./utils"
 
 async function main() {
-  const verifyContract = (address: string, params: Array<any>=[]) => {
-    return run("verify:verify", {
-      address: address,
-      constructorArguments: params,
-    })
-  }
   const { BigNumber } = ethers
   const discountRate = BigNumber.from('1000000342100000000000000000')
-  const tokenName = "NAOS Loan Token"
-  const tokenSymbol = "naos"
+  const tokenName = "NAOS Mock Token"
+  const tokenSymbol = "naos-mock"
   const TENP25 = BigNumber.from(10).pow(25)
   const signers = await ethers.getSigners()
   if (signers.length <= 0) {
-    throw new Error("Couldn't find a signer")
+    throw new Error("Couldn't find any signer")
   }
   const d = []
   for (let i=0; i<signers.length; i++) {
@@ -27,40 +22,6 @@ async function main() {
     })
   }
   const signer = signers[0]
-  const addressBook = {
-    erc20: '0x6897B9D65dB1c348C81c895551705bB3f9FD2301',
-    root: '0x254fe9f22586C32d259fc581B616b8f928B35aa8',
-    titleFab: '0xC832E5Aed1a5B14b86D86f9C5CC1B1E83b8b7720',
-    shelfFab: '0xd053c7F92272233DfD8349a0Ce1c2681b284cCcB',
-    pileFab: '0x7F6785EaF51F67b58c08B47cCa315aFd226aBf8b',
-    collectorFab: '0x364A29a4eC35daf56a745FB667aEcD5f7885c9C8',
-    navFeedFab: '0x7aBC54305d5a6fb2299cbAB56a688C10aB6df868',
-    title: '0x483D22402E3f3361f9c29051F4DFf57B5286f3C6',
-    shelf: '0xfA51964E9f0feA5b67F7d46dB5E37097E8941c5D',
-    pile: '0x5c9bFa27A697B3A7Ac60Bb25AC0FB5C983897AA2',
-    collector: '0x93e4DbD9a341014c475434129C0C0Ce2EaFd4c3d',
-    navFeed: '0xD770cE25E027984B68a9CFea2B28Eba0259B4eb4',
-    borrowerDeployer: '0x0AD0623dB96c77Fa946Fa5c87CB7aFed97bA9B2B',
-    reserveFab: '0x3e5263F2b00585cf025397d233C9252b45187515',
-    assessorFab: '0x8F89dBc3dd9EB009f6e707eAe97b31642dE1976d',
-    trancheFab: '0xD220BdCA0487D41F28ff63cD30642B9BFa50eD3d',
-    memberlistFab: '0x7dc5D2C8f55715c5734de995fdEfCc078cd2545A',
-    restrictedTokenFab: '0x0F13F29060F6Fc0d3C0b6a1Ae48CD68a2e05B7e8',
-    operatorFab: '0x11E94dC72259bD8bCE66a4416d76584305AbA7D7',
-    coordinatorFab: '0xf33C748ea7Cb54007651143F649a8a7fBd295A63',
-    reserve: '0x039d9989D93cC374203Ec7D089b877a419C62E26',
-    assessor: '0x4ffb5e18361Ef45C2e71c7951C8D228e6b50Ad05',
-    coordinator: '0x06BdE99A471e5BF1Cb3425955854424DC2c81822',
-    juniorTranche: '0xAEFa643cEa8F99D4462FC97dDa5feD3FE673C96C',
-    juniorMemberlist: '0x0235746Eaa42d69131306032d53034Bf48B37788',
-    juniorToken: '0xaE48c97D32eFCef8a9bf648cF6B3bca31a60dF51',
-    juniorOperator: '0x1dEa8dB16BF85123c92c89e02a5e4E7811baD37E',
-    seniorTranche: '0xD84817da6a517bF8A1981b24B9c01f3b1C8Ec779',
-    seniorMemberlist: '0xFB3c697320E10772aC36De174E6EB8E99da94306',
-    seniorToken: '0x191427faaB0252607c2dDc68140154Ba4F32c99A',
-    seniorOperator: '0x4746390Cb37Dd029850CA9538dc60b13d63b201E',
-    lenderDeployer: '0xdcfC7a19bEF9fB4F87a77Da9D6f4D8177C5E5D9a',
-  }
   const ERC20 = await ethers.getContractFactory("ERC20")
   const Root = await ethers.getContractFactory("GalaxyRoot")
   let erc20: Contract
@@ -229,11 +190,12 @@ async function main() {
     console.log('Collector address: ', await borrowerDeployer.collector())
     collector = Collector.attach(await borrowerDeployer.collector())
   }
-  let borrowerDeployed = true
+  let borrowerDeployed = (await borrowerDeployer.shelf()).toString() != ZERO_ADDRESS && (await borrowerDeployer.collector()).toString() != ZERO_ADDRESS
 
   if (!borrowerDeployed) {
     let tx = await borrowerDeployer.deploy()
     await tx.wait()
+    console.log('Borrower deployed')
   }
 
   // deploy lender
@@ -354,15 +316,17 @@ async function main() {
   let seniorMemberlist: Contract
   let seniorToken: Contract
   let seniorOperator: Contract
-  let lenderDeployed = true
+  let lenderDeployed = (await lenderDeployer.coordinator()).toString() != ZERO_ADDRESS && (await lenderDeployer.assessor()).toString() != ZERO_ADDRESS && (await lenderDeployer.reserve()).toString() != ZERO_ADDRESS && (await lenderDeployer.seniorTranche()).toString() != ZERO_ADDRESS
 
   const minSeniorRate = BigNumber.from(0).mul(TENP25) // 0%
   const maxSeniorRate = BigNumber.from(100).mul(TENP25) // 100%
-  const maxReserve = BigNumber.from('10000000000000000001')
+  // max reserve: 10 B
+  const maxReserve = utils.parseEther('1000000000')
   const maxSeniorInterestRate = BigNumber.from('1000000229200000000000000000')
   if (!lenderDeployed) {
     let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 60 * 60, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
     await tx.wait()
+    console.log('Lender inited')
   }
 
   if (addressBook.juniorToken) {
@@ -438,17 +402,27 @@ async function main() {
     await tx.wait()
 
     // set first user as admin
-    await root.relyContract(shelf.address, signer.address)
-    await root.relyContract(pile.address, signer.address)
-    await root.relyContract(title.address, signer.address)
-    await root.relyContract(collector.address, signer.address)
-    await root.relyContract(navFeed.address, signer.address)    
+    let promises = []
+    tx = await root.relyContract(shelf.address, signer.address)
+    promises.push(tx.wait())
+    tx = await root.relyContract(pile.address, signer.address)
+    promises.push(tx.wait())
+    tx = await root.relyContract(title.address, signer.address)
+    promises.push(tx.wait())
+    tx = await root.relyContract(collector.address, signer.address)
+    promises.push(tx.wait())
+    tx = await root.relyContract(navFeed.address, signer.address)    
+    promises.push(tx.wait())
     // to payout left money, assign signer to reserve
-    await root.relyContract(assessor.address, signer.address)
+    tx = await root.relyContract(assessor.address, signer.address)
+    promises.push(tx.wait())
 
     // authorize first user to update investors
-    await root.relyContract(juniorMemberlist.address, signer.address)
-    await root.relyContract(seniorMemberlist.address, signer.address)
+    tx = await root.relyContract(juniorMemberlist.address, signer.address)
+    promises.push(tx.wait())
+    tx = await root.relyContract(seniorMemberlist.address, signer.address)
+    promises.push(tx.wait())
+    await Promise.all(promises)
   }
 
   console.log('All the contract was deployed!')
@@ -535,9 +509,7 @@ async function main() {
   const validUntil = Math.floor((new Date).getTime() / 1000 + 30 * 86400)
   console.log(await investor1.getAddress())
   console.log(await investor2.getAddress())
-  console.log("Register")
   await registerInvestors(seniorMemberlist, [investor1, investor2], validUntil)
-  console.log("Registered")
 
   console.log('Setup 20 naos debt for borrower 1')
   const borrowRes1 = await setupLoan(1, borrower1, utils.parseEther('20'))
