@@ -1,9 +1,8 @@
 import { ethers } from "hardhat"
 import { Contract, Signer, utils, BigNumber } from "ethers"
-import { addressBook, verifyContract, ZERO_ADDRESS } from "./utils"
+import { addressBook, verifyContract, ZERO_ADDRESS, ONE, setupLoan, supplyOrder, registerInvestors } from "./utils"
 
 async function main() {
-  const { BigNumber } = ethers
   const discountRate = BigNumber.from('1000000342100000000000000000')
   const tokenName = "NAOS Mock Token"
   const tokenSymbol = "naos-mock"
@@ -426,76 +425,7 @@ async function main() {
   }
 
   console.log('All the contract was deployed!')
-  const ONE = BigNumber.from(10).pow(27)
-  const registerInvestors = async (memberlist: Contract, users: Array<Signer>, validUntil: number) => {
-    let count = 0
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i]
-      if (user.getAddress == undefined) {
-        continue
-      }
-      const userAddr = await user.getAddress()
-      await memberlist.updateMember(userAddr, validUntil)
-      count += 1
-    }
-    return count
-  }
-
-  async function setupNFT(count: number, ) {
-    const Title = await ethers.getContractFactory("Title")
-    return await Title.deploy(`Collateral NFT ${count}`, `collateralNFT${count}`)
-  }
-
-  const setupLoan = async (count: number, borrower: Signer, nftPrice: BigNumber, riskGroup: number = 2, maturityDate: number = 1700000000) => {
-    const nft = await setupNFT(count)
-    const borrowerAddress = await borrower.getAddress()
-    let tx
-    tx = await nft.issue(borrowerAddress)
-    await tx.wait()
-    const tokenID = (await nft.count()).sub(1)
-    const tokenKey = await navFeed.callStatic['nftID(address,uint256)'](nft.address, tokenID)
-    // set nft price and risk
-    console.log(`Borrow NFT identifier ${tokenKey} ${borrowerAddress}`)
-    await navFeed['update(bytes32,uint256,uint256)'](tokenKey, nftPrice, riskGroup)
-    await navFeed['file(bytes32,bytes32,uint256)']('0x' + Buffer.from("maturityDate").toString('hex').padEnd(64, '0'), tokenKey, maturityDate)
-    console.log('Issue nft to: ', borrowerAddress)
-    // issue nft
-    const loan = await shelf.connect(borrower).callStatic.issue(nft.address, tokenID)
-    await shelf.connect(borrower).issue(nft.address, tokenID)
-    const ceiling = await navFeed.ceiling(loan)
-    tx = await nft.connect(borrower).setApprovalForAll(shelf.address, true)
-    await tx.wait()
-    return {
-      nft,
-      tokenID,
-      maturityDate,
-      tokenKey,
-      loan,
-      ceiling
-    }
-  }
-
-  const supplyOrder = async (erc20: Contract, tranche: Contract, operator: Contract, amount: BigNumber, users: Array<Signer>) => {
-    const iAmount = amount.div(users.length)
-    console.log(`Supply senior orders ${amount.toString()} / ${iAmount.toString()} each senior investor`)
-    let count = 0
-    
-    for (let i = 0; i < users.length; i++) {
-      let user = users[i]
-      if (user.getAddress == undefined) {
-        continue
-      }
-      const userAddress = await user.getAddress()
-      let tx = await erc20.mint(userAddress, iAmount)
-      await tx.wait()
-      tx = await erc20.connect(user).approve(tranche.address, iAmount)
-      await tx.wait()
-      tx = await operator.connect(user).supplyOrder(iAmount)
-      await tx.wait()
-      count += 1
-    }
-    return count
-  }
+  
   const borrower1 = signers[1]
   const borrower2 = signers[2]
   const investor1 = signers[3]
@@ -512,9 +442,9 @@ async function main() {
   await registerInvestors(seniorMemberlist, [investor1, investor2], validUntil)
 
   console.log('Setup 20 naos debt for borrower 1')
-  const borrowRes1 = await setupLoan(1, borrower1, utils.parseEther('20'))
+  const borrowRes1 = await setupLoan(navFeed, shelf, 1, borrower1, utils.parseEther('20'))
   console.log('Setup 30 naos debt for borrower 2')
-  const borrowRes2 = await setupLoan(2, borrower2, utils.parseEther('30'))
+  const borrowRes2 = await setupLoan(navFeed, shelf, 2, borrower2, utils.parseEther('30'))
   const totalCeiling = borrowRes1.ceiling.add(borrowRes2.ceiling)
   const investAmount = totalCeiling.mul(TENP25).mul(80).div(ONE)
   await supplyOrder(erc20, seniorTranche, seniorOperator, investAmount, [investor1, investor2])
