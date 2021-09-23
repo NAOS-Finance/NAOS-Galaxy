@@ -84,6 +84,11 @@ export const borrow = async (navFeed: Contract, shelf: Contract, loan: number, b
   await wTx.wait()
 }
 
+export const repay = async (shelf: Contract, loan: number, borrower: Signer, debt: BigNumber) => {
+  const tx = await shelf.connect(borrower).repay(loan, debt)
+  await tx.wait()
+}
+
 export const registerInvestors = async (memberlist: Contract, users: Array<Signer>, validUntil: number) => {
   let count = 0
   for (let i = 0; i < users.length; i++) {
