@@ -1,6 +1,6 @@
 import { ethers } from "hardhat"
 import { Contract, Signer, utils, BigNumber } from "ethers"
-import { addressBook, verifyContract, ZERO_ADDRESS } from "./utils"
+import { addressBook, verifyContract, ZERO_ADDRESS, ONE_ADDRESS } from "./utils"
 
 async function main() {
   const { BigNumber } = ethers
@@ -325,9 +325,9 @@ async function main() {
   const maxSeniorRate = BigNumber.from(100).mul(TENP25) // 100%
   // max reserve: 10 B
   const maxReserve = utils.parseEther('1000000000')
-  const maxSeniorInterestRate = BigNumber.from('1000000229200000000000000000')
+  const maxSeniorInterestRate = BigNumber.from('1000000001547125870000000000')
   if (!lenderDeployed) {
-    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 60 * 60, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
+    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 300, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
     await tx.wait()
     console.log('Lender inited')
   }
@@ -395,7 +395,7 @@ async function main() {
     coordinator = Coordinator.attach(await lenderDeployer.coordinator())
   }
   
-  if (!lenderDeployed) {
+  if (lenderDeployed && await lenderDeployer.deployer() !== ONE_ADDRESS) {
     let tx = await lenderDeployer.deploy()
     await tx.wait()
 
@@ -421,8 +421,8 @@ async function main() {
     promises.push(tx.wait())
 
     // authorize first user to update investors
-    tx = await root.relyContract(juniorMemberlist.address, signer.address)
-    promises.push(tx.wait())
+    // tx = await root.relyContract(juniorMemberlist.address, signer.address)
+    // promises.push(tx.wait())
     tx = await root.relyContract(seniorMemberlist.address, signer.address)
     promises.push(tx.wait())
     await Promise.all(promises)
