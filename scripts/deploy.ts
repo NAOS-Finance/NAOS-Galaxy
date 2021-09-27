@@ -192,9 +192,9 @@ async function main() {
     console.log('Collector address: ', await borrowerDeployer.collector())
     collector = Collector.attach(await borrowerDeployer.collector())
   }
-  let borrowerDeployed = (await borrowerDeployer.shelf()).toString() != ZERO_ADDRESS && (await borrowerDeployer.collector()).toString() != ZERO_ADDRESS
+  let canDeployBorrower = (await borrowerDeployer.shelf()).toString() != ZERO_ADDRESS && (await borrowerDeployer.collector()).toString() != ZERO_ADDRESS
 
-  if (!borrowerDeployed) {
+  if (canDeployBorrower) {
     let tx = await borrowerDeployer.deploy()
     await tx.wait()
     console.log('Borrower deployed')
@@ -319,14 +319,14 @@ async function main() {
   let seniorMemberlist: Contract
   let seniorToken: Contract
   let seniorOperator: Contract
-  let lenderDeployed = (await lenderDeployer.coordinator()).toString() != ZERO_ADDRESS && (await lenderDeployer.assessor()).toString() != ZERO_ADDRESS && (await lenderDeployer.reserve()).toString() != ZERO_ADDRESS && (await lenderDeployer.seniorTranche()).toString() != ZERO_ADDRESS
+  let canDeployLender = (await lenderDeployer.coordinator()).toString() != ZERO_ADDRESS && (await lenderDeployer.assessor()).toString() != ZERO_ADDRESS && (await lenderDeployer.reserve()).toString() != ZERO_ADDRESS && (await lenderDeployer.seniorTranche()).toString() != ZERO_ADDRESS
 
   const minSeniorRate = BigNumber.from(0).mul(TENP25) // 0%
   const maxSeniorRate = BigNumber.from(100).mul(TENP25) // 100%
   // max reserve: 10 B
   const maxReserve = utils.parseEther('1000000000')
   const maxSeniorInterestRate = BigNumber.from('1000000001547125870000000000')
-  if (!lenderDeployed) {
+  if (canDeployLender && await lenderDeployer.deployer() !== ONE_ADDRESS) {
     let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 300, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
     await tx.wait()
     console.log('Lender inited')
@@ -395,7 +395,7 @@ async function main() {
     coordinator = Coordinator.attach(await lenderDeployer.coordinator())
   }
   
-  if (lenderDeployed && await lenderDeployer.deployer() !== ONE_ADDRESS) {
+  if (canDeployLender) {
     let tx = await lenderDeployer.deploy()
     await tx.wait()
 
