@@ -124,8 +124,8 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
             6,                                      // riskGroup:       2
             105**26,                                // thresholdRatio   105%
             ONE,                                    // ceilingRatio     100%
-            uint(1000000564701133626865910626),     // interestRate     5% per day
-            90 * 10**25                             // recoveryRatePD:  0.9
+            uint(1000000001547125870000000000),     // interestRate     5% per year
+            ONE                                     // recoveryRatePD:  1.0
         );
 
         /// Overdue loans (= loans that were not repaid by the maturityDate) are moved to write Offs
