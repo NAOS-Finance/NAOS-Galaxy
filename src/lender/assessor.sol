@@ -251,12 +251,26 @@ contract Assessor is Auth, FixedPoint, Interest {
         return seniorBalance_;
     }
 
+    /// available withdraw fee
+    function availableWithdrawFee() public view auth returns (uint) {
+        uint epochNAV = navFeed.currentNAV();
+        uint epochReserve = reserve.totalBalance();
+        uint totalAssets = safeAdd(epochNAV, epochReserve);
+        uint seniorAssetValue = calcSeniorAssetValue(seniorDebt(), seniorBalance_);
+
+        if(totalAssets < seniorAssetValue) {
+            return 0;
+        }
+
+        uint withdrawFeeAmount = rmul(safeSub(totalAssets, seniorAssetValue), withdrawFeeRate.value);
+        return withdrawFeeAmount;
+    }
+
     /// withdraw fee
-    function withdrawFee(uint256 currencyAmount) public auth {
-        uint256 totalBalance = ReserveLike(reserve).totalBalance();
-        require(totalBalance > 0, "insufficient reserve balance");
-        uint256 withdrawFeeAmount = rmul(safeSub(totalBalance, seniorBalance_), withdrawFeeRate.value);
+    function withdrawFee(uint currencyAmount) public auth returns (uint) {
+        uint withdrawFeeAmount = availableWithdrawFee();
         require(withdrawFeeAmount >= currencyAmount, "insufficient currency left in reserve");
         ReserveLike(reserve).payoutTo(msg.sender, currencyAmount);
+        return currencyAmount;
     }
 }
