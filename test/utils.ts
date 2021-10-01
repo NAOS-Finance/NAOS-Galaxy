@@ -50,7 +50,11 @@ export const div = (x:BigNumber, y:BigNumber): BigNumber => {
 }
 
 export const mul = (x:BigNumber, y:BigNumber): BigNumber => {
-  return x.mul(y).div(ONE)
+  let r = x.mul(y)
+  if (r.lt(ONE)) {
+    return r
+  }
+  return r.div(ONE)
 }
 
 export const rdiv = (x:BigNumber, y:BigNumber): BigNumber => {
