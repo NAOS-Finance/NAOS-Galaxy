@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat"
-import { BigNumber, utils } from "ethers"
+import { BigNumber, utils, Contract, Signer } from "ethers"
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -59,4 +59,113 @@ export const rdiv = (x:BigNumber, y:BigNumber): BigNumber => {
 
 export const rmul = (x:BigNumber, y:BigNumber): BigNumber => {
   return x.mul(y).div(ONE)
+}
+
+export const takeSnapshot = async (): Promise<number> => {
+	const result = await ethers.provider.send('evm_snapshot', [])
+  await ethers.provider.send('evm_mine', [])
+	return BigNumber.from(result).toNumber()
+}
+
+export const restoreSnapshot = async (id: number) => {
+  await ethers.provider.send('evm_revert', [ id ])
+  await ethers.provider.send('evm_mine', [])
+}
+
+let titleFab: Contract
+let shelfFab: Contract
+let pileFab: Contract 
+let collectorFab: Contract
+let navFeedFab: Contract
+
+export const deployTestRoot = async (accounts: Signer[]) => {
+  return await (await ethers.getContractFactory("TestRoot")).deploy(accounts[0].getAddress())
+}
+
+export const deployCollateralNFT = async () => {
+  return await (await ethers.getContractFactory("Title")).deploy("Collateral NFT", "collateralNFT")
+}
+
+export const deployCurrency = async () => {
+  return await (await ethers.getContractFactory("SimpleToken")).deploy("CUR", "Currency")
+}
+
+export const deployBorrower = async (rootAddr: string, currencyAddr: string) => {
+  if (!titleFab) {
+    titleFab = await (await ethers.getContractFactory("TitleFab")).deploy()
+  }
+  if (!shelfFab) {
+    shelfFab = await (await ethers.getContractFactory("ShelfFab")).deploy()
+  }
+  if (!pileFab) {
+    pileFab = await (await ethers.getContractFactory("PileFab")).deploy()
+  }
+  if (!collectorFab) {
+    collectorFab = await (await ethers.getContractFactory("CollectorFab")).deploy()
+  } 
+  if (!navFeedFab) {
+    navFeedFab = await (await ethers.getContractFactory("NAVFeedFab")).deploy()
+  }
+
+  let discountRate = BigNumber.from("1000000342100000000000000000")
+  let borrowerDeployer = await (await ethers.getContractFactory("BorrowerDeployer")).deploy(rootAddr, titleFab.address, shelfFab.address, pileFab.address, collectorFab.address, navFeedFab.address, currencyAddr, "Galaxy Loan Token", "TLNT", discountRate)
+  await borrowerDeployer.deployTitle()
+  await borrowerDeployer.deployPile()
+  await borrowerDeployer.deployFeed()
+  await borrowerDeployer.deployShelf()
+  await borrowerDeployer.deployCollector()
+  await borrowerDeployer.deploy()
+  return borrowerDeployer 
+}
+
+let reserveFab: Contract
+let assessorFab: Contract
+let trancheFab: Contract
+let memberlistFab: Contract
+let restrictedTokenFab: Contract
+let operatorFab: Contract
+let coordinatorFab: Contract
+
+export const prepareDeployLender = async (rootAddr: string, currencyAddr: string) => {
+  if (!reserveFab) {
+    reserveFab = await (await ethers.getContractFactory("ReserveFab")).deploy()
+  }
+  if (!assessorFab) {
+    assessorFab = await (await ethers.getContractFactory("AssessorFab")).deploy()
+  }
+  if (!trancheFab) {
+    trancheFab = await (await ethers.getContractFactory("TrancheFab")).deploy()
+  }
+  if (!memberlistFab) {
+    memberlistFab = await (await ethers.getContractFactory("MemberlistFab")).deploy()
+  }
+  if (!restrictedTokenFab) {
+    restrictedTokenFab = await (await ethers.getContractFactory("RestrictedTokenFab")).deploy()
+  }
+  if (!operatorFab) {
+    operatorFab = await (await ethers.getContractFactory("OperatorFab")).deploy()
+  }
+  if (!coordinatorFab) {
+    coordinatorFab = await (await ethers.getContractFactory("CoordinatorFab")).deploy()
+  }
+  return await (await ethers.getContractFactory("LenderDeployer")).deploy(rootAddr, currencyAddr, trancheFab.address, memberlistFab.address, restrictedTokenFab.address, reserveFab.address, assessorFab.address, coordinatorFab.address, operatorFab.address)
+}
+
+export const deployLender = async (lenderDeployer: Contract) => {
+  let seniorInterestRate = BigNumber.from("1000000229200000000000000000")
+  let maxReserve = MAX_UINT256
+  let maxSeniorRatio = percentToBig(85)
+  let minSeniorRatio = percentToBig(75)
+  let challengeTime = 60 * 60
+  let seniorTokenName = "Alpha Token"
+  let seniorTokenSymbol = "Alpha"
+  let juniorTokenName = "Beta Token"
+  let juniorTokenSymbol = "Beta"
+  await lenderDeployer.init(minSeniorRatio, maxSeniorRatio, maxReserve, challengeTime, seniorInterestRate, seniorTokenName, seniorTokenSymbol, juniorTokenName, juniorTokenSymbol)
+  await lenderDeployer.deployJunior()
+  await lenderDeployer.deploySenior()
+  await lenderDeployer.deployReserve()
+  await lenderDeployer.deployAssessor()
+  await lenderDeployer.deployCoordinator()
+  await lenderDeployer.deploy()
 }

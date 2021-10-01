@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { percentToBig, MAX_UINT256, now, timeFly, div, mul } from "./utils"
+import { percentToBig, MAX_UINT256, now, timeFly, mul, deployTestRoot, deployCollateralNFT, deployCurrency, deployBorrower, prepareDeployLender, deployLender } from "./utils"
 
 describe("Collect", function () {
   let accounts: Signer[]
@@ -35,110 +35,24 @@ describe("Collect", function () {
 
   beforeEach(async () => {
     accounts = await ethers.getSigners()
-    await baseSetup()
+    await deployContracts()
     await createTestUsers()
     await fundTranches()
   })
 
-  // setup ======>
-
-  const baseSetup = async () => {
-    await deployContracts()
-  }
-
-  const createTestUsers = async () => {
-    borrower = await (await ethers.getContractFactory("Borrower")).deploy(shelf.address, reserve.address, currency.address, pile.address)
-    randomUser = await (await ethers.getContractFactory("Borrower")).deploy(shelf.address, reserve.address, currency.address, pile.address)
-    keeper = await (await ethers.getContractFactory("Keeper")).deploy(collector.address, currency.address)
-    admin = await (await ethers.getContractFactory("AdminUser")).deploy(shelf.address, pile.address, nftFeed.address, title.address, reserve.address, collector.address, juniorMemberlist.address, seniorMemberlist.address)
-    await root.relyBorrowerAdmin(admin.address)
-    await root.relyLenderAdmin(admin.address)
-    await createInvestorUser()
-  }
-
-  const createInvestorUser = async () => {
-    seniorInvestor = await (await ethers.getContractFactory("Investor")).deploy(seniorOperator.address, seniorTranche.address, currency.address, seniorToken.address)
-    juniorInvestor = await (await ethers.getContractFactory("Investor")).deploy(juniorOperator.address, juniorTranche.address, currency.address, juniorToken.address)
-  }
-
   const deployContracts = async () => {
-    await deployTestRoot()
-    await deployCollateralNFT()
-    await deployCurrency()
-    await deployBorrower()
-
-    await prepareDeployLender(root.address)
-    await deployLender()
-
-    await root.prepare(lenderDeployer.address, borrowerDeployer.address, await accounts[0].getAddress())
-    await root.deploy()
-  }
-
-  const deployTestRoot = async () => {
-    root = await (await ethers.getContractFactory("TestRoot")).deploy(await accounts[0].getAddress())
-  }
-
-  const deployCollateralNFT = async () => {
-    collateralNFT = await (await ethers.getContractFactory("Title")).deploy("Collateral NFT", "collateralNFT")
-  }
-
-  const deployCurrency = async () => {
-    currency = await (await ethers.getContractFactory("SimpleToken")).deploy("C", "Currency")
-  }
-
-  const deployBorrower = async () => {
-    let titlefab = await (await ethers.getContractFactory("TitleFab")).deploy()
-    let shelffab = await (await ethers.getContractFactory("ShelfFab")).deploy()
-    let pileFab = await (await ethers.getContractFactory("PileFab")).deploy()
-    let collectorFab = await (await ethers.getContractFactory("CollectorFab")).deploy()
-    let nftFeedFab = await (await ethers.getContractFactory("NAVFeedFab")).deploy()
-
-    let discountRate = BigNumber.from("1000000342100000000000000000")
-    borrowerDeployer = await (await ethers.getContractFactory("BorrowerDeployer")).deploy(root.address, titlefab.address, shelffab.address, pileFab.address, collectorFab.address, nftFeedFab.address, currency.address, "Galaxy Loan Token", "TLNT", discountRate)
-    await borrowerDeployer.deployTitle()
-    await borrowerDeployer.deployPile()
-    await borrowerDeployer.deployFeed()
-    await borrowerDeployer.deployShelf()
-    await borrowerDeployer.deployCollector()
-    await borrowerDeployer.deploy()
-
+    root = await deployTestRoot(accounts)
+    collateralNFT = await deployCollateralNFT()
+    currency = await deployCurrency()
+    borrowerDeployer = await deployBorrower(root.address, currency.address)
     shelf = await (await ethers.getContractFactory("Shelf")).attach(await borrowerDeployer.shelf())
     pile = await (await ethers.getContractFactory("Pile")).attach(await borrowerDeployer.pile())
     title = await (await ethers.getContractFactory("Title")).attach(await borrowerDeployer.title())
     collector = await (await ethers.getContractFactory("Collector")).attach(await borrowerDeployer.collector())
     nftFeed = await (await ethers.getContractFactory("NAVFeed")).attach(await borrowerDeployer.feed())
-  }
 
-  const prepareDeployLender = async (rootAddr: string) => {
-    let reserveFab = await (await ethers.getContractFactory("ReserveFab")).deploy()
-    let assessorFab = await (await ethers.getContractFactory("AssessorFab")).deploy()
-    let trancheFab = await (await ethers.getContractFactory("TrancheFab")).deploy()
-    let memberlistFab = await (await ethers.getContractFactory("MemberlistFab")).deploy()
-    let restrictedTokenFab = await (await ethers.getContractFactory("RestrictedTokenFab")).deploy()
-    let operatorFab = await (await ethers.getContractFactory("OperatorFab")).deploy()
-    let coordinatorFab = await (await ethers.getContractFactory("CoordinatorFab")).deploy()
-
-    lenderDeployer = await (await ethers.getContractFactory("LenderDeployer")).deploy(rootAddr, currency.address, trancheFab.address, memberlistFab.address, restrictedTokenFab.address, reserveFab.address, assessorFab.address, coordinatorFab.address, operatorFab.address)
-  }
-
-  const deployLender = async () => {
-    let seniorInterestRate = BigNumber.from("1000000229200000000000000000")
-    let maxReserve = MAX_UINT256
-    let maxSeniorRatio = percentToBig(85)
-    let minSeniorRatio = percentToBig(75)
-    let challengeTime = 3 * 60 * 60
-    let seniorTokenName = "DROP Token"
-    let seniorTokenSymbol = "DROP"
-    let juniorTokenName = "TIN Token"
-    let juniorTokenSymbol = "TIN"
-    await lenderDeployer.init(minSeniorRatio, maxSeniorRatio, maxReserve, challengeTime, seniorInterestRate, seniorTokenName, seniorTokenSymbol, juniorTokenName, juniorTokenSymbol)
-    await lenderDeployer.deployJunior()
-    await lenderDeployer.deploySenior()
-    await lenderDeployer.deployReserve()
-    await lenderDeployer.deployAssessor()
-    await lenderDeployer.deployCoordinator()
-    await lenderDeployer.deploy()
-
+    lenderDeployer = await prepareDeployLender(root.address, currency.address)
+    await deployLender(lenderDeployer)
     assessor = await (await ethers.getContractFactory("Assessor")).attach(await lenderDeployer.assessor())
     reserve = await (await ethers.getContractFactory("Reserve")).attach(await lenderDeployer.reserve())
     coordinator = await (await ethers.getContractFactory("EpochCoordinator")).attach(await lenderDeployer.coordinator())
@@ -150,6 +64,24 @@ describe("Collect", function () {
     juniorToken = await (await ethers.getContractFactory("RestrictedToken")).attach(await lenderDeployer.juniorToken())
     juniorMemberlist = await (await ethers.getContractFactory("Memberlist")).attach(await lenderDeployer.juniorMemberlist())
     seniorMemberlist = await (await ethers.getContractFactory("Memberlist")).attach(await lenderDeployer.seniorMemberlist())
+
+    await root.prepare(lenderDeployer.address, borrowerDeployer.address, accounts[0].getAddress())
+    await root.deploy()
+  }
+
+  const createTestUsers = async () => {
+    borrower = await (await ethers.getContractFactory("Borrower")).deploy(shelf.address, reserve.address, currency.address, pile.address)
+    randomUser = await (await ethers.getContractFactory("Borrower")).deploy(shelf.address, reserve.address, currency.address, pile.address)
+    keeper = await (await ethers.getContractFactory("Keeper")).deploy(collector.address,currency.address)
+    admin = await (await ethers.getContractFactory("AdminUser")).deploy(shelf.address, pile.address, nftFeed.address, title.address, reserve.address, collector.address, juniorMemberlist.address, seniorMemberlist.address)
+    await root.relyBorrowerAdmin(admin.address)
+    await root.relyLenderAdmin(admin.address)
+    await createInvestorUser()
+  }
+
+  const createInvestorUser = async () => {
+    seniorInvestor = await (await ethers.getContractFactory("Investor")).deploy(seniorOperator.address, seniorTranche.address, currency.address, seniorToken.address)
+    juniorInvestor = await (await ethers.getContractFactory("Investor")).deploy(juniorOperator.address, juniorTranche.address, currency.address, juniorToken.address)
   }
 
   // base ======>
@@ -378,7 +310,7 @@ describe("Collect", function () {
 
     const { loanId, tokenId } = await createLoanAndWithdraw(borrower.address, nftPrice, riskGroup)
 
-    const recoveryPrice = div(await pile.debt(loanId), BigNumber.from("2"))
+    const recoveryPrice = (await pile.debt(loanId)).div(BigNumber.from("2"))
     await setupCollect(loanId, recoveryPrice, keeper.address, whitelisted, assigned, doTopup, doApprove)
 
     await timeFly(10, true)
