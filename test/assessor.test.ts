@@ -175,16 +175,16 @@ describe("Assessor", function () {
     const seniorRatio = percentToBig(50)
     await assessor.changeSeniorAsset(seniorRatio, seniorSupply, seniorRedeem)
     expect(await assessor.seniorBalance()).to.be.eq(utils.parseEther("100"))
-    expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("100"))
+    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("100"))
 
     await timeFly(1, true)
-    expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("105"))
+    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("105"))
     await assessor.dripSeniorDebt()
-    expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("105"))
+    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("105"))
 
     await timeFly(1, true)
     await assessor.dripSeniorDebt()
-    expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("110.25"))
+    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("110.25"))
   })
 
   it("Should CalcSeniorTokenPrice", async () => {
