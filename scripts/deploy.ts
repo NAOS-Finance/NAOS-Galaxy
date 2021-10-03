@@ -12,7 +12,7 @@ async function main() {
   if (signers.length <= 0) {
     throw new Error("Couldn't find any signer")
   }
-  const d = []
+  const d: Array<Record<string,any>> = []
   for (let i=0; i<signers.length; i++) {
     const s = signers[i]
     const addr = await s.getAddress()
@@ -195,7 +195,9 @@ async function main() {
   let canDeployBorrower = (await borrowerDeployer.shelf()).toString() != ZERO_ADDRESS && (await borrowerDeployer.collector()).toString() != ZERO_ADDRESS
 
   if (canDeployBorrower) {
-    let tx = await borrowerDeployer.deploy()
+    let tx = await borrowerDeployer.deploy({
+      gasLimit: 5000000
+    })
     await tx.wait()
     console.log('Borrower deployed')
   }
@@ -326,8 +328,10 @@ async function main() {
   // max reserve: 10 B
   const maxReserve = utils.parseEther('1000000000')
   const maxSeniorInterestRate = BigNumber.from('1000000001547125870000000000')
-  if (canDeployLender && await lenderDeployer.deployer() !== ONE_ADDRESS) {
-    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 300, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta")
+  if (await lenderDeployer.deployer() !== ONE_ADDRESS) {
+    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 300, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta", {
+      gasLimit: 5000000
+    })
     await tx.wait()
     console.log('Lender inited')
   }
@@ -396,7 +400,9 @@ async function main() {
   }
   
   if (canDeployLender) {
-    let tx = await lenderDeployer.deploy()
+    let tx = await lenderDeployer.deploy({
+      gasLimit: 5000000
+    })
     await tx.wait()
 
     tx = await root.prepare(lenderDeployer.address, borrowerDeployer.address, signer.address)
@@ -405,7 +411,7 @@ async function main() {
     await tx.wait()
 
     // set first user as admin
-    let promises = []
+    let promises: Array<Promise<any>> = []
     tx = await root.relyContract(shelf.address, signer.address)
     promises.push(tx.wait())
     tx = await root.relyContract(pile.address, signer.address)
