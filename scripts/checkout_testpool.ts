@@ -3,6 +3,7 @@ import { Contract } from "ethers"
 import { zeroPadEnd } from "../test/utils"
 import { toUtf8Bytes } from "ethers/lib/utils"
 import { addressBook } from "./utils"
+import fetch from "node-fetch"
 
 async function main() {
   let Coordinator = await ethers.getContractFactory("EpochCoordinator")
@@ -18,7 +19,12 @@ async function main() {
     ], coordinator.provider)
     let redeemOrderCount = await galaxyStakingPool.callStatic.redeemOrderCount()
     let redeemOrderListPendingIndex = await galaxyStakingPool.callStatic.redeemOrderListPendingIndex()
-    if (redeemOrderCount.sub(redeemOrderListPendingIndex).lt(150)) {
+    let diff = redeemOrderCount.sub(redeemOrderListPendingIndex)
+    if (diff.lt(150)) {
+      if (diff.eq(0)) {
+        console.log('Empty redeem orders')
+        return
+      }
       let signers = await ethers.getSigners()
       console.log(`Start to closeEpoch/updateEpoch ${new Date()}, signer: ${await signers[0].getAddress()}`)
       let tx
@@ -44,7 +50,19 @@ async function main() {
         throw new Error('Failed to update epoch')
       }
     } else {
-      console.log('Call wesley')
+      console.log('Call wesley on slack')
+      const msg = '@wesley @yan @jacklee @sc0vu update epoch exceeds limit: 150, please take a look!'
+      const body = JSON.stringify({
+        text: msg
+      })
+      fetch(
+        `https://hooks.slack.com/services/T01RKD4PX8F/${process.env.NAOS_SLACK_APP_TOKEN}`,{
+        body,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        }
+      })
     }
   } else {
     console.log('Please setup valid coordinator/galaxyStakingPool address')
