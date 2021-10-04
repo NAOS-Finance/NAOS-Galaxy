@@ -30,7 +30,7 @@ async function main() {
       let tx
       let receipt
       tx = await coordinator.closeEpoch({
-        gasLimit: 5000000
+        gasLimit: 20000000
       })
       console.log(`Close epoch tx hash: ${tx.hash}`)
       receipt = await tx.wait()
@@ -42,7 +42,7 @@ async function main() {
         throw new Error('Start submission period')
       }
       tx = await galaxyStakingPool.connect(signers[0]).updateEpoch({
-        gasLimit: 5000000
+        gasLimit: 20000000
       })
       console.log(`Update epoch tx hash: ${tx.hash}`)
       receipt = await tx.wait()

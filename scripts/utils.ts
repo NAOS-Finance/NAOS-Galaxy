@@ -3,6 +3,8 @@ import { Contract, Signer, utils, BigNumber } from "ethers"
 
 export const ONE = BigNumber.from(10).pow(27)
 
+export const ONE_ADDRESS = '0x1111111111111111111111111111111111111111'
+
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 const deployment = require(`../deployment/${network.name}.json`) || {}
