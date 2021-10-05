@@ -121,7 +121,7 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
 
         // risk group: 6 Galaxy
         file("riskGroup",
-            6,                                      // riskGroup:       2
+            6,                                      // riskGroup:       6
             105**26,                                // thresholdRatio   105%
             ONE,                                    // ceilingRatio     100%
             uint(1000000001547125870000000000),     // interestRate     5% per year
