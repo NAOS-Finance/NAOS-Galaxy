@@ -20,14 +20,14 @@ import "../../../../lib/galaxy-math/src/math.sol";
 // This contract is only for testing purpose. Should not
 // use in production environment.
 contract EpochTickerMock is Math {
-    uint public currentEpoch = 1;
-    uint public lastEpochExecuted = 0;
+    uint256 public currentEpoch = 1;
+    uint256 public lastEpochExecuted = 0;
 
-    function incCurrentEpoch(uint _epoch) public returns (uint) {
+    function incCurrentEpoch(uint256 _epoch) public returns (uint256) {
         currentEpoch = safeAdd(currentEpoch, _epoch);
     }
 
-    function incLastEpochExecuted(uint _epoch) public returns (uint) {
+    function incLastEpochExecuted(uint256 _epoch) public returns (uint256) {
         lastEpochExecuted = safeAdd(lastEpochExecuted, _epoch);
     }
 }

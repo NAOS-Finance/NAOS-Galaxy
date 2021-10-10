@@ -27,10 +27,10 @@ contract NAVTest is DSTest, Math {
     NAVFeed public feed;
     ShelfMock shelf;
     PileMock pile;
-    uint defaultRate;
-    uint defaultThresholdRatio;
-    uint defaultCeilingRatio;
-    uint discountRate;
+    uint256 defaultRate;
+    uint256 defaultThresholdRatio;
+    uint256 defaultCeilingRatio;
+    uint256 discountRate;
     address mockNFTRegistry;
     Hevm hevm;
 
@@ -38,10 +38,10 @@ contract NAVTest is DSTest, Math {
         hevm = Hevm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
         hevm.warp(123456789);
         // default values
-        defaultThresholdRatio = 8*10**26;                     // 80% threshold
-        defaultCeilingRatio = 6*10**26;                       // 60% ceiling
-        defaultRate = uint(1000000564701133626865910626);     // 5 % day
-        discountRate = uint(1000000342100000000000000000);    // 3 % day
+        defaultThresholdRatio = 8 * 10**26; // 80% threshold
+        defaultCeilingRatio = 6 * 10**26; // 60% ceiling
+        defaultRate = uint256(1000000564701133626865910626); // 5 % day
+        discountRate = uint256(1000000342100000000000000000); // 3 % day
 
         feed = new NAVFeed();
         pile = new PileMock();
@@ -53,28 +53,57 @@ contract NAVTest is DSTest, Math {
         feed.init();
     }
 
-    function prepareDefaultNFT(uint tokenId, uint nftValue) public returns(bytes32) {
+    function prepareDefaultNFT(uint256 tokenId, uint256 nftValue) public returns (bytes32) {
         return prepareDefaultNFT(tokenId, nftValue, 0);
     }
 
-    function prepareDefaultNFT(uint tokenId, uint nftValue, uint risk) public returns(bytes32) {
+    function prepareDefaultNFT(
+        uint256 tokenId,
+        uint256 nftValue,
+        uint256 risk
+    ) public returns (bytes32) {
         bytes32 nftID = feed.nftID(mockNFTRegistry, tokenId);
         feed.update(nftID, nftValue, risk);
-        shelf.setReturn("shelf",mockNFTRegistry, tokenId);
+        shelf.setReturn("shelf", mockNFTRegistry, tokenId);
         pile.setReturn("debt_loan", 0);
         pile.setReturn("rates_ratePerSecond", defaultRate);
         return nftID;
     }
 
-    function borrow(uint tokenId, uint loan, uint nftValue, uint amount, uint maturityDate) internal returns(bytes32 nftID_, uint loan_, uint navIncrease_) {
+    function borrow(
+        uint256 tokenId,
+        uint256 loan,
+        uint256 nftValue,
+        uint256 amount,
+        uint256 maturityDate
+    )
+        internal
+        returns (
+            bytes32 nftID_,
+            uint256 loan_,
+            uint256 navIncrease_
+        )
+    {
         bytes32 nftID = prepareDefaultNFT(tokenId, nftValue);
-        feed.file("maturityDate",nftID, maturityDate);
-        pile.setReturn("rates_ratePerSecond", uint(1000000564701133626865910626));
-        uint navIncrease = feed.borrow(loan, amount);
+        feed.file("maturityDate", nftID, maturityDate);
+        pile.setReturn("rates_ratePerSecond", uint256(1000000564701133626865910626));
+        uint256 navIncrease = feed.borrow(loan, amount);
         return (nftID, loan, navIncrease);
     }
 
-    function borrow(uint tokenId, uint nftValue, uint amount, uint maturityDate) internal returns(bytes32 nftID_, uint loan_, uint navIncrease_) {
+    function borrow(
+        uint256 tokenId,
+        uint256 nftValue,
+        uint256 amount,
+        uint256 maturityDate
+    )
+        internal
+        returns (
+            bytes32 nftID_,
+            uint256 loan_,
+            uint256 navIncrease_
+        )
+    {
         // loan id doesn't matter for nav unit tests
         return borrow(tokenId, tokenId, nftValue, amount, maturityDate);
     }
@@ -84,18 +113,18 @@ contract NAVTest is DSTest, Math {
     //  principal:       [50 DAI] -> [50 DAI] -> [100 DAI] -> [50 DAI]
     //  tokenId & loan:  [  4   ] -> [  1   ] -> [  3   ] ->  [  2  ]
     function setupLinkedListBuckets() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
-        uint loan = 1;
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
+        uint256 loan = 1;
 
         // insert first element
-        (bytes32 nft_, ,) = borrow(tokenId,loan,  nftValue, amount, dueDate);
+        (bytes32 nft_, , ) = borrow(tokenId, loan, nftValue, amount, dueDate);
 
-        uint normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
+        uint256 normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
 
-        uint FV = 55.125 ether; // 50 * 1.05 ^ 2 ~= 55.125
+        uint256 FV = 55.125 ether; // 50 * 1.05 ^ 2 ~= 55.125
         assertEq(feed.dateBucket(normalizedDueDate), FV);
 
         // FV/(1.03^2)
@@ -106,7 +135,7 @@ contract NAVTest is DSTest, Math {
         dueDate = now + 5 days;
         tokenId = 2;
         loan = 2;
-        (nft_, ,) = borrow(tokenId, loan, nftValue, amount, dueDate);
+        (nft_, , ) = borrow(tokenId, loan, nftValue, amount, dueDate);
 
         // list : [2 days] -> [5 days]
         //50*1.05^2/(1.03^2) + 50*1.05^5/(1.03^5) ~= 107.00
@@ -117,7 +146,7 @@ contract NAVTest is DSTest, Math {
         dueDate = now + 4 days;
         tokenId = 3;
         loan = 3;
-        (nft_, ,) = borrow(tokenId, loan, nftValue, amount, dueDate);
+        (nft_, , ) = borrow(tokenId, loan, nftValue, amount, dueDate);
 
         // list : [2 days] ->[4 days] -> [5 days]
         //50*1.05^2/(1.03^2) + 50*1.05^4/(1.03^4) + 50*1.05^5/(1.03^5)   ~= 161.00
@@ -128,7 +157,7 @@ contract NAVTest is DSTest, Math {
         dueDate = now + 1 days;
         tokenId = 4;
         loan = 4;
-        (nft_, ,) = borrow(tokenId, loan, nftValue, amount, dueDate);
+        (nft_, , ) = borrow(tokenId, loan, nftValue, amount, dueDate);
 
         // list : [1 days] -> [2 days] -> [4 days] -> [5 days]
         // (50*1.05^1)/(1.03^1) + 50*1.05^2/(1.03^2) + 50*1.05^4/(1.03^4) + 50*1.05^5/(1.03^5) ~= 211.977
@@ -138,47 +167,44 @@ contract NAVTest is DSTest, Math {
         dueDate = now + 4 days;
         tokenId = 5;
         loan = 5;
-        (nft_, ,) = borrow(tokenId, loan, nftValue, amount, dueDate);
+        (nft_, , ) = borrow(tokenId, loan, nftValue, amount, dueDate);
         // list : [1 days] -> [2 days] -> [4 days] -> [5 days]
         //(50*1.05^1)/(1.03^1) + 50*1.05^2/(1.03^2) + 100*1.05^4/(1.03^4) + 50*1.05^5/(1.03^5)  ~= 265.97
         assertEq(feed.currentNAV(), 265.975392377299750133 ether);
-
     }
 
-    function listLen() public returns (uint) {
-        uint normalizedDay = feed.uniqueDayTimestamp(now);
-        uint len = 0;
+    function listLen() public returns (uint256) {
+        uint256 normalizedDay = feed.uniqueDayTimestamp(now);
+        uint256 len = 0;
 
-        uint currDate = normalizedDay;
+        uint256 currDate = normalizedDay;
 
         if (currDate > feed.lastBucket()) {
             return 0;
         }
 
-        (,uint next) = feed.buckets(currDate);
-        while(next == 0) {
+        (, uint256 next) = feed.buckets(currDate);
+        while (next == 0) {
             currDate = currDate + 1 days;
-            (,next) = feed.buckets(currDate);
+            (, next) = feed.buckets(currDate);
         }
 
-        while(currDate != feed.NullDate())
-        {
-            (,currDate) = feed.buckets(currDate);
+        while (currDate != feed.NullDate()) {
+            (, currDate) = feed.buckets(currDate);
             len++;
-
         }
         return len;
     }
 
     function testSimpleBorrow() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
-        (,,uint NAVIncrease) = borrow(tokenId, nftValue, amount, dueDate);
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
+        (, , uint256 NAVIncrease) = borrow(tokenId, nftValue, amount, dueDate);
         // check FV
-        uint normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
-        uint FV = 55.125 ether; // 50 * 1.05 ^ 2 = 55.125
+        uint256 normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
+        uint256 FV = 55.125 ether; // 50 * 1.05 ^ 2 = 55.125
         assertEq(feed.dateBucket(normalizedDueDate), FV);
         // FV/(1.03^2)
         assertEq(feed.currentNAV(), 51.960741582371777180 ether);
@@ -196,16 +222,16 @@ contract NAVTest is DSTest, Math {
     }
 
     function testBorrowWithFixedFee() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 40 ether;
-        uint fixedFeeRate = 25*10**25; // 25 % -> 10 ether 
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 40 ether;
+        uint256 fixedFeeRate = 25 * 10**25; // 25 % -> 10 ether
         pile.setReturn("rates_fixedRate", fixedFeeRate);
-        (,,uint NAVIncrease) = borrow(tokenId, nftValue, amount, dueDate);
+        (, , uint256 NAVIncrease) = borrow(tokenId, nftValue, amount, dueDate);
         // // check FV
-        uint normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
-        uint FV = 55.125 ether; // 55 * 1.05 ^ 2 = 55.125
+        uint256 normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
+        uint256 FV = 55.125 ether; // 55 * 1.05 ^ 2 = 55.125
 
         assertEq(feed.dateBucket(normalizedDueDate), FV);
         // FV/(1.03^2)
@@ -240,10 +266,10 @@ contract NAVTest is DSTest, Math {
     }
 
     function testTimeOverBuckets() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
 
         // insert first element
         borrow(tokenId, nftValue, amount, dueDate);
@@ -256,33 +282,33 @@ contract NAVTest is DSTest, Math {
     }
 
     function testNormalizeDate() public {
-        uint randomUnixTimestamp = 1586977096; // 04/15/2020 @ 6:58pm (UTC)
-        uint dayTimestamp = feed.uniqueDayTimestamp(randomUnixTimestamp);
+        uint256 randomUnixTimestamp = 1586977096; // 04/15/2020 @ 6:58pm (UTC)
+        uint256 dayTimestamp = feed.uniqueDayTimestamp(randomUnixTimestamp);
 
         assertTrue(feed.uniqueDayTimestamp(randomUnixTimestamp) != randomUnixTimestamp);
-        uint delta = randomUnixTimestamp - dayTimestamp;
+        uint256 delta = randomUnixTimestamp - dayTimestamp;
 
-        assertTrue(delta < 24*60*60);
+        assertTrue(delta < 24 * 60 * 60);
         randomUnixTimestamp += 3 hours;
         assertTrue(feed.uniqueDayTimestamp(randomUnixTimestamp) == dayTimestamp);
     }
 
     function testRepay() public {
-        uint amount = 50 ether;
-        
+        uint256 amount = 50 ether;
+
         setupLinkedListBuckets();
 
         // due date + 5 days for loan 2
-        uint tokenId = 2;
-        uint loan = 2;
+        uint256 tokenId = 2;
+        uint256 loan = 2;
         pile.setReturn("debt_loan", amount);
         shelf.setReturn("shelf", mockNFTRegistry, tokenId);
-        uint maturityDate = feed.maturityDate(feed.nftID(loan));
-        uint navBefore = feed.currentNAV();
+        uint256 maturityDate = feed.maturityDate(feed.nftID(loan));
+        uint256 navBefore = feed.currentNAV();
 
         // loan id doesn't matter because shelf is mocked
         // repay not full amount
-        uint navDecrease = feed.repay(loan, 30 ether);
+        uint256 navDecrease = feed.repay(loan, 30 ether);
 
         listLen();
 
@@ -293,10 +319,10 @@ contract NAVTest is DSTest, Math {
 
         // newFV = (loan.debt - repayment)*interest^timeLeft
         // newFV = (50-30)*1.05^5
-        uint newFV = 25.52563125 ether;
+        uint256 newFV = 25.52563125 ether;
         assertEq(feed.dateBucket(maturityDate), newFV);
 
-        uint secondAmount = 20 ether;
+        uint256 secondAmount = 20 ether;
         pile.setReturn("debt_loan", secondAmount);
         feed.repay(loan, secondAmount);
         assertEq(feed.dateBucket(maturityDate), 0);
@@ -308,30 +334,30 @@ contract NAVTest is DSTest, Math {
     }
 
     function testFailChangeMaturityDateLoanOngoing() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint loan = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 loan = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
         bytes32 nftID = prepareDefaultNFT(tokenId, nftValue);
         borrow(tokenId, loan, nftValue, amount, dueDate);
         // should fail switching to new date after borrowing
-        uint newDate = dueDate + 2 days;
+        uint256 newDate = dueDate + 2 days;
         feed.file("maturityDate", nftID, newDate);
     }
 
     function testChangeMaturityDateNoDebt() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint loan = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 loan = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
         bytes32 nftID = prepareDefaultNFT(tokenId, nftValue);
         // should fail switching to new date after borrowing
-        
+
         feed.file("maturityDate", nftID, dueDate);
         // no loan debt exists -> maturity date change possible
-        uint newDate = dueDate + 2 days;
+        uint256 newDate = dueDate + 2 days;
         feed.file("maturityDate", nftID, newDate);
         assertEq(feed.maturityDate(nftID), feed.uniqueDayTimestamp(newDate));
     }
@@ -341,24 +367,24 @@ contract NAVTest is DSTest, Math {
         testRepay();
         bytes32 nftID = feed.nftID(2);
         // no loan debt exists anymore -> maturity date change possible
-        uint newDate = feed.maturityDate(nftID) + 2 days;
+        uint256 newDate = feed.maturityDate(nftID) + 2 days;
         // no loan debt exists -> maturity date change possible
         feed.file("maturityDate", nftID, newDate);
         assertEq(feed.maturityDate(nftID), feed.uniqueDayTimestamp(newDate));
     }
 
     function testRepayAfterMaturityDate() public {
-        uint amount = 50 ether;
+        uint256 amount = 50 ether;
         setupLinkedListBuckets();
         // due date + 5 days for loan 2
-        uint tokenId = 2;
-        uint loan = 2;
-        uint repaymentAmount = 30 ether;
+        uint256 tokenId = 2;
+        uint256 loan = 2;
+        uint256 repaymentAmount = 30 ether;
         bytes32 nftID = feed.nftID(loan);
-        uint maturityDate = feed.maturityDate(nftID);
-        uint nav = feed.currentNAV();
-        uint approximatedNav = feed.approximatedNAV();
-        uint futureValue = feed.futureValue(nftID);
+        uint256 maturityDate = feed.maturityDate(nftID);
+        uint256 nav = feed.currentNAV();
+        uint256 approximatedNav = feed.approximatedNAV();
+        uint256 futureValue = feed.futureValue(nftID);
         // assert future value of loan is bigger then 0
         assert(futureValue > 0);
 
@@ -366,7 +392,7 @@ contract NAVTest is DSTest, Math {
         hevm.warp(safeAdd(maturityDate, 1 days));
 
         // make repayment for overdue loan
-        uint navDecrease = feed.repay(loan, repaymentAmount);
+        uint256 navDecrease = feed.repay(loan, repaymentAmount);
         // assert approx nav decreased by repayment amount
         assertEq(feed.approximatedNAV(), safeSub(approximatedNav, repaymentAmount));
         // assert nav decrease  equals repaymenta amount
@@ -375,17 +401,22 @@ contract NAVTest is DSTest, Math {
 
     function testRemoveBuckets() public {
         // buckets are removed by completely repaying it
-        uint[4] memory buckets = [uint(52500000000000000000), uint(55125000000000000000), uint(121550625000000000000), uint(63814078125000000000)];
+        uint256[4] memory buckets = [
+            uint256(52500000000000000000),
+            uint256(55125000000000000000),
+            uint256(121550625000000000000),
+            uint256(63814078125000000000)
+        ];
         // token and loan id are the same in tests
-        uint[4] memory tokenIdForBuckets = [uint(4), uint(1), uint(3), uint(2)];
+        uint256[4] memory tokenIdForBuckets = [uint256(4), uint256(1), uint256(3), uint256(2)];
         // list : [1 days] -> [2 days] -> [4 days] -> [5 days]
 
         setupLinkedListBuckets();
-       // assertEq(listLen(), 4);
+        // assertEq(listLen(), 4);
 
         // remove bucket in between buckets
         // remove bucket [2 days]
-        uint idx = 1;
+        uint256 idx = 1;
         shelf.setReturn("shelf", mockNFTRegistry, tokenIdForBuckets[idx]);
 
         // loan id doesn't matter because shelf is mocked
@@ -421,54 +452,54 @@ contract NAVTest is DSTest, Math {
     }
 
     function testRecoveryRatePD() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
         // risk 1 => RecoveryRatePD => 90%
-        uint risk = 1;
-        uint loan = 1;
+        uint256 risk = 1;
+        uint256 loan = 1;
 
         bytes32 nftID = prepareDefaultNFT(tokenId, nftValue, risk);
-        feed.file("maturityDate",nftID, dueDate);
+        feed.file("maturityDate", nftID, dueDate);
 
-        pile.setReturn("loanRates", uint(1000000564701133626865910626));
+        pile.setReturn("loanRates", uint256(1000000564701133626865910626));
 
         feed.borrow(loan, amount);
 
-        uint normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
+        uint256 normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
 
-        uint FV = 49.6125 ether; // 50 * 1.05 ^ 2  * 0.9
+        uint256 FV = 49.6125 ether; // 50 * 1.05 ^ 2  * 0.9
         assertEq(feed.dateBucket(normalizedDueDate), FV);
     }
 
     function testChangeRiskGroup() public {
-        uint nftValue = 100 ether;
-        uint tokenId = 1;
-        uint loan = 1;
-        uint dueDate = now + 2 days;
-        uint amount = 50 ether;
+        uint256 nftValue = 100 ether;
+        uint256 tokenId = 1;
+        uint256 loan = 1;
+        uint256 dueDate = now + 2 days;
+        uint256 amount = 50 ether;
 
         bytes32 nftID = feed.nftID(mockNFTRegistry, tokenId);
 
         borrow(tokenId, loan, nftValue, amount, dueDate);
 
-        shelf.setReturn("nftlookup" ,loan);
+        shelf.setReturn("nftlookup", loan);
         pile.setReturn("debt_loan", amount);
 
         // check FV
-        uint normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
+        uint256 normalizedDueDate = feed.uniqueDayTimestamp(dueDate);
 
-        uint FV = 55.125 ether; // 50 * 1.05 ^ 2 = 55.125
+        uint256 FV = 55.125 ether; // 50 * 1.05 ^ 2 = 55.125
         assertEq(feed.dateBucket(normalizedDueDate), FV);
 
-        uint defaultRisk = 0;
+        uint256 defaultRisk = 0;
         feed.update(nftID, nftValue, defaultRisk);
 
         // should stay the same because risk class didn't change
         assertEq(feed.dateBucket(normalizedDueDate), FV);
 
-        uint newRisk = 1;
+        uint256 newRisk = 1;
         feed.update(nftID, nftValue, newRisk);
 
         //  55.125 * 0.9

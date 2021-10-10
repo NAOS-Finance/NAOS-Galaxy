@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { Assessor } from "./../assessor.sol";
+import {Assessor} from "./../assessor.sol";
 
 interface AssessorFabLike {
     function newAssessor() external returns (address);

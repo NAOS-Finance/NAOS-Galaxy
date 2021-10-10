@@ -28,27 +28,26 @@ contract Pile is DSNote, Auth, Interest {
 
     /// stores all needed information of an interest rate group
     struct Rate {
-        uint   pie;                 // Total debt of all loans with this rate
-        uint   chi;                 // Accumulated rates
-        uint   ratePerSecond;       // Accumulation per second
-        uint48 lastUpdated;         // Last time the rate was accumulated
-        uint   fixedRate;           // fixed rate applied to each loan of the group
+        uint256 pie; // Total debt of all loans with this rate
+        uint256 chi; // Accumulated rates
+        uint256 ratePerSecond; // Accumulation per second
+        uint48 lastUpdated; // Last time the rate was accumulated
+        uint256 fixedRate; // fixed rate applied to each loan of the group
     }
 
     /// Interest Rate Groups are identified by a `uint` and stored in a mapping
-    mapping (uint => Rate) public rates;
+    mapping(uint256 => Rate) public rates;
 
     /// mapping of all loan debts
     /// the debt is stored as pie
     /// pie is defined as pie = debt/chi therefore debt = pie * chi
     /// where chi is the accumulated interest rate index over time
-    mapping (uint => uint) public pie;
+    mapping(uint256 => uint256) public pie;
     /// loan => rate
-    mapping (uint => uint) public loanRates;
-
+    mapping(uint256 => uint256) public loanRates;
 
     /// total debt of all ongoing loans
-    uint public total;
+    uint256 public total;
 
     constructor() public {
         wards[msg.sender] = 1;
@@ -57,14 +56,14 @@ contract Pile is DSNote, Auth, Interest {
         rates[0].ratePerSecond = ONE;
     }
 
-     // --- Public Debt Methods  ---
+    // --- Public Debt Methods  ---
     /// increases the debt of a loan by a currencyAmount
     /// a change of the loan debt updates the rate debt and total debt
-    function incDebt(uint loan, uint currencyAmount) external auth note { 
-        uint rate = loanRates[loan];
+    function incDebt(uint256 loan, uint256 currencyAmount) external auth note {
+        uint256 rate = loanRates[loan];
         require(now == rates[rate].lastUpdated, "rate-group-not-updated");
         currencyAmount = safeAdd(currencyAmount, rmul(currencyAmount, rates[rate].fixedRate));
-        uint pieAmount = toPie(rates[rate].chi, currencyAmount);
+        uint256 pieAmount = toPie(rates[rate].chi, currencyAmount);
 
         pie[loan] = safeAdd(pie[loan], pieAmount);
         rates[rate].pie = safeAdd(rates[rate].pie, pieAmount);
@@ -73,10 +72,10 @@ contract Pile is DSNote, Auth, Interest {
 
     /// decrease the loan's debt by a currencyAmount
     /// a change of the loan debt updates the rate debt and total debt
-    function decDebt(uint loan, uint currencyAmount) external auth note {
-        uint rate = loanRates[loan];
+    function decDebt(uint256 loan, uint256 currencyAmount) external auth note {
+        uint256 rate = loanRates[loan];
         require(now == rates[rate].lastUpdated, "rate-group-not-updated");
-        uint pieAmount = toPie(rates[rate].chi, currencyAmount);
+        uint256 pieAmount = toPie(rates[rate].chi, currencyAmount);
 
         pie[loan] = safeSub(pie[loan], pieAmount);
         rates[rate].pie = safeSub(rates[rate].pie, pieAmount);
@@ -90,9 +89,9 @@ contract Pile is DSNote, Auth, Interest {
     }
 
     /// returns the current debt based on actual block.timestamp (now)
-    function debt(uint loan) external view returns (uint) {
-        uint rate_ = loanRates[loan];
-        uint chi_ = rates[rate_].chi;
+    function debt(uint256 loan) external view returns (uint256) {
+        uint256 rate_ = loanRates[loan];
+        uint256 chi_ = rates[rate_].chi;
         if (now >= rates[rate_].lastUpdated) {
             chi_ = chargeInterest(rates[rate_].chi, rates[rate_].ratePerSecond, rates[rate_].lastUpdated);
         }
@@ -100,9 +99,9 @@ contract Pile is DSNote, Auth, Interest {
     }
 
     /// returns the total debt of a interest rate group
-    function rateDebt(uint rate) external view returns (uint) {
-        uint chi_ = rates[rate].chi;
-        uint pie_ = rates[rate].pie;
+    function rateDebt(uint256 rate) external view returns (uint256) {
+        uint256 chi_ = rates[rate].chi;
+        uint256 pie_ = rates[rate].pie;
 
         if (now >= rates[rate].lastUpdated) {
             chi_ = chargeInterest(rates[rate].chi, rates[rate].ratePerSecond, rates[rate].lastUpdated);
@@ -113,7 +112,7 @@ contract Pile is DSNote, Auth, Interest {
     // --- Interest Rate Group Implementation ---
 
     // set rate loanRates for a loan
-    function setRate(uint loan, uint rate) external auth note {
+    function setRate(uint256 loan, uint256 rate) external auth note {
         require(pie[loan] == 0, "non-zero-debt");
         // rate category has to be initiated
         require(rates[rate].chi != 0, "rate-group-not-set");
@@ -121,13 +120,13 @@ contract Pile is DSNote, Auth, Interest {
     }
 
     // change rate loanRates for a loan
-    function changeRate(uint loan, uint newRate) external auth note {
+    function changeRate(uint256 loan, uint256 newRate) external auth note {
         require(rates[newRate].chi != 0, "rate-group-not-set");
-        uint currentRate = loanRates[loan];
+        uint256 currentRate = loanRates[loan];
         drip(currentRate);
         drip(newRate);
-        uint pie_ = pie[loan];
-        uint debt_ = toAmount(rates[currentRate].chi, pie_);
+        uint256 pie_ = pie[loan];
+        uint256 debt_ = toAmount(rates[currentRate].chi, pie_);
         rates[currentRate].pie = safeSub(rates[currentRate].pie, pie_);
         pie[loan] = toPie(rates[newRate].chi, debt_);
         rates[newRate].pie = safeAdd(rates[newRate].pie, pie[loan]);
@@ -135,7 +134,11 @@ contract Pile is DSNote, Auth, Interest {
     }
 
     // set/change the interest rate of a rate category
-    function file(bytes32 what, uint rate, uint value) external auth note {
+    function file(
+        bytes32 what,
+        uint256 rate,
+        uint256 value
+    ) external auth note {
         if (what == "rate") {
             require(value != 0, "rate-per-second-can-not-be-0");
             if (rates[rate].chi == 0) {
@@ -143,7 +146,7 @@ contract Pile is DSNote, Auth, Interest {
                 rates[rate].lastUpdated = uint48(now);
             } else {
                 drip(rate);
-            } 
+            }
             rates[rate].ratePerSecond = value;
         } else if (what == "fixedRate") {
             rates[rate].fixedRate = value;
@@ -151,15 +154,15 @@ contract Pile is DSNote, Auth, Interest {
     }
 
     // accrue needs to be called before any debt amounts are modified by an external component
-    function accrue(uint loan) external {
+    function accrue(uint256 loan) external {
         drip(loanRates[loan]);
     }
 
     // drip updates the chi of the rate category by compounding the interest and
     // updates the total debt
-    function drip(uint rate) public {        
+    function drip(uint256 rate) public {
         if (now >= rates[rate].lastUpdated) {
-            (uint chi, uint deltaInterest) = compounding(rates[rate].chi, rates[rate].ratePerSecond, rates[rate].lastUpdated, rates[rate].pie);
+            (uint256 chi, uint256 deltaInterest) = compounding(rates[rate].chi, rates[rate].ratePerSecond, rates[rate].lastUpdated, rates[rate].pie);
             rates[rate].chi = chi;
             rates[rate].lastUpdated = uint48(now);
             total = safeAdd(total, deltaInterest);

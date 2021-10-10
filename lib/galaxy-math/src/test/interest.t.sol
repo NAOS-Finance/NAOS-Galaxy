@@ -23,8 +23,7 @@ contract Hevm {
     function warp(uint256) public;
 }
 
-contract InterestTest is Interest, DSTest{
-
+contract InterestTest is Interest, DSTest {
     Hevm hevm;
 
     function setUp() public {
@@ -32,7 +31,7 @@ contract InterestTest is Interest, DSTest{
         hevm.warp(1234567);
     }
 
-    function testUpdateChiSec() public  {
+    function testUpdateChiSec() public {
         /*
         Compound period in pile is in seconds
         compound seconds = (1+r/n)^nt
@@ -48,16 +47,16 @@ contract InterestTest is Interest, DSTest{
         rate = (1+(0.05/(3600*24)))*10^27
         rate = 1000000593415115246806684338
         */
-        uint rate = 1000000593415115246806684338; // 5 % per day compound in seconds
-        uint cache = block.timestamp;
-        uint chi = chargeInterest(ONE, rate, block.timestamp);
+        uint256 rate = 1000000593415115246806684338; // 5 % per day compound in seconds
+        uint256 cache = block.timestamp;
+        uint256 chi = chargeInterest(ONE, rate, block.timestamp);
         // one day later
         hevm.warp(block.timestamp + 1 days);
-        uint chi_ = chargeInterest(chi, rate, cache);
-        assertEq(chi_,1052608164847005065391965708);
+        uint256 chi_ = chargeInterest(chi, rate, cache);
+        assertEq(chi_, 1052608164847005065391965708);
     }
 
-    function testUpdateChiDay() public  {
+    function testUpdateChiDay() public {
         /*
         Compound period in pile is in seconds
         compound seconds = (1+r/n)^nt
@@ -81,54 +80,53 @@ contract InterestTest is Interest, DSTest{
         rate = 1000000564701133626865910626
 
         */
-        uint rate = 1000000564701133626865910626; // 5 % day
-        uint cache = block.timestamp;
-        uint chi = chargeInterest(ONE, rate, block.timestamp);
+        uint256 rate = 1000000564701133626865910626; // 5 % day
+        uint256 cache = block.timestamp;
+        uint256 chi = chargeInterest(ONE, rate, block.timestamp);
         assertEq(chi, ONE);
         // one day later
         hevm.warp(block.timestamp + 2 days);
         // new chi should = 1,05**2
-        uint chi_ = chargeInterest(chi, rate, cache);
+        uint256 chi_ = chargeInterest(chi, rate, cache);
         assertEq(chi_, 1102500000000000000000033678);
     }
 
-    function testCompounding() public  {
-        uint rate = 1000000564701133626865910626; // 5 % day
-        uint cache = block.timestamp;
-        uint pie = toPie(ONE, 100 ether);
-        (uint chi, uint delta) = compounding(ONE, rate, block.timestamp, pie);
+    function testCompounding() public {
+        uint256 rate = 1000000564701133626865910626; // 5 % day
+        uint256 cache = block.timestamp;
+        uint256 pie = toPie(ONE, 100 ether);
+        (uint256 chi, uint256 delta) = compounding(ONE, rate, block.timestamp, pie);
         assertEq(delta, 0);
 
         // one day later
         hevm.warp(block.timestamp + 1 days);
-        (uint updatedChi,uint delta_) = compounding(chi, rate, cache, pie);
-        uint newAmount = toAmount(pie, updatedChi);
-        uint oldAmount = toAmount(pie, chi);
+        (uint256 updatedChi, uint256 delta_) = compounding(chi, rate, cache, pie);
+        uint256 newAmount = toAmount(pie, updatedChi);
+        uint256 oldAmount = toAmount(pie, chi);
         assertEq(delta_, 5000000000000000000);
         assertEq(newAmount - oldAmount, delta_);
     }
 
-
     function testCompoundingDeltaAmount() public {
-        uint amount = 10 ether;
-        uint chi = 1000000564701133626865910626; // 5% day
-        uint pie = toPie(chi, amount);
+        uint256 amount = 10 ether;
+        uint256 chi = 1000000564701133626865910626; // 5% day
+        uint256 pie = toPie(chi, amount);
 
         // random chi increase
-        uint last = now;
+        uint256 last = now;
         hevm.warp(now + 3 days + 123 seconds);
-        (uint latestChi, uint deltaAmount) = compounding(chi, chi, last ,pie);
+        (uint256 latestChi, uint256 deltaAmount) = compounding(chi, chi, last, pie);
 
-        assertEq(toAmount(latestChi, pie) -  toAmount(chi, pie), deltaAmount);
+        assertEq(toAmount(latestChi, pie) - toAmount(chi, pie), deltaAmount);
     }
 
     function testChargeInterest() public {
-        uint amount = 100 ether;
-        uint lastUpdated = now;
+        uint256 amount = 100 ether;
+        uint256 lastUpdated = now;
 
-        uint ratePerSecond = 1000000564701133626865910626; // 5 % day
+        uint256 ratePerSecond = 1000000564701133626865910626; // 5 % day
         hevm.warp(now + 1 days);
-        uint updatedAmount = chargeInterest(amount, ratePerSecond, lastUpdated);
+        uint256 updatedAmount = chargeInterest(amount, ratePerSecond, lastUpdated);
         assertEq(updatedAmount, 105 ether);
     }
 }

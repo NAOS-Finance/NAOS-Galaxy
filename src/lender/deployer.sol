@@ -14,10 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity >=0.5.15 <0.6.0;
 
-import { ReserveFabLike, AssessorFabLike, TrancheFabLike, CoordinatorFabLike, OperatorFabLike, MemberlistFabLike, RestrictedTokenFabLike } from "./fabs/interfaces.sol";
+import {ReserveFabLike, AssessorFabLike, TrancheFabLike, CoordinatorFabLike, OperatorFabLike, MemberlistFabLike, RestrictedTokenFabLike} from "./fabs/interfaces.sol";
 
-import {FixedPoint}      from "./../fixed_point.sol";
-
+import {FixedPoint} from "./../fixed_point.sol";
 
 interface DependLike {
     function depend(bytes32, address) external;
@@ -25,15 +24,16 @@ interface DependLike {
 
 interface AuthLike {
     function rely(address) external;
+
     function deny(address) external;
 }
 
 interface MemberlistLike {
-    function updateMember(address, uint) external;
+    function updateMember(address, uint256) external;
 }
 
 interface FileLike {
-    function file(bytes32 name, uint value) external;
+    function file(bytes32 name, uint256 value) external;
 }
 
 contract LenderDeployer is FixedPoint {
@@ -41,47 +41,55 @@ contract LenderDeployer is FixedPoint {
     address public currency;
 
     // factory contracts
-    TrancheFabLike          public trancheFab;
-    ReserveFabLike          public reserveFab;
-    AssessorFabLike         public assessorFab;
-    CoordinatorFabLike      public coordinatorFab;
-    OperatorFabLike         public operatorFab;
-    MemberlistFabLike       public memberlistFab;
-    RestrictedTokenFabLike  public restrictedTokenFab;
+    TrancheFabLike public trancheFab;
+    ReserveFabLike public reserveFab;
+    AssessorFabLike public assessorFab;
+    CoordinatorFabLike public coordinatorFab;
+    OperatorFabLike public operatorFab;
+    MemberlistFabLike public memberlistFab;
+    RestrictedTokenFabLike public restrictedTokenFab;
 
     // lender state variables
-    Fixed27             public minSeniorRatio;
-    Fixed27             public maxSeniorRatio;
-    uint                public maxReserve;
-    uint                public challengeTime;
-    Fixed27             public seniorInterestRate;
-
+    Fixed27 public minSeniorRatio;
+    Fixed27 public maxSeniorRatio;
+    uint256 public maxReserve;
+    uint256 public challengeTime;
+    Fixed27 public seniorInterestRate;
 
     // contract addresses
-    address             public assessor;
-    address             public seniorTranche;
-    address             public juniorTranche;
-    address             public seniorOperator;
-    address             public juniorOperator;
-    address             public reserve;
-    address             public coordinator;
+    address public assessor;
+    address public seniorTranche;
+    address public juniorTranche;
+    address public seniorOperator;
+    address public juniorOperator;
+    address public reserve;
+    address public coordinator;
 
-    address             public seniorToken;
-    address             public juniorToken;
+    address public seniorToken;
+    address public juniorToken;
 
     // token names
-    string              public seniorName;
-    string              public seniorSymbol;
-    string              public juniorName;
-    string              public juniorSymbol;
+    string public seniorName;
+    string public seniorSymbol;
+    string public juniorName;
+    string public juniorSymbol;
     // restricted token member list
-    address             public seniorMemberlist;
-    address             public juniorMemberlist;
+    address public seniorMemberlist;
+    address public juniorMemberlist;
 
-    address             public deployer;
+    address public deployer;
 
-    constructor(address root_, address currency_, address trancheFab_, address memberlistFab_, address restrictedtokenFab_, address reserveFab_, address assessorFab_, address coordinatorFab_, address operatorFab_) public {
-
+    constructor(
+        address root_,
+        address currency_,
+        address trancheFab_,
+        address memberlistFab_,
+        address restrictedtokenFab_,
+        address reserveFab_,
+        address assessorFab_,
+        address coordinatorFab_,
+        address operatorFab_
+    ) public {
         deployer = msg.sender;
         root = root_;
         currency = currency_;
@@ -95,7 +103,17 @@ contract LenderDeployer is FixedPoint {
         operatorFab = OperatorFabLike(operatorFab_);
     }
 
-    function init(uint minSeniorRatio_, uint maxSeniorRatio_, uint maxReserve_, uint challengeTime_, uint seniorInterestRate_, string memory seniorName_, string memory seniorSymbol_, string memory juniorName_, string memory juniorSymbol_) public {
+    function init(
+        uint256 minSeniorRatio_,
+        uint256 maxSeniorRatio_,
+        uint256 maxReserve_,
+        uint256 challengeTime_,
+        uint256 seniorInterestRate_,
+        string memory seniorName_,
+        string memory seniorSymbol_,
+        string memory juniorName_,
+        string memory juniorSymbol_
+    ) public {
         require(msg.sender == deployer);
         challengeTime = challengeTime_;
         minSeniorRatio = Fixed27(minSeniorRatio_);
@@ -136,7 +154,6 @@ contract LenderDeployer is FixedPoint {
         AuthLike(seniorToken).rely(seniorTranche);
         AuthLike(seniorOperator).rely(root);
         AuthLike(seniorTranche).rely(root);
-
     }
 
     function deployReserve() public {
@@ -158,8 +175,7 @@ contract LenderDeployer is FixedPoint {
     }
 
     function deploy() public {
-        require(coordinator != address(0) && assessor != address(0) &&
-                reserve != address(0) && seniorTranche != address(0));
+        require(coordinator != address(0) && assessor != address(0) && reserve != address(0) && seniorTranche != address(0));
 
         // required depends
         // reserve
@@ -169,10 +185,9 @@ contract LenderDeployer is FixedPoint {
         AuthLike(reserve).rely(coordinator);
         AuthLike(reserve).rely(assessor);
 
-
         // tranches
-        DependLike(seniorTranche).depend("reserve",reserve);
-        DependLike(juniorTranche).depend("reserve",reserve);
+        DependLike(seniorTranche).depend("reserve", reserve);
+        DependLike(juniorTranche).depend("reserve", reserve);
         AuthLike(seniorTranche).rely(coordinator);
         AuthLike(juniorTranche).rely(coordinator);
         AuthLike(seniorTranche).rely(seniorOperator);
@@ -187,15 +202,14 @@ contract LenderDeployer is FixedPoint {
         DependLike(juniorToken).depend("memberlist", juniorMemberlist);
 
         // allow galaxy contracts to hold drop/tin tokens
-        MemberlistLike(juniorMemberlist).updateMember(juniorTranche, uint(-1));
-        MemberlistLike(seniorMemberlist).updateMember(seniorTranche, uint(-1));
+        MemberlistLike(juniorMemberlist).updateMember(juniorTranche, uint256(-1));
+        MemberlistLike(seniorMemberlist).updateMember(seniorTranche, uint256(-1));
 
         // operator
         DependLike(seniorOperator).depend("tranche", seniorTranche);
         DependLike(juniorOperator).depend("tranche", juniorTranche);
         DependLike(seniorOperator).depend("token", seniorToken);
         DependLike(juniorOperator).depend("token", juniorToken);
-
 
         // coordinator
         DependLike(coordinator).depend("reserve", reserve);

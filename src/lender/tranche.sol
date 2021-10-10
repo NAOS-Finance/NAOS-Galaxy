@@ -21,28 +21,41 @@ import "../../lib/galaxy-math/src/math.sol";
 import "./../fixed_point.sol";
 
 interface ERC20Like {
-    function balanceOf(address) external view returns (uint);
-    function transferFrom(address, address, uint) external returns (bool);
-    function transfer(address, uint) external returns (bool);
-    function mint(address, uint) external;
-    function burn(address, uint) external;
-    function totalSupply() external view returns (uint);
-    function approve(address usr, uint amount) external;
+    function balanceOf(address) external view returns (uint256);
+
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) external returns (bool);
+
+    function transfer(address, uint256) external returns (bool);
+
+    function mint(address, uint256) external;
+
+    function burn(address, uint256) external;
+
+    function totalSupply() external view returns (uint256);
+
+    function approve(address usr, uint256 amount) external;
 }
 
 interface ReserveLike {
-    function deposit(uint amount) external;
-    function payout(uint amount) external;
-    function totalBalance() external returns (uint);
+    function deposit(uint256 amount) external;
+
+    function payout(uint256 amount) external;
+
+    function totalBalance() external returns (uint256);
 }
 
 interface EpochTickerLike {
-    function currentEpoch() external view returns (uint);
-    function lastEpochExecuted() external view returns(uint);
+    function currentEpoch() external view returns (uint256);
+
+    function lastEpochExecuted() external view returns (uint256);
 }
 
 contract Tranche is Math, Auth, FixedPoint {
-    mapping(uint => Epoch) public epochs;
+    mapping(uint256 => Epoch) public epochs;
 
     struct Epoch {
         // denominated in 10^27
@@ -56,15 +69,15 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     struct UserOrder {
-        uint orderedInEpoch;
-        uint supplyCurrencyAmount;
-        uint redeemTokenAmount;
+        uint256 orderedInEpoch;
+        uint256 supplyCurrencyAmount;
+        uint256 redeemTokenAmount;
     }
 
     mapping(address => UserOrder) public users;
 
-    uint public  totalSupply;
-    uint public  totalRedeem;
+    uint256 public totalSupply;
+    uint256 public totalRedeem;
 
     ERC20Like public currency;
     ERC20Like public token;
@@ -76,8 +89,10 @@ contract Tranche is Math, Auth, FixedPoint {
     bool public waitingForUpdate = false;
 
     modifier orderAllowed(address usr) {
-        require((users[usr].supplyCurrencyAmount == 0 && users[usr].redeemTokenAmount == 0)
-        || users[usr].orderedInEpoch == epochTicker.currentEpoch(), "disburse required");
+        require(
+            (users[usr].supplyCurrencyAmount == 0 && users[usr].redeemTokenAmount == 0) || users[usr].orderedInEpoch == epochTicker.currentEpoch(),
+            "disburse required"
+        );
         _;
     }
 
@@ -88,75 +103,97 @@ contract Tranche is Math, Auth, FixedPoint {
         self = address(this);
     }
 
-    function balance() external view returns (uint) {
+    function balance() external view returns (uint256) {
         return currency.balanceOf(self);
     }
 
-    function tokenSupply() external view returns (uint) {
+    function tokenSupply() external view returns (uint256) {
         return token.totalSupply();
     }
 
-    function getTokenPriceByEpoch(uint _epoch) external view returns (uint) {
+    function getTokenPriceByEpoch(uint256 _epoch) external view returns (uint256) {
         return epochs[_epoch].tokenPrice.value;
     }
 
     function depend(bytes32 contractName, address addr) public auth {
-        if (contractName == "token") {token = ERC20Like(addr);}
-        else if (contractName == "currency") {currency = ERC20Like(addr);}
-        else if (contractName == "reserve") {reserve = ReserveLike(addr);}
-        else if (contractName == "epochTicker") {epochTicker = EpochTickerLike(addr);}
-        else revert();
+        if (contractName == "token") {
+            token = ERC20Like(addr);
+        } else if (contractName == "currency") {
+            currency = ERC20Like(addr);
+        } else if (contractName == "reserve") {
+            reserve = ReserveLike(addr);
+        } else if (contractName == "epochTicker") {
+            epochTicker = EpochTickerLike(addr);
+        } else revert();
     }
 
     // supplyOrder function can be used to place or revoke an supply
-    function supplyOrder(address usr, uint newSupplyAmount) public auth orderAllowed(usr) {
+    function supplyOrder(address usr, uint256 newSupplyAmount) public auth orderAllowed(usr) {
         users[usr].orderedInEpoch = epochTicker.currentEpoch();
 
-        uint currentSupplyAmount = users[usr].supplyCurrencyAmount;
+        uint256 currentSupplyAmount = users[usr].supplyCurrencyAmount;
 
         users[usr].supplyCurrencyAmount = newSupplyAmount;
 
         totalSupply = safeAdd(safeTotalSub(totalSupply, currentSupplyAmount), newSupplyAmount);
 
         if (newSupplyAmount > currentSupplyAmount) {
-            uint delta = safeSub(newSupplyAmount, currentSupplyAmount);
+            uint256 delta = safeSub(newSupplyAmount, currentSupplyAmount);
             require(currency.transferFrom(usr, self, delta), "currency-transfer-failed");
             return;
         }
-        uint delta = safeSub(currentSupplyAmount, newSupplyAmount);
+        uint256 delta = safeSub(currentSupplyAmount, newSupplyAmount);
         if (delta > 0) {
             _safeTransfer(currency, usr, delta);
         }
     }
 
     // redeemOrder function can be used to place or revoke a redeem
-    function redeemOrder(address usr, uint newRedeemAmount) public auth orderAllowed(usr) {
+    function redeemOrder(address usr, uint256 newRedeemAmount) public auth orderAllowed(usr) {
         users[usr].orderedInEpoch = epochTicker.currentEpoch();
 
-        uint currentRedeemAmount = users[usr].redeemTokenAmount;
+        uint256 currentRedeemAmount = users[usr].redeemTokenAmount;
         users[usr].redeemTokenAmount = newRedeemAmount;
         totalRedeem = safeAdd(safeTotalSub(totalRedeem, currentRedeemAmount), newRedeemAmount);
 
         if (newRedeemAmount > currentRedeemAmount) {
-            uint delta = safeSub(newRedeemAmount, currentRedeemAmount);
+            uint256 delta = safeSub(newRedeemAmount, currentRedeemAmount);
             require(token.transferFrom(usr, self, delta), "token-transfer-failed");
             return;
         }
 
-        uint delta = safeSub(currentRedeemAmount, newRedeemAmount);
+        uint256 delta = safeSub(currentRedeemAmount, newRedeemAmount);
         if (delta > 0) {
             _safeTransfer(token, usr, delta);
         }
     }
 
-    function calcDisburse(address usr) public view returns(uint payoutCurrencyAmount, uint payoutTokenAmount, uint remainingSupplyCurrency, uint remainingRedeemToken) {
+    function calcDisburse(address usr)
+        public
+        view
+        returns (
+            uint256 payoutCurrencyAmount,
+            uint256 payoutTokenAmount,
+            uint256 remainingSupplyCurrency,
+            uint256 remainingRedeemToken
+        )
+    {
         return calcDisburse(usr, epochTicker.lastEpochExecuted());
     }
 
     ///  calculates the current disburse of a user starting from the ordered epoch until endEpoch
-    function calcDisburse(address usr, uint endEpoch) public view returns(uint payoutCurrencyAmount, uint payoutTokenAmount, uint remainingSupplyCurrency, uint remainingRedeemToken) {
-        uint epochIdx = users[usr].orderedInEpoch;
-        uint lastEpochExecuted = epochTicker.lastEpochExecuted();
+    function calcDisburse(address usr, uint256 endEpoch)
+        public
+        view
+        returns (
+            uint256 payoutCurrencyAmount,
+            uint256 payoutTokenAmount,
+            uint256 remainingSupplyCurrency,
+            uint256 remainingRedeemToken
+        )
+    {
+        uint256 epochIdx = users[usr].orderedInEpoch;
+        uint256 lastEpochExecuted = epochTicker.lastEpochExecuted();
 
         // no disburse possible in this epoch
         if (users[usr].orderedInEpoch == epochTicker.currentEpoch()) {
@@ -170,11 +207,11 @@ contract Tranche is Math, Auth, FixedPoint {
 
         remainingSupplyCurrency = users[usr].supplyCurrencyAmount;
         remainingRedeemToken = users[usr].redeemTokenAmount;
-        uint amount = 0;
+        uint256 amount = 0;
 
         // calculates disburse amounts as long as remaining tokens or currency is left or the end epoch is reached
-        while(epochIdx <= endEpoch && (remainingSupplyCurrency != 0 || remainingRedeemToken != 0 )){
-            if(remainingSupplyCurrency != 0) {
+        while (epochIdx <= endEpoch && (remainingSupplyCurrency != 0 || remainingRedeemToken != 0)) {
+            if (remainingSupplyCurrency != 0) {
                 amount = rmul(remainingSupplyCurrency, epochs[epochIdx].supplyFulfillment.value);
                 // supply currency payout in token
                 if (amount != 0) {
@@ -183,7 +220,7 @@ contract Tranche is Math, Auth, FixedPoint {
                 }
             }
 
-            if(remainingRedeemToken != 0) {
+            if (remainingRedeemToken != 0) {
                 amount = rmul(remainingRedeemToken, epochs[epochIdx].redeemFulfillment.value);
                 // redeem token payout in currency
                 if (amount != 0) {
@@ -198,37 +235,57 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     // the disburse function can be used after an epoch is over to receive currency and tokens
-    function disburse(address usr) public auth returns (uint payoutCurrencyAmount, uint payoutTokenAmount, uint remainingSupplyCurrency, uint remainingRedeemToken) {
-       return disburse(usr, epochTicker.lastEpochExecuted());
+    function disburse(address usr)
+        public
+        auth
+        returns (
+            uint256 payoutCurrencyAmount,
+            uint256 payoutTokenAmount,
+            uint256 remainingSupplyCurrency,
+            uint256 remainingRedeemToken
+        )
+    {
+        return disburse(usr, epochTicker.lastEpochExecuted());
     }
 
-    function _safeTransfer(ERC20Like erc20, address usr, uint amount) internal {
-        uint max = erc20.balanceOf(self);
-        if(amount > max) {
+    function _safeTransfer(
+        ERC20Like erc20,
+        address usr,
+        uint256 amount
+    ) internal {
+        uint256 max = erc20.balanceOf(self);
+        if (amount > max) {
             amount = max;
         }
         require(erc20.transfer(usr, amount), "token-transfer-failed");
     }
 
     // the disburse function can be used after an epoch is over to receive currency and tokens
-    function disburse(address usr,  uint endEpoch) public auth returns (uint payoutCurrencyAmount, uint payoutTokenAmount, uint remainingSupplyCurrency, uint remainingRedeemToken) {
+    function disburse(address usr, uint256 endEpoch)
+        public
+        auth
+        returns (
+            uint256 payoutCurrencyAmount,
+            uint256 payoutTokenAmount,
+            uint256 remainingSupplyCurrency,
+            uint256 remainingRedeemToken
+        )
+    {
         require(users[usr].orderedInEpoch <= epochTicker.lastEpochExecuted(), "epoch-not-executed-yet");
 
-        uint lastEpochExecuted = epochTicker.lastEpochExecuted();
+        uint256 lastEpochExecuted = epochTicker.lastEpochExecuted();
 
         if (endEpoch > lastEpochExecuted) {
             // it is only possible to disburse epochs which are already over
             endEpoch = lastEpochExecuted;
         }
 
-        (payoutCurrencyAmount, payoutTokenAmount,
-         remainingSupplyCurrency, remainingRedeemToken) = calcDisburse(usr, endEpoch);
+        (payoutCurrencyAmount, payoutTokenAmount, remainingSupplyCurrency, remainingRedeemToken) = calcDisburse(usr, endEpoch);
         users[usr].supplyCurrencyAmount = remainingSupplyCurrency;
         users[usr].redeemTokenAmount = remainingRedeemToken;
         // if lastEpochExecuted is disbursed, orderInEpoch is at the current epoch again
         // which allows to change the order. This is only possible if all previous epochs are disbursed
         users[usr].orderedInEpoch = safeAdd(endEpoch, 1);
-
 
         if (payoutCurrencyAmount > 0) {
             _safeTransfer(currency, usr, payoutCurrencyAmount);
@@ -241,7 +298,14 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     // called by epoch coordinator in epoch execute method
-    function epochUpdate(uint epochID, uint supplyFulfillment_, uint redeemFulfillment_, uint tokenPrice_, uint epochSupplyOrderCurrency, uint epochRedeemOrderCurrency) public auth {
+    function epochUpdate(
+        uint256 epochID,
+        uint256 supplyFulfillment_,
+        uint256 redeemFulfillment_,
+        uint256 tokenPrice_,
+        uint256 epochSupplyOrderCurrency,
+        uint256 epochRedeemOrderCurrency
+    ) public auth {
         require(waitingForUpdate == true);
         waitingForUpdate = false;
 
@@ -250,9 +314,9 @@ contract Tranche is Math, Auth, FixedPoint {
         epochs[epochID].tokenPrice.value = tokenPrice_;
 
         // currency needs to be converted to tokenAmount with current token price
-        uint redeemInToken = 0;
-        uint supplyInToken = 0;
-        if(tokenPrice_ > 0) {
+        uint256 redeemInToken = 0;
+        uint256 supplyInToken = 0;
+        if (tokenPrice_ > 0) {
             supplyInToken = rdiv(epochSupplyOrderCurrency, tokenPrice_);
             redeemInToken = safeDiv(safeMul(epochRedeemOrderCurrency, ONE), tokenPrice_);
         }
@@ -263,50 +327,58 @@ contract Tranche is Math, Auth, FixedPoint {
         adjustCurrencyBalance(epochID, epochSupplyOrderCurrency, epochRedeemOrderCurrency);
 
         // the unfulfilled orders (1-fulfillment) is automatically ordered
-        totalSupply = safeAdd(safeTotalSub(totalSupply, epochSupplyOrderCurrency), rmul(epochSupplyOrderCurrency, safeSub(ONE, epochs[epochID].supplyFulfillment.value)));
+        totalSupply = safeAdd(
+            safeTotalSub(totalSupply, epochSupplyOrderCurrency),
+            rmul(epochSupplyOrderCurrency, safeSub(ONE, epochs[epochID].supplyFulfillment.value))
+        );
         totalRedeem = safeAdd(safeTotalSub(totalRedeem, redeemInToken), rmul(redeemInToken, safeSub(ONE, epochs[epochID].redeemFulfillment.value)));
     }
-    function closeEpoch() public auth returns (uint totalSupplyCurrency_, uint totalRedeemToken_) {
+
+    function closeEpoch() public auth returns (uint256 totalSupplyCurrency_, uint256 totalRedeemToken_) {
         require(waitingForUpdate == false);
         waitingForUpdate = true;
         return (totalSupply, totalRedeem);
     }
 
-    function safeBurn(uint tokenAmount) internal {
-        uint max = token.balanceOf(self);
-        if(tokenAmount > max) {
+    function safeBurn(uint256 tokenAmount) internal {
+        uint256 max = token.balanceOf(self);
+        if (tokenAmount > max) {
             tokenAmount = max;
         }
         token.burn(self, tokenAmount);
     }
 
-    function safePayout(uint currencyAmount) internal {
-        uint max = reserve.totalBalance();
-        if(currencyAmount > max) {
+    function safePayout(uint256 currencyAmount) internal {
+        uint256 max = reserve.totalBalance();
+        if (currencyAmount > max) {
             currencyAmount = max;
         }
         reserve.payout(currencyAmount);
     }
 
     // adjust token balance after epoch execution -> min/burn tokens
-    function adjustTokenBalance(uint epochID, uint epochSupplyToken, uint epochRedeemToken) internal {
+    function adjustTokenBalance(
+        uint256 epochID,
+        uint256 epochSupplyToken,
+        uint256 epochRedeemToken
+    ) internal {
         // mint token amount for supply
 
-        uint mintAmount = 0;
+        uint256 mintAmount = 0;
         if (epochs[epochID].tokenPrice.value > 0) {
             mintAmount = rmul(epochSupplyToken, epochs[epochID].supplyFulfillment.value);
         }
 
-      // burn token amount for redeem
-        uint burnAmount = rmul(epochRedeemToken, epochs[epochID].redeemFulfillment.value);
-       // burn tokens that are not needed for disbursement
+        // burn token amount for redeem
+        uint256 burnAmount = rmul(epochRedeemToken, epochs[epochID].redeemFulfillment.value);
+        // burn tokens that are not needed for disbursement
         if (burnAmount > mintAmount) {
-            uint diff = safeSub(burnAmount, mintAmount);
+            uint256 diff = safeSub(burnAmount, mintAmount);
             safeBurn(diff);
             return;
         }
         // mint tokens that are required for disbursement
-        uint diff = safeSub(mintAmount, burnAmount);
+        uint256 diff = safeSub(mintAmount, burnAmount);
         if (diff > 0) {
             token.mint(self, diff);
         }
@@ -314,25 +386,29 @@ contract Tranche is Math, Auth, FixedPoint {
 
     // additional minting of tokens produces a dilution of all token holders
     // interface is required for adapters
-    function mint(address usr, uint amount) public auth {
+    function mint(address usr, uint256 amount) public auth {
         token.mint(usr, amount);
     }
 
     // adjust currency balance after epoch execution -> receive/send currency from/to reserve
-    function adjustCurrencyBalance(uint epochID, uint epochSupply, uint epochRedeem) internal {
+    function adjustCurrencyBalance(
+        uint256 epochID,
+        uint256 epochSupply,
+        uint256 epochRedeem
+    ) internal {
         // currency that was supplied in this epoch
-        uint currencySupplied = rmul(epochSupply, epochs[epochID].supplyFulfillment.value);
+        uint256 currencySupplied = rmul(epochSupply, epochs[epochID].supplyFulfillment.value);
         // currency required for redemption
-        uint currencyRequired = rmul(epochRedeem, epochs[epochID].redeemFulfillment.value);
+        uint256 currencyRequired = rmul(epochRedeem, epochs[epochID].redeemFulfillment.value);
 
         if (currencySupplied > currencyRequired) {
             // send surplus currency to reserve
-            uint diff = safeSub(currencySupplied, currencyRequired);
+            uint256 diff = safeSub(currencySupplied, currencyRequired);
             currency.approve(address(reserve), diff);
             reserve.deposit(diff);
             return;
         }
-        uint diff = safeSub(currencyRequired, currencySupplied);
+        uint256 diff = safeSub(currencyRequired, currencySupplied);
         if (diff > 0) {
             // get missing currency from reserve
             safePayout(diff);
@@ -340,16 +416,20 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     // recovery transfer can be used by governance to recover funds if tokens are stuck
-    function authTransfer(address erc20, address usr, uint amount) public auth {
+    function authTransfer(
+        address erc20,
+        address usr,
+        uint256 amount
+    ) public auth {
         ERC20Like(erc20).transfer(usr, amount);
     }
 
     // due to rounding in token & currency conversions currency & token balances might be off by 1 wei with the totalSupply/totalRedeem amounts.
     // in order to prevent an underflow error, 0 is returned when amount to be subtracted is bigger then the total value.
-    function safeTotalSub(uint total, uint amount) internal returns (uint) {
+    function safeTotalSub(uint256 total, uint256 amount) internal returns (uint256) {
         if (total < amount) {
             return 0;
         }
         return safeSub(total, amount);
-    } 
+    }
 }

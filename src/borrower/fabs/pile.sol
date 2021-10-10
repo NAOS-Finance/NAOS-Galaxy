@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { Pile } from "./../pile.sol";
+import {Pile} from "./../pile.sol";
 
 contract PileFab {
     function newPile() public returns (address) {

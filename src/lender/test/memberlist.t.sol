@@ -19,10 +19,8 @@ import "../../../lib/ds-test/src/test.sol";
 import "../token/memberlist.sol";
 import "../../../lib/galaxy-math/src/math.sol";
 
-
 contract MemberlistTest is Math, DSTest {
-
-    uint memberlistValidity = safeAdd(now, 8 days);
+    uint256 memberlistValidity = safeAdd(now, 8 days);
     Memberlist memberlist;
     Memberlist testMemberlist;
     Memberlist testMemberlist1;
@@ -54,13 +52,13 @@ contract MemberlistTest is Math, DSTest {
     }
 
     function testFailAddMemberPeriodTooShort() public {
-        uint memberlistValidity_ = safeAdd(now, 7 days);
+        uint256 memberlistValidity_ = safeAdd(now, 7 days);
         memberlist.updateMember(self, memberlistValidity_);
     }
 
     function testUpdateMember() public {
         memberlist.updateMember(self, memberlistValidity);
-        uint newMemberlistValidity_ = safeAdd(now, 9 days);
+        uint256 newMemberlistValidity_ = safeAdd(now, 9 days);
         memberlist.updateMember(self, newMemberlistValidity_);
         assertEq(memberlist.members(self), newMemberlistValidity_);
     }
@@ -73,9 +71,9 @@ contract MemberlistTest is Math, DSTest {
 
     function testFailIsMemberNotAdded() public view {
         memberlist.member(self);
-    }   
+    }
 
     function testFailHasMemberNotAdded() public view {
-         assert(memberlist.hasMember(self));
-    }   
+        assert(memberlist.hasMember(self));
+    }
 }

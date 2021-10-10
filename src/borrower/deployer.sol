@@ -15,10 +15,8 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-
-import { ShelfFabLike, CollectorFabLike, PileFabLike, TitleFabLike } from "./fabs/interfaces.sol";
-import { FixedPoint } from "./../fixed_point.sol";
-
+import {ShelfFabLike, CollectorFabLike, PileFabLike, TitleFabLike} from "./fabs/interfaces.sol";
+import {FixedPoint} from "./../fixed_point.sol";
 
 interface DependLike {
     function depend(bytes32, address) external;
@@ -26,6 +24,7 @@ interface DependLike {
 
 interface AuthLike {
     function rely(address) external;
+
     function deny(address) external;
 }
 
@@ -34,22 +33,21 @@ interface NFTFeedLike {
 }
 
 interface FeedFabLike {
-    function newFeed() external returns(address);
+    function newFeed() external returns (address);
 }
 
-
 interface FileLike {
-    function file(bytes32 name, uint value) external;
+    function file(bytes32 name, uint256 value) external;
 }
 
 contract BorrowerDeployer is FixedPoint {
-    address      public root;
+    address public root;
 
-    TitleFabLike     public titlefab;
-    ShelfFabLike     public shelffab;
-    PileFabLike      public pilefab;
+    TitleFabLike public titlefab;
+    ShelfFabLike public shelffab;
+    PileFabLike public pilefab;
     CollectorFabLike public collectorFab;
-    FeedFabLike      public feedFab;
+    FeedFabLike public feedFab;
 
     address public title;
     address public shelf;
@@ -58,23 +56,23 @@ contract BorrowerDeployer is FixedPoint {
     address public currency;
     address public feed;
 
-    string  public titleName;
-    string  public titleSymbol;
+    string public titleName;
+    string public titleSymbol;
     Fixed27 public discountRate;
 
     address constant ZERO = address(0);
 
-    constructor (
-      address root_,
-      address titlefab_,
-      address shelffab_,
-      address pilefab_,
-      address collectorFab_,
-      address feedFab_,
-      address currency_,
-      string memory titleName_,
-      string memory titleSymbol_,
-      uint discountRate_
+    constructor(
+        address root_,
+        address titlefab_,
+        address shelffab_,
+        address pilefab_,
+        address collectorFab_,
+        address feedFab_,
+        address currency_,
+        string memory titleName_,
+        string memory titleSymbol_,
+        uint256 discountRate_
     ) public {
         root = root_;
 
@@ -146,4 +144,3 @@ contract BorrowerDeployer is FixedPoint {
         FileLike(feed).file("discountRate", discountRate.value);
     }
 }
-

@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { Tranche } from "./../tranche.sol";
+import {Tranche} from "./../tranche.sol";
 
 interface TrancheFabLike {
     function newTranche(address, address) external returns (address);

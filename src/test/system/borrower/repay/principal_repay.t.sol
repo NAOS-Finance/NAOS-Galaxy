@@ -28,23 +28,32 @@ contract PrincipalRepayTest is BaseSystemTest {
         fundTranches();
     }
 
-
     function fundTranches() public {
-        uint defaultAmount = 1000 ether;
+        uint256 defaultAmount = 1000 ether;
         invest(defaultAmount);
         hevm.warp(block.timestamp + 1 days);
         coordinator.closeEpoch();
     }
 
-    function repay(uint loanId, uint tokenId, uint amount, uint expectedDebt) public {
-        uint initialBorrowerBalance = currency.balanceOf(borrower_);
-        uint initialTrancheBalance = currency.balanceOf(address(reserve));
-        uint initialCeiling = nftFeed.ceiling(loanId);
+    function repay(
+        uint256 loanId,
+        uint256 tokenId,
+        uint256 amount,
+        uint256 expectedDebt
+    ) public {
+        uint256 initialBorrowerBalance = currency.balanceOf(borrower_);
+        uint256 initialTrancheBalance = currency.balanceOf(address(reserve));
+        uint256 initialCeiling = nftFeed.ceiling(loanId);
         borrower.repay(loanId, amount);
         assertPostCondition(loanId, tokenId, amount, initialBorrowerBalance, initialTrancheBalance, expectedDebt, initialCeiling);
     }
 
-    function assertPreCondition(uint loanId, uint tokenId, uint repayAmount, uint expectedDebt) public {
+    function assertPreCondition(
+        uint256 loanId,
+        uint256 tokenId,
+        uint256 repayAmount,
+        uint256 expectedDebt
+    ) public {
         // assert: borrower loanOwner
         assertEq(title.ownerOf(loanId), borrower_);
         // assert: shelf nftOwner
@@ -59,7 +68,15 @@ contract PrincipalRepayTest is BaseSystemTest {
         assert(currency.balanceOf(borrower_) >= repayAmount);
     }
 
-    function assertPostCondition(uint loanId, uint tokenId, uint repaidAmount, uint initialBorrowerBalance, uint initialTrancheBalance, uint expectedDebt, uint initialCeiling) public {
+    function assertPostCondition(
+        uint256 loanId,
+        uint256 tokenId,
+        uint256 repaidAmount,
+        uint256 initialBorrowerBalance,
+        uint256 initialTrancheBalance,
+        uint256 expectedDebt,
+        uint256 initialCeiling
+    ) public {
         // assert: borrower still loanOwner
         assertEq(title.ownerOf(loanId), borrower_);
         // assert: shelf still nftOwner
@@ -68,75 +85,79 @@ contract PrincipalRepayTest is BaseSystemTest {
         if (repaidAmount > expectedDebt) {
             // make sure borrower did not pay more then hs debt
             repaidAmount = expectedDebt;
-
         }
-        uint newBorrowerBalance = safeSub(initialBorrowerBalance, repaidAmount);
+        uint256 newBorrowerBalance = safeSub(initialBorrowerBalance, repaidAmount);
         assert(safeSub(newBorrowerBalance, currency.balanceOf(borrower_)) <= 1); // (tolerance +/- 1)
         // assert: shelf/tranche received funds
         // since we are calling balance inside repay, money is directly transferred to the tranche through shelf
-        uint newTrancheBalance = safeAdd(initialTrancheBalance, repaidAmount);
+        uint256 newTrancheBalance = safeAdd(initialTrancheBalance, repaidAmount);
         assertEq(currency.balanceOf(address(reserve)), newTrancheBalance, 10); // (tolerance +/- 1)
         // assert: debt amounts reduced by repayAmount (tolerance +/- 1)
-        uint newDebt = safeSub(expectedDebt, repaidAmount);
+        uint256 newDebt = safeSub(expectedDebt, repaidAmount);
         assert(safeSub(pile.debt(loanId), newDebt) <= 1);
         // aseert: initialCeiling did not increase
         assertEq(initialCeiling, nftFeed.ceiling(loanId));
     }
 
-    function borrowAndRepay(address usr, uint nftPrice, uint riskGroup, uint expectedDebt, uint repayAmount) public {
-        (uint loanId, uint tokenId) = createLoanAndWithdraw(usr, nftPrice, riskGroup);
+    function borrowAndRepay(
+        address usr,
+        uint256 nftPrice,
+        uint256 riskGroup,
+        uint256 expectedDebt,
+        uint256 repayAmount
+    ) public {
+        (uint256 loanId, uint256 tokenId) = createLoanAndWithdraw(usr, nftPrice, riskGroup);
         // supply borrower with additional funds to pay for accrued interest
         topUp(usr);
         // borrower allows shelf full control over borrower tokens
-        Borrower(usr).doApproveCurrency(address(shelf), uint(-1));
+        Borrower(usr).doApproveCurrency(address(shelf), uint256(-1));
         //repay after 1 year
         hevm.warp(now + 365 days);
         assertPreCondition(loanId, tokenId, repayAmount, expectedDebt);
-      //  repay(loanId, tokenId, repayAmount, expectedDebt);
+        //  repay(loanId, tokenId, repayAmount, expectedDebt);
     }
 
     function testRepayFullDebt() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = expectedDebt;
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = expectedDebt;
         borrowAndRepay(borrower_, nftPrice, riskGroup, expectedDebt, repayAmount);
     }
 
     function testRepayMaxLoanDebt() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
-
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
+        uint256 expectedDebt = 112 ether;
         // borrower tries to repay twice his debt amount
-        uint repayAmount = safeMul(expectedDebt, 2);
+        uint256 repayAmount = safeMul(expectedDebt, 2);
         borrowAndRepay(borrower_, nftPrice, riskGroup, expectedDebt, repayAmount);
     }
 
     function testPartialRepay() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = safeDiv(expectedDebt, 2);
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = safeDiv(expectedDebt, 2);
         borrowAndRepay(borrower_, nftPrice, riskGroup, expectedDebt, repayAmount);
     }
 
     function testRepayDebtNoRate() public {
-        uint nftPrice = 100 ether; // -> ceiling 100 ether
-        uint riskGroup = 0; // -> no interest rate
+        uint256 nftPrice = 100 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 0; // -> no interest rate
 
         // expected debt after 1 year of compounding
-        uint expectedDebt =  60 ether;
-        uint repayAmount = expectedDebt;
-        (uint loanId, uint tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
+        uint256 expectedDebt = 60 ether;
+        uint256 repayAmount = expectedDebt;
+        (uint256 loanId, uint256 tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
         // borrower allows shelf full control over borrower tokens
-        borrower.doApproveCurrency(address(shelf), uint(-1));
+        borrower.doApproveCurrency(address(shelf), uint256(-1));
         //repay after 1 year
         hevm.warp(now + 365 days);
         assertPreCondition(loanId, tokenId, repayAmount, expectedDebt);
@@ -144,47 +165,47 @@ contract PrincipalRepayTest is BaseSystemTest {
     }
 
     function testFailRepayNotLoanOwner() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = expectedDebt;
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = expectedDebt;
 
-         // supply borrower with additional funds to pay for accrued interest
+        // supply borrower with additional funds to pay for accrued interest
         topUp(borrower_);
         borrowAndRepay(randomUser_, nftPrice, riskGroup, expectedDebt, repayAmount);
     }
 
     function testFailRepayNotEnoughFunds() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = expectedDebt;
-        (uint loanId, uint tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = expectedDebt;
+        (uint256 loanId, uint256 tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
 
         hevm.warp(now + 365 days);
 
         // do not supply borrower with additional funds to repay interest
 
         // borrower allows shelf full control over borrower tokens
-        borrower.doApproveCurrency(address(shelf), uint(-1));
+        borrower.doApproveCurrency(address(shelf), uint256(-1));
         repay(loanId, tokenId, repayAmount, expectedDebt);
     }
 
     function testFailRepayLoanNotFullyWithdrawn() public {
-       uint nftPrice = 200 ether; // -> ceiling 100 ether
-       uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
-       uint ceiling = computeCeiling(riskGroup, nftPrice); // 50% 100 ether
-       uint borrowAmount = ceiling;
-       uint withdrawAmount = safeSub(ceiling, 2); // half the borrowAmount
-       uint repayAmount = ceiling;
-       uint expectedDebt = 56 ether; // borrowamount + interest
+        uint256 ceiling = computeCeiling(riskGroup, nftPrice); // 50% 100 ether
+        uint256 borrowAmount = ceiling;
+        uint256 withdrawAmount = safeSub(ceiling, 2); // half the borrowAmount
+        uint256 repayAmount = ceiling;
+        uint256 expectedDebt = 56 ether; // borrowamount + interest
 
-       (uint loanId, uint tokenId) = issueNFTAndCreateLoan(borrower_);
+        (uint256 loanId, uint256 tokenId) = issueNFTAndCreateLoan(borrower_);
         // lock nft
         lockNFT(loanId, borrower_);
         // priceNFT
@@ -198,21 +219,21 @@ contract PrincipalRepayTest is BaseSystemTest {
         // supply borrower with additional funds to pay for accrued interest
         topUp(borrower_);
         // borrower allows shelf full control over borrower tokens
-        borrower.doApproveCurrency(address(shelf), uint(-1));
+        borrower.doApproveCurrency(address(shelf), uint256(-1));
         repay(loanId, tokenId, repayAmount, expectedDebt);
     }
 
     function testFailRepayZeroDebt() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = expectedDebt;
-        (uint loanId, uint tokenId) = issueNFTAndCreateLoan(borrower_);
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = expectedDebt;
+        (uint256 loanId, uint256 tokenId) = issueNFTAndCreateLoan(borrower_);
         // lock nft
         lockNFT(loanId, borrower_);
-         // priceNFT
+        // priceNFT
         priceNFTandSetRisk(tokenId, nftPrice, riskGroup);
 
         // borrower does not borrow
@@ -220,42 +241,42 @@ contract PrincipalRepayTest is BaseSystemTest {
         // supply borrower with additional funds to pay for accrued interest
         topUp(borrower_);
         // borrower allows shelf full control over borrower tokens
-        borrower.doApproveCurrency(address(shelf), uint(-1));
+        borrower.doApproveCurrency(address(shelf), uint256(-1));
         repay(loanId, tokenId, repayAmount, expectedDebt);
     }
 
     function testFailRepayCurrencyNotApproved() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = expectedDebt;
-        (uint loanId, uint tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = expectedDebt;
+        (uint256 loanId, uint256 tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
 
         //repay after 1 year
         hevm.warp(now + 365 days);
 
-         // supply borrower with additional funds to pay for accrued interest
+        // supply borrower with additional funds to pay for accrued interest
         topUp(borrower_);
         repay(loanId, tokenId, repayAmount, expectedDebt);
     }
 
     function testFailBorowFullAmountTwice() public {
-        uint nftPrice = 200 ether; // -> ceiling 100 ether
-        uint riskGroup = 1; // -> 12% per year
+        uint256 nftPrice = 200 ether; // -> ceiling 100 ether
+        uint256 riskGroup = 1; // -> 12% per year
 
-        uint ceiling = computeCeiling(riskGroup, nftPrice);
+        uint256 ceiling = computeCeiling(riskGroup, nftPrice);
 
         // expected debt after 1 year of compounding
-        uint expectedDebt = 112 ether;
-        uint repayAmount = expectedDebt;
+        uint256 expectedDebt = 112 ether;
+        uint256 repayAmount = expectedDebt;
 
-        (uint loanId, uint tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
+        (uint256 loanId, uint256 tokenId) = createLoanAndWithdraw(borrower_, nftPrice, riskGroup);
         // supply borrower with additional funds to pay for accrued interest
         topUp(borrower_);
         // borrower allows shelf full control over borrower tokens
-        borrower.doApproveCurrency(address(shelf), uint(-1));
+        borrower.doApproveCurrency(address(shelf), uint256(-1));
         //repay after 1 year
         hevm.warp(now + 365 days);
         assertPreCondition(loanId, tokenId, repayAmount, expectedDebt);

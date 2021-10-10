@@ -21,10 +21,11 @@ import "../../../../lib/galaxy-auth/src/auth.sol";
 import "../../../test/mock/mock.sol";
 
 contract DistributorMock is Mock {
-    function balance() public returns (uint) {
+    function balance() public returns (uint256) {
         return call("balance");
     }
-    function repayTranches(uint amount) public {
+
+    function repayTranches(uint256 amount) public {
         calls["repay_tranches"]++;
         values_uint["repay_tranches_amount"] = amount;
     }

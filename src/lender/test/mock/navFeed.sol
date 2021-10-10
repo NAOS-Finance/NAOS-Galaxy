@@ -17,11 +17,11 @@ import "../../../../lib/ds-test/src/test.sol";
 import "../../../test/mock/mock.sol";
 
 contract NAVFeedMock is Mock {
-    function approximatedNAV() public view returns (uint) {
+    function approximatedNAV() public view returns (uint256) {
         return values_return["approximatedNAV"];
     }
 
-    function calcUpdateNAV() public returns (uint) {
+    function calcUpdateNAV() public returns (uint256) {
         return call("calcUpdateNAV");
     }
 }

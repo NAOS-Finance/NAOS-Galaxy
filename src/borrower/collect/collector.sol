@@ -21,7 +21,12 @@ import "../../../lib/galaxy-auth/src/auth.sol";
 
 contract NFTLike {
     function ownerOf(uint256 tokenId) external view returns (address owner);
-    function transferFrom(address from, address to, uint256 tokenId) external;
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
 }
 
 contract DistributorLike {
@@ -29,42 +34,61 @@ contract DistributorLike {
 }
 
 contract ThresholdRegistryLike {
-    function threshold(uint) public view returns (uint);
+    function threshold(uint256) public view returns (uint256);
 }
 
 contract PileLike {
-    function debt(uint) public returns (uint);
+    function debt(uint256) public returns (uint256);
 }
 
 contract ShelfLike {
-    function claim(uint, address) public;
-    function token(uint loan) public returns (address, uint);
-    function recover(uint loan, address usr, uint wad) public;
+    function claim(uint256, address) public;
+
+    function token(uint256 loan) public returns (address, uint256);
+
+    function recover(
+        uint256 loan,
+        address usr,
+        uint256 wad
+    ) public;
 }
 
 contract Collector is DSNote, Auth {
+    // -- Collectors --
+    mapping(address => uint256) public collectors;
 
-     // -- Collectors --
-    mapping (address => uint) public collectors;
-    function relyCollector(address usr) public auth note { collectors[usr] = 1; }
-    function denyCollector(address usr) public auth note { collectors[usr] = 0; }
-    modifier auth_collector { require(collectors[msg.sender] == 1); _; }
+    function relyCollector(address usr) public auth note {
+        collectors[usr] = 1;
+    }
+
+    function denyCollector(address usr) public auth note {
+        collectors[usr] = 0;
+    }
+
+    modifier auth_collector() {
+        require(collectors[msg.sender] == 1);
+        _;
+    }
 
     // --- Data ---
     ThresholdRegistryLike threshold;
 
     struct Option {
         address buyer;
-        uint    nftPrice;
+        uint256 nftPrice;
     }
 
-    mapping (uint => Option) public options;
+    mapping(uint256 => Option) public options;
 
     DistributorLike distributor;
     ShelfLike shelf;
     PileLike pile;
 
-    constructor (address shelf_, address pile_, address threshold_) public {
+    constructor(
+        address shelf_,
+        address pile_,
+        address threshold_
+    ) public {
         shelf = ShelfLike(shelf_);
         pile = PileLike(pile_);
         threshold = ThresholdRegistryLike(threshold_);
@@ -81,39 +105,41 @@ contract Collector is DSNote, Auth {
     }
 
     /// sets the liquidation-price of an NFT
-    function file(bytes32 what, uint loan, address buyer, uint nftPrice) external auth {
+    function file(
+        bytes32 what,
+        uint256 loan,
+        address buyer,
+        uint256 nftPrice
+    ) external auth {
         if (what == "loan") {
             require(nftPrice > 0, "no-nft-price-defined");
             options[loan] = Option(buyer, nftPrice);
         } else revert("unknown parameter");
-
     }
-
 
     /// if the loan debt is above the loan threshold the NFT should be seized,
     /// i.e. taken away from the borrower to be sold off at a later stage.
     /// therefore the ownership of the nft is transferred to the collector
-    function seize(uint loan) external {
-        uint debt = pile.debt(loan);
+    function seize(uint256 loan) external {
+        uint256 debt = pile.debt(loan);
         require((threshold.threshold(loan) <= debt), "threshold-not-reached");
         shelf.claim(loan, address(this));
     }
 
-
     /// a nft can be collected if the collector is the nft- owner
     /// The NFT needs to be `seized` first to transfer ownership to the collector.
     /// and then seized by the collector
-    function collect(uint loan) external auth_collector note {
+    function collect(uint256 loan) external auth_collector note {
         _collect(loan, msg.sender);
     }
 
-    function collect(uint loan, address buyer) external auth note {
+    function collect(uint256 loan, address buyer) external auth note {
         _collect(loan, buyer);
     }
 
-    function _collect(uint loan, address buyer) internal {
+    function _collect(uint256 loan, address buyer) internal {
         require(buyer == options[loan].buyer || options[loan].buyer == address(0), "not-allowed-to-collect");
-        (address registry, uint nft) = shelf.token(loan);
+        (address registry, uint256 nft) = shelf.token(loan);
         require(options[loan].nftPrice > 0, "no-nft-price-defined");
         shelf.recover(loan, buyer, options[loan].nftPrice);
         NFTLike(registry).transferFrom(address(this), buyer, nft);

@@ -20,19 +20,17 @@ import "../token/restricted.sol";
 import "../token/memberlist.sol";
 import "../../../lib/galaxy-math/src/math.sol";
 
-contract TestUser {
-}
+contract TestUser {}
 
 contract Hevm {
     function warp(uint256) public;
 }
 
 contract RestrictedTokenTest is Math, DSTest {
-
     Hevm hevm;
-    
-    uint256 constant ONE = 10 ** 27;
-    uint memberlistValidity = safeAdd(now, 8 days);
+
+    uint256 constant ONE = 10**27;
+    uint256 memberlistValidity = safeAdd(now, 8 days);
     Memberlist memberlist;
     RestrictedToken token;
 
@@ -45,7 +43,7 @@ contract RestrictedTokenTest is Math, DSTest {
         memberlist = new Memberlist();
         token = new RestrictedToken("TST", "TST");
         token.depend("memberlist", address(memberlist));
-        
+
         TestUser randomUser = new TestUser();
         randomUser_ = address(randomUser);
 
@@ -71,7 +69,7 @@ contract RestrictedTokenTest is Math, DSTest {
         token.transferFrom(self, randomUser_, 50 ether);
     }
 
-   function testFailReceiveTokensMembershipExpired() public {
+    function testFailReceiveTokensMembershipExpired() public {
         // membership expires in 8 days
         memberlist.updateMember(randomUser_, memberlistValidity);
         assertEq(memberlist.members(randomUser_), memberlistValidity);

@@ -27,7 +27,7 @@ interface TrancheFabLike {
 }
 
 interface CoordinatorFabLike {
-    function newCoordinator(uint) external returns (address);
+    function newCoordinator(uint256) external returns (address);
 }
 
 interface OperatorFabLike {
@@ -41,5 +41,3 @@ interface MemberlistFabLike {
 interface RestrictedTokenFabLike {
     function newRestrictedToken(string calldata, string calldata) external returns (address);
 }
-
-

@@ -17,6 +17,7 @@ import "../lib/galaxy-auth/src/auth.sol";
 
 interface AuthLike {
     function rely(address) external;
+
     function deny(address) external;
 }
 
@@ -26,30 +27,38 @@ interface DependLike {
 
 interface BorrowerDeployerLike {
     function collector() external returns (address);
+
     function feed() external returns (address);
+
     function shelf() external returns (address);
+
     function title() external returns (address);
 }
+
 interface LenderDeployerLike {
     function assessor() external returns (address);
+
     function reserve() external returns (address);
 }
 
-
 contract GalaxyRoot is Auth {
     BorrowerDeployerLike public borrowerDeployer;
-    LenderDeployerLike public  lenderDeployer;
+    LenderDeployerLike public lenderDeployer;
 
-    bool public             deployed;
-    address public          deployUsr;
+    bool public deployed;
+    address public deployUsr;
 
-    constructor (address deployUsr_) public {
+    constructor(address deployUsr_) public {
         deployUsr = deployUsr_;
     }
 
     // --- Prepare ---
     // Sets the two deployer dependencies. This needs to be called by the deployUsr
-    function prepare(address lender_, address borrower_, address ward_) public {
+    function prepare(
+        address lender_,
+        address borrower_,
+        address ward_
+    ) public {
         require(deployUsr == msg.sender);
         borrowerDeployer = BorrowerDeployerLike(borrower_);
         lenderDeployer = LenderDeployerLike(lender_);
@@ -92,5 +101,4 @@ contract GalaxyRoot is Auth {
     function denyContract(address target, address usr) public auth {
         AuthLike(target).deny(usr);
     }
-
 }

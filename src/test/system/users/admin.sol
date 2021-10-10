@@ -15,7 +15,7 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { Title } from "../../../../lib/galaxy-title/src/title.sol";
+import {Title} from "../../../../lib/galaxy-title/src/title.sol";
 import "../interfaces.sol";
 
 interface AdminOperatorLike {
@@ -33,7 +33,16 @@ contract AdminUser {
     MemberlistLike juniorMemberlist;
     MemberlistLike seniorMemberlist;
 
-    constructor(address shelf_, address pile_, address nftFeed_, address title_, address distributor_, address collector_, address juniorMemberlist_, address seniorMemberlist_) public {
+    constructor(
+        address shelf_,
+        address pile_,
+        address nftFeed_,
+        address title_,
+        address distributor_,
+        address collector_,
+        address juniorMemberlist_,
+        address seniorMemberlist_
+    ) public {
         shelf = ShelfLike(shelf_);
         pile = PileLike(pile_);
         title = Title(title_);
@@ -44,21 +53,30 @@ contract AdminUser {
         seniorMemberlist = MemberlistLike(seniorMemberlist_);
     }
 
-    function priceNFT(bytes32 lookupId, uint nftPrice) public {
+    function priceNFT(bytes32 lookupId, uint256 nftPrice) public {
         nftFeed.update(lookupId, nftPrice);
     }
 
-    function priceNFTAndSetRiskGroup(bytes32 lookupId, uint nftPrice, uint riskGroup, uint maturityDate) public {
+    function priceNFTAndSetRiskGroup(
+        bytes32 lookupId,
+        uint256 nftPrice,
+        uint256 riskGroup,
+        uint256 maturityDate
+    ) public {
         nftFeed.update(lookupId, nftPrice, riskGroup);
         // add default maturity date
-        nftFeed.file("maturityDate", lookupId , maturityDate);
+        nftFeed.file("maturityDate", lookupId, maturityDate);
     }
 
-    function setCollectPrice(uint loan, uint price) public {
+    function setCollectPrice(uint256 loan, uint256 price) public {
         collector.file("loan", loan, address(0), price);
     }
 
-    function addKeeper(uint loan, address usr, uint price) public {
+    function addKeeper(
+        uint256 loan,
+        address usr,
+        uint256 price
+    ) public {
         collector.file("loan", loan, usr, price);
     }
 
@@ -66,19 +84,19 @@ contract AdminUser {
         collector.relyCollector(usr);
     }
 
-    function collect(uint loan, address usr) public {
+    function collect(uint256 loan, address usr) public {
         collector.collect(loan, usr);
     }
 
-    function makeJuniorTokenMember(address usr, uint validitUntil) public {
+    function makeJuniorTokenMember(address usr, uint256 validitUntil) public {
         juniorMemberlist.updateMember(usr, validitUntil);
     }
 
-    function makeSeniorTokenMember(address usr, uint validitUntil) public {
+    function makeSeniorTokenMember(address usr, uint256 validitUntil) public {
         seniorMemberlist.updateMember(usr, validitUntil);
     }
 
-    function fileFixedRate(uint rateGroup, uint rate) public {
+    function fileFixedRate(uint256 rateGroup, uint256 rate) public {
         pile.file("fixedRate", rateGroup, rate);
     }
 }

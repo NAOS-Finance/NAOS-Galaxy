@@ -15,65 +15,60 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { TitleFab } from "../../borrower/fabs/title.sol";
-import { ShelfFab } from "../../borrower/fabs/shelf.sol";
-import { PileFab } from "../../borrower/fabs/pile.sol";
-import { NFTFeedFab } from "../../borrower/fabs/nftfeed.sol";
-import { NAVFeedFab } from "../../borrower/fabs/navfeed.sol";
-import { CollectorFab } from "../../borrower/fabs/collector.sol";
-import { BorrowerDeployer } from "../../borrower/deployer.sol";
+import {TitleFab} from "../../borrower/fabs/title.sol";
+import {ShelfFab} from "../../borrower/fabs/shelf.sol";
+import {PileFab} from "../../borrower/fabs/pile.sol";
+import {NFTFeedFab} from "../../borrower/fabs/nftfeed.sol";
+import {NAVFeedFab} from "../../borrower/fabs/navfeed.sol";
+import {CollectorFab} from "../../borrower/fabs/collector.sol";
+import {BorrowerDeployer} from "../../borrower/deployer.sol";
 
+import {EpochCoordinator} from "../../lender/coordinator.sol";
+import {Reserve} from "../../lender/reserve.sol";
+import {Tranche} from "../../lender/tranche.sol";
+import {Operator} from "../../lender/operator.sol";
+import {Assessor} from "../../lender/assessor.sol";
+import {RestrictedToken} from "../../lender/token/restricted.sol";
+import {Memberlist} from "../../lender/token/memberlist.sol";
 
-import { EpochCoordinator } from "../../lender/coordinator.sol";
-import { Reserve } from "../../lender/reserve.sol";
-import { Tranche } from "../../lender/tranche.sol";
-import { Operator } from "../../lender/operator.sol";
-import { Assessor } from "../../lender/assessor.sol";
-import { RestrictedToken } from "../../lender/token/restricted.sol";
-import { Memberlist } from "../../lender/token/memberlist.sol";
+import {TrancheFab} from "../../lender/fabs/tranche.sol";
+import {RestrictedTokenFab} from "../../lender/fabs/restrictedtoken.sol";
+import {MemberlistFab} from "../../lender/fabs/memberlist.sol";
+import {AssessorFab} from "../../lender/fabs/assessor.sol";
+import {ReserveFab} from "../../lender/fabs/reserve.sol";
+import {CoordinatorFab} from "../../lender/fabs/coordinator.sol";
+import {OperatorFab} from "../../lender/fabs/operator.sol";
+import {LenderDeployer} from "../../lender/deployer.sol";
 
+import {Title} from "../../../lib/galaxy-title/src/title.sol";
+import {Pile} from "../../borrower/pile.sol";
+import {Shelf} from "../../borrower/shelf.sol";
+import {Collector} from "../../borrower/collect/collector.sol";
+import {NAVFeed} from "../../borrower/feed/navfeed.sol";
 
-import { TrancheFab } from "../../lender/fabs/tranche.sol";
-import { RestrictedTokenFab } from "../../lender/fabs/restrictedtoken.sol";
-import { MemberlistFab } from "../../lender/fabs/memberlist.sol";
-import { AssessorFab } from "../../lender/fabs/assessor.sol";
-import { ReserveFab } from "../../lender/fabs/reserve.sol";
-import { CoordinatorFab } from "../../lender/fabs/coordinator.sol";
-import { OperatorFab } from "../../lender/fabs/operator.sol";
-import { LenderDeployer } from "../../lender/deployer.sol";
-
-import { Title } from "../../../lib/galaxy-title/src/title.sol";
-import { Pile } from "../../borrower/pile.sol";
-import { Shelf } from "../../borrower/shelf.sol";
-import { Collector } from "../../borrower/collect/collector.sol";
-import { NAVFeed } from "../../borrower/feed/navfeed.sol";
-
-import { TestRoot } from "./root.sol";
+import {TestRoot} from "./root.sol";
 
 import "../simple/token.sol";
 import "../simple/distributor.sol";
 import "../../../lib/galaxy-erc20/src/erc20.sol";
 
-import { TokenLike, NFTFeedLike } from "./interfaces.sol";
-
+import {TokenLike, NFTFeedLike} from "./interfaces.sol";
 
 import "../../borrower/test/mock/shelf.sol";
 import "../../lender/test/mock/navFeed.sol";
 
 contract TestSetup {
     Title public collateralNFT;
-    address      public collateralNFT_;
-    SimpleToken  public currency;
-    address      public currency_;
-
+    address public collateralNFT_;
+    SimpleToken public currency;
+    address public currency_;
 
     // Borrower contracts
-    Shelf        shelf;
-    Pile         pile;
-    Title        title;
-    NAVFeed      nftFeed;
-    Collector    collector;
-
+    Shelf shelf;
+    Pile pile;
+    Title title;
+    NAVFeed nftFeed;
+    Collector collector;
 
     // Lender contracts
     Reserve reserve;
@@ -88,15 +83,14 @@ contract TestSetup {
     Memberlist seniorMemberlist;
     Memberlist juniorMemberlist;
 
-
     // Deployers
     BorrowerDeployer public borrowerDeployer;
-    LenderDeployer public  lenderDeployer;
+    LenderDeployer public lenderDeployer;
 
     TestRoot root;
-    address  root_;
+    address root_;
 
-    function issueNFT(address usr) public returns (uint tokenId, bytes32 lookupId) {
+    function issueNFT(address usr) public returns (uint256 tokenId, bytes32 lookupId) {
         tokenId = collateralNFT.issue(usr);
         lookupId = keccak256(abi.encodePacked(collateralNFT_, tokenId));
         return (tokenId, lookupId);
@@ -138,9 +132,20 @@ contract TestSetup {
         address nftFeedFab_;
         nftFeedFab_ = address(new NAVFeedFab());
 
-        uint discountRate = uint(1000000342100000000000000000);
+        uint256 discountRate = uint256(1000000342100000000000000000);
 
-        borrowerDeployer = new BorrowerDeployer(root_, address(titlefab), address(shelffab), address(pileFab), address(collectorFab), nftFeedFab_, currency_, "Galaxy Loan Token", "TLNT", discountRate);
+        borrowerDeployer = new BorrowerDeployer(
+            root_,
+            address(titlefab),
+            address(shelffab),
+            address(pileFab),
+            address(collectorFab),
+            nftFeedFab_,
+            currency_,
+            "Galaxy Loan Token",
+            "TLNT",
+            discountRate
+        );
 
         borrowerDeployer.deployTitle();
         borrowerDeployer.deployPile();
@@ -172,33 +177,52 @@ contract TestSetup {
     }
 
     function prepareDeployLender(address rootAddr) public {
-
         ReserveFab reserveFab = new ReserveFab();
         AssessorFab assessorFab = new AssessorFab();
-        TrancheFab  trancheFab = new TrancheFab();
+        TrancheFab trancheFab = new TrancheFab();
         MemberlistFab memberlistFab = new MemberlistFab();
         RestrictedTokenFab restrictedTokenFab = new RestrictedTokenFab();
         OperatorFab operatorFab = new OperatorFab();
         CoordinatorFab coordinatorFab = new CoordinatorFab();
 
         // root is testcase
-        lenderDeployer = new LenderDeployer(rootAddr, currency_, address(trancheFab), address(memberlistFab), address(restrictedTokenFab), address(reserveFab), address(assessorFab), address(coordinatorFab), address(operatorFab));
+        lenderDeployer = new LenderDeployer(
+            rootAddr,
+            currency_,
+            address(trancheFab),
+            address(memberlistFab),
+            address(restrictedTokenFab),
+            address(reserveFab),
+            address(assessorFab),
+            address(coordinatorFab),
+            address(operatorFab)
+        );
     }
 
     function deployLender() public {
         // 2 % per day
-        uint seniorInterestRate = uint(1000000229200000000000000000);
-        uint maxReserve = uint(-1);
-        uint maxSeniorRatio = 85 * 10 **25;
-        uint minSeniorRatio = 75 * 10 **25;
-        uint challengeTime = 1 hours;
+        uint256 seniorInterestRate = uint256(1000000229200000000000000000);
+        uint256 maxReserve = uint256(-1);
+        uint256 maxSeniorRatio = 85 * 10**25;
+        uint256 minSeniorRatio = 75 * 10**25;
+        uint256 challengeTime = 1 hours;
 
         string memory seniorTokenName = "DROP Token";
         string memory seniorTokenSymbol = "DROP";
         string memory juniorTokenName = "TIN Token";
         string memory juniorTokenSymbol = "TIN";
 
-        lenderDeployer.init(minSeniorRatio, maxSeniorRatio, maxReserve, challengeTime, seniorInterestRate, seniorTokenName, seniorTokenSymbol, juniorTokenName, juniorTokenSymbol);
+        lenderDeployer.init(
+            minSeniorRatio,
+            maxSeniorRatio,
+            maxReserve,
+            challengeTime,
+            seniorInterestRate,
+            seniorTokenName,
+            seniorTokenSymbol,
+            juniorTokenName,
+            juniorTokenSymbol
+        );
 
         lenderDeployer.deployJunior();
         lenderDeployer.deploySenior();

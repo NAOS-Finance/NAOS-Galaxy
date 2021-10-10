@@ -39,9 +39,9 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
     address keeper_;
 
     Investor seniorInvestor;
-    address  seniorInvestor_;
+    address seniorInvestor_;
     Investor juniorInvestor;
-    address  juniorInvestor_;
+    address juniorInvestor_;
     NFTFeedLike nftFeed_;
 
     Hevm public hevm;
@@ -57,7 +57,16 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
         randomUser_ = address(randomUser);
         keeper = new Keeper(address(collector), currency_);
         keeper_ = address(keeper);
-        admin = new AdminUser(address(shelf), address(pile), address(nftFeed), address(title), address(reserve), address(collector), address(juniorMemberlist), address(seniorMemberlist));
+        admin = new AdminUser(
+            address(shelf),
+            address(pile),
+            address(nftFeed),
+            address(title),
+            address(reserve),
+            address(collector),
+            address(juniorMemberlist),
+            address(seniorMemberlist)
+        );
         admin_ = address(admin);
         root.relyBorrowerAdmin(admin_);
         root.relyLenderAdmin(admin_);
@@ -71,93 +80,118 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
         juniorInvestor_ = address(juniorInvestor);
     }
 
-    function lockNFT(uint loanId, address usr) public {
+    function lockNFT(uint256 loanId, address usr) public {
         Borrower(usr).approveNFT(collateralNFT, address(shelf));
         Borrower(usr).lock(loanId);
     }
 
-    function transferNFT(address sender, address recipient, uint tokenId) public {
+    function transferNFT(
+        address sender,
+        address recipient,
+        uint256 tokenId
+    ) public {
         Borrower(sender).approveNFT(collateralNFT, address(this));
         collateralNFT.transferFrom(sender, recipient, tokenId);
     }
 
-    function issueNFT(address usr) public returns (uint tokenId, bytes32 lookupId) {
+    function issueNFT(address usr) public returns (uint256 tokenId, bytes32 lookupId) {
         tokenId = collateralNFT.issue(usr);
         lookupId = keccak256(abi.encodePacked(collateralNFT_, tokenId));
         return (tokenId, lookupId);
     }
 
-    function computeCeiling(uint riskGroup, uint nftPrice) public view returns (uint) {
-        uint ceilingRatio = nftFeed.ceilingRatio(riskGroup);
+    function computeCeiling(uint256 riskGroup, uint256 nftPrice) public view returns (uint256) {
+        uint256 ceilingRatio = nftFeed.ceilingRatio(riskGroup);
         return rmul(ceilingRatio, nftPrice);
     }
 
-    function getRateByRisk(uint riskGroup) public view returns (uint) {
-        (,,uint ratePerSecond,,) = pile.rates(riskGroup);
+    function getRateByRisk(uint256 riskGroup) public view returns (uint256) {
+        (, , uint256 ratePerSecond, , ) = pile.rates(riskGroup);
         return ratePerSecond;
     }
 
-    function issueNFTAndCreateLoan(address usr) public returns (uint, uint) {
+    function issueNFTAndCreateLoan(address usr) public returns (uint256, uint256) {
         // issue nft for borrower
-        (uint tokenId, ) = issueNFT(usr);
+        (uint256 tokenId, ) = issueNFT(usr);
         // issue loan for borrower
-        uint loanId = Borrower(usr).issue(collateralNFT_, tokenId);
+        uint256 loanId = Borrower(usr).issue(collateralNFT_, tokenId);
         return (tokenId, loanId);
     }
 
-    function priceNFTandSetRisk(uint tokenId, uint nftPrice, uint riskGroup) public {
-        uint maturityDate = 600 days;
+    function priceNFTandSetRisk(
+        uint256 tokenId,
+        uint256 nftPrice,
+        uint256 riskGroup
+    ) public {
+        uint256 maturityDate = 600 days;
         priceNFTandSetRisk(tokenId, nftPrice, riskGroup, maturityDate);
     }
 
-    function priceNFTandSetRisk(uint tokenId, uint nftPrice, uint riskGroup, uint maturityDate) public {
+    function priceNFTandSetRisk(
+        uint256 tokenId,
+        uint256 nftPrice,
+        uint256 riskGroup,
+        uint256 maturityDate
+    ) public {
         bytes32 lookupId = keccak256(abi.encodePacked(collateralNFT_, tokenId));
         admin.priceNFTAndSetRiskGroup(lookupId, nftPrice, riskGroup, maturityDate);
     }
 
-    function priceNFT(uint tokenId, uint nftPrice) public {
+    function priceNFT(uint256 tokenId, uint256 nftPrice) public {
         bytes32 lookupId = keccak256(abi.encodePacked(collateralNFT_, tokenId));
         admin.priceNFT(lookupId, nftPrice);
     }
 
-    function createLoanAndBorrow(address usr, uint nftPrice, uint riskGroup) public returns (uint, uint) {
-        (uint loanId, uint tokenId) = issueNFTAndCreateLoan(usr);
+    function createLoanAndBorrow(
+        address usr,
+        uint256 nftPrice,
+        uint256 riskGroup
+    ) public returns (uint256, uint256) {
+        (uint256 loanId, uint256 tokenId) = issueNFTAndCreateLoan(usr);
 
         priceNFTandSetRisk(tokenId, nftPrice, riskGroup);
         // lock nft
         lockNFT(loanId, usr);
 
         // compute ceiling based on nftPrice & riskgroup
-        uint ceiling = computeCeiling(riskGroup, nftPrice);
+        uint256 ceiling = computeCeiling(riskGroup, nftPrice);
         //borrow
         Borrower(usr).borrow(loanId, ceiling);
         return (loanId, tokenId);
     }
 
-    function createLoanAndWithdraw(address usr, uint nftPrice, uint riskGroup) public returns (uint, uint) {
-        (uint loanId, uint tokenId) = createLoanAndBorrow(usr, nftPrice, riskGroup);
-        uint ceiling = computeCeiling(riskGroup, nftPrice);
+    function createLoanAndWithdraw(
+        address usr,
+        uint256 nftPrice,
+        uint256 riskGroup
+    ) public returns (uint256, uint256) {
+        (uint256 loanId, uint256 tokenId) = createLoanAndBorrow(usr, nftPrice, riskGroup);
+        uint256 ceiling = computeCeiling(riskGroup, nftPrice);
         Borrower(usr).withdraw(loanId, ceiling, borrower_);
         return (loanId, tokenId);
     }
 
-    function repayLoan(address usr, uint loanId, uint currencyAmount) public {
+    function repayLoan(
+        address usr,
+        uint256 loanId,
+        uint256 currencyAmount
+    ) public {
         // transfer extra funds, so that usr can pay for interest
         topUp(usr);
         // borrower allows shelf full control over borrower tokens
-        Borrower(usr).doApproveCurrency(address(shelf), uint(-1));
+        Borrower(usr).doApproveCurrency(address(shelf), uint256(-1));
         // repay loan
         borrower.repay(loanId, currencyAmount);
     }
 
     // helpers lenders
-    function invest(uint currencyAmount) public {
-        uint validUntil = safeAdd(now, 8 days);
+    function invest(uint256 currencyAmount) public {
+        uint256 validUntil = safeAdd(now, 8 days);
         admin.makeJuniorTokenMember(juniorInvestor_, validUntil);
         admin.makeSeniorTokenMember(seniorInvestor_, validUntil);
 
-        uint amountSenior = rmul(currencyAmount, 82 * 10**25);
-        uint amountJunior = rmul(currencyAmount, 18 * 10**25);
+        uint256 amountSenior = rmul(currencyAmount, 82 * 10**25);
+        uint256 amountJunior = rmul(currencyAmount, 18 * 10**25);
 
         currency.mint(seniorInvestor_, amountSenior);
         currency.mint(juniorInvestor_, amountJunior);
@@ -168,32 +202,42 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
 
     // helpers keeper
 
-    function seize(uint loanId) public {
+    function seize(uint256 loanId) public {
         collector.seize(loanId);
     }
 
-    function addKeeperAndCollect(uint loanId, address usr, uint recoveryPrice) public {
+    function addKeeperAndCollect(
+        uint256 loanId,
+        address usr,
+        uint256 recoveryPrice
+    ) public {
         seize(loanId);
         admin.addKeeper(loanId, usr, recoveryPrice);
         topUp(usr);
-        Borrower(usr).doApproveCurrency(address(shelf), uint(-1));
+        Borrower(usr).doApproveCurrency(address(shelf), uint256(-1));
         admin.collect(loanId, usr);
     }
 
-    function setupCurrencyOnLender(uint amount) public {
+    function setupCurrencyOnLender(uint256 amount) public {
         invest(amount);
     }
 
-    function supplyFunds(uint amount, address addr) public {
+    function supplyFunds(uint256 amount, address addr) public {
         currency.mint(address(addr), amount);
     }
+
     function topUp(address usr) public {
         currency.mint(address(usr), 1000 ether);
     }
 
-    function setupOngoingLoan(uint nftPrice, uint borrowAmount, bool lenderFundingRequired, uint maturityDate) public returns (uint loan, uint tokenId) {
+    function setupOngoingLoan(
+        uint256 nftPrice,
+        uint256 borrowAmount,
+        bool lenderFundingRequired,
+        uint256 maturityDate
+    ) public returns (uint256 loan, uint256 tokenId) {
         // default risk group for system tests
-        uint riskGroup = 3;
+        uint256 riskGroup = 3;
 
         tokenId = collateralNFT.issue(borrower_);
         loan = setupLoan(tokenId, collateralNFT_, nftPrice, riskGroup, maturityDate);
@@ -201,40 +245,67 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
         return (loan, tokenId);
     }
 
-    function setupOngoingLoan() public returns (uint loan, uint tokenId, uint ceiling) {
-        (uint nftPrice, uint riskGroup) = defaultCollateral();
+    function setupOngoingLoan()
+        public
+        returns (
+            uint256 loan,
+            uint256 tokenId,
+            uint256 ceiling
+        )
+    {
+        (uint256 nftPrice, uint256 riskGroup) = defaultCollateral();
         // create borrower collateral collateralNFT
         tokenId = collateralNFT.issue(borrower_);
         loan = setupLoan(tokenId, collateralNFT_, nftPrice, riskGroup);
-        uint ceiling_ = nftFeed_.ceiling(loan);
+        uint256 ceiling_ = nftFeed_.ceiling(loan);
         borrow(loan, tokenId, ceiling_);
         return (loan, tokenId, ceiling_);
     }
 
-    function setupLoan(uint tokenId, address collateralNFT_, uint nftPrice, uint riskGroup) public returns (uint) {
-        uint maturityDate = now + 600 days;
+    function setupLoan(
+        uint256 tokenId,
+        address collateralNFT_,
+        uint256 nftPrice,
+        uint256 riskGroup
+    ) public returns (uint256) {
+        uint256 maturityDate = now + 600 days;
         return setupLoan(tokenId, collateralNFT_, nftPrice, riskGroup, maturityDate);
     }
 
-    function setupLoan(uint tokenId, address collateralNFT_, uint nftPrice, uint riskGroup, uint maturityDate) public returns (uint) {
+    function setupLoan(
+        uint256 tokenId,
+        address collateralNFT_,
+        uint256 nftPrice,
+        uint256 riskGroup,
+        uint256 maturityDate
+    ) public returns (uint256) {
         // borrower issue loans
-        uint loan = borrower.issue(collateralNFT_, tokenId);
+        uint256 loan = borrower.issue(collateralNFT_, tokenId);
         // price collateral and add to riskgroup
         priceNFTandSetRisk(tokenId, nftPrice, riskGroup, maturityDate);
         return loan;
     }
 
-    function fundLender(uint amount) public {
+    function fundLender(uint256 amount) public {
         invest(amount);
         hevm.warp(now + 1 days);
         coordinator.closeEpoch();
     }
 
-    function borrow(uint loan, uint tokenId, uint borrowAmount) public {
+    function borrow(
+        uint256 loan,
+        uint256 tokenId,
+        uint256 borrowAmount
+    ) public {
         borrow(loan, tokenId, borrowAmount, true);
     }
 
-    function borrow(uint loan, uint tokenId, uint borrowAmount, bool fundLenderRequired) public {
+    function borrow(
+        uint256 loan,
+        uint256 tokenId,
+        uint256 borrowAmount,
+        bool fundLenderRequired
+    ) public {
         borrower.approveNFT(collateralNFT, address(shelf));
         if (fundLenderRequired) {
             fundLender(borrowAmount);
@@ -243,35 +314,40 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
         checkAfterBorrow(tokenId, borrowAmount);
     }
 
-    function defaultCollateral() public pure returns(uint nftPrice_, uint riskGroup_) {
+    function defaultCollateral() public pure returns (uint256 nftPrice_, uint256 riskGroup_) {
         nftPrice_ = 100 ether;
         riskGroup_ = 2;
         return (nftPrice_, riskGroup_);
     }
 
     // note: this method will be refactored with the new lender side contracts, as the distributor should not hold any currency
-    function currdistributorBal() public view returns(uint) {
+    function currdistributorBal() public view returns (uint256) {
         return currency.balanceOf(address(reserve));
     }
 
     // Checks
-    function checkAfterBorrow(uint tokenId, uint tBalance) public {
+    function checkAfterBorrow(uint256 tokenId, uint256 tBalance) public {
         assertEq(currency.balanceOf(borrower_), tBalance);
         assertEq(collateralNFT.ownerOf(tokenId), address(shelf));
     }
 
-    function checkAfterRepay(uint loan, uint tokenId, uint tTotal, uint tLender) public {
+    function checkAfterRepay(
+        uint256 loan,
+        uint256 tokenId,
+        uint256 tTotal,
+        uint256 tLender
+    ) public {
         assertEq(collateralNFT.ownerOf(tokenId), borrower_);
         assertEq(pile.debt(loan), 0);
         assertEq(currency.balanceOf(borrower_), safeSub(tTotal, tLender));
         assertEq(currency.balanceOf(address(pile)), 0);
     }
 
-    function borrowRepay(uint nftPrice, uint riskGroup) public {
+    function borrowRepay(uint256 nftPrice, uint256 riskGroup) public {
         // create borrower collateral collateralNFT
-        uint tokenId = collateralNFT.issue(borrower_);
-        uint loan = setupLoan(tokenId, collateralNFT_, nftPrice, riskGroup);
-        uint ceiling = nftFeed_.ceiling(loan);
+        uint256 tokenId = collateralNFT.issue(borrower_);
+        uint256 loan = setupLoan(tokenId, collateralNFT_, nftPrice, riskGroup);
+        uint256 ceiling = nftFeed_.ceiling(loan);
 
         assertEq(nftFeed_.ceiling(loan), ceiling);
         borrow(loan, tokenId, ceiling);
@@ -281,33 +357,36 @@ contract BaseSystemTest is TestSetup, Math, DSTest {
 
         // borrower needs some currency to pay rate
         setupRepayReq();
-        uint distributorShould = pile.debt(loan) + currdistributorBal();
+        uint256 distributorShould = pile.debt(loan) + currdistributorBal();
         // close without defined amount
         borrower.doClose(loan);
-        uint totalT = uint(currency.totalSupply());
+        uint256 totalT = uint256(currency.totalSupply());
         checkAfterRepay(loan, tokenId, totalT, distributorShould);
     }
 
-    uint TWO_DECIMAL_PRECISION = 10**16;
-    uint FIXED27_TWO_DECIMAL_PRECISION = 10**25;
+    uint256 TWO_DECIMAL_PRECISION = 10**16;
+    uint256 FIXED27_TWO_DECIMAL_PRECISION = 10**25;
 
-    function assertEq(uint a, uint b, uint precision)  public {
-        assertEq(a/precision, b/precision);
+    function assertEq(
+        uint256 a,
+        uint256 b,
+        uint256 precision
+    ) public {
+        assertEq(a / precision, b / precision);
     }
 
-    function fixed18To27(uint valPower18) public pure returns(uint) {
+    function fixed18To27(uint256 valPower18) public pure returns (uint256) {
         // convert 10^18 to 10^27
         return valPower18 * 10**9;
     }
 
-    function setupRepayReq() public returns(uint) {
+    function setupRepayReq() public returns (uint256) {
         // borrower needs some currency to pay rate
-        uint extra = 100000000000 ether;
+        uint256 extra = 100000000000 ether;
         currency.mint(borrower_, extra);
 
         // allow pile full control over borrower tokens
-        borrower.doApproveCurrency(address(shelf), uint(-1));
+        borrower.doApproveCurrency(address(shelf), uint256(-1));
         return extra;
     }
-
 }

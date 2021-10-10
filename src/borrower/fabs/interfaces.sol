@@ -24,7 +24,11 @@ interface TitleFabLike {
 }
 
 interface CollectorFabLike {
-    function newCollector(address, address, address) external returns (address);
+    function newCollector(
+        address,
+        address,
+        address
+    ) external returns (address);
 }
 
 interface PileFabLike {
@@ -32,7 +36,10 @@ interface PileFabLike {
 }
 
 interface ShelfFabLike {
-    function newShelf(address, address, address, address) external returns (address);
+    function newShelf(
+        address,
+        address,
+        address,
+        address
+    ) external returns (address);
 }
-
-

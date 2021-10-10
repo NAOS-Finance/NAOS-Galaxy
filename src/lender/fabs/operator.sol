@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 pragma solidity >=0.5.15 <0.6.0;
-import { Operator } from "./../operator.sol";
+import {Operator} from "./../operator.sol";
 
 interface OperatorFabLike {
     function newOperator(address) external returns (address);

@@ -20,38 +20,58 @@ import "../../lib/ds-note/src/note.sol";
 import "../../lib/galaxy-math/src/math.sol";
 import "../../lib/galaxy-auth/src/auth.sol";
 import "../../lib/ds-test/src/test.sol";
-import { TitleOwned } from "../../lib/galaxy-title/src/title.sol";
+import {TitleOwned} from "../../lib/galaxy-title/src/title.sol";
 
 contract NFTLike {
     function ownerOf(uint256 tokenId) public view returns (address owner);
-    function transferFrom(address from, address to, uint256 tokenId) public;
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public;
 }
 
 contract TitleLike {
-    function issue(address) public returns (uint);
-    function close(uint) public;
-    function ownerOf (uint) public returns (address);
+    function issue(address) public returns (uint256);
+
+    function close(uint256) public;
+
+    function ownerOf(uint256) public returns (address);
 }
 
 contract TokenLike {
-    uint public totalSupply;
-    function balanceOf(address) public view returns (uint);
-    function transferFrom(address,address,uint) public returns (bool);
-    function transfer(address,uint) public returns (bool);
-    function approve(address, uint) public;
+    uint256 public totalSupply;
+
+    function balanceOf(address) public view returns (uint256);
+
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public returns (bool);
+
+    function transfer(address, uint256) public returns (bool);
+
+    function approve(address, uint256) public;
 }
 
 contract PileLike {
-    uint public total;
-    function debt(uint) public returns (uint);
-    function accrue(uint) public;
-    function incDebt(uint, uint) public;
-    function decDebt(uint, uint) public;
+    uint256 public total;
+
+    function debt(uint256) public returns (uint256);
+
+    function accrue(uint256) public;
+
+    function incDebt(uint256, uint256) public;
+
+    function decDebt(uint256, uint256) public;
 }
 
 contract CeilingLike {
-    function borrow(uint loan, uint currencyAmount) public;
-    function repay(uint loan, uint currencyAmount) public;
+    function borrow(uint256 loan, uint256 currencyAmount) public;
+
+    function repay(uint256 loan, uint256 currencyAmount) public;
 }
 
 contract DistributorLike {
@@ -59,12 +79,12 @@ contract DistributorLike {
 }
 
 contract SubscriberLike {
-    function borrowEvent(uint loan) public;
-    function unlockEvent(uint loan) public;
+    function borrowEvent(uint256 loan) public;
+
+    function unlockEvent(uint256 loan) public;
 }
 
 contract Shelf is DSNote, Auth, TitleOwned, Math {
-
     // --- Data ---
     TitleLike public title;
     CeilingLike public ceiling;
@@ -78,14 +98,19 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         uint256 tokenId;
     }
 
-    mapping (uint => uint) public balances;
-    mapping (uint => Loan) public shelf;
-    mapping (bytes32 => uint) public nftlookup;
+    mapping(uint256 => uint256) public balances;
+    mapping(uint256 => Loan) public shelf;
+    mapping(bytes32 => uint256) public nftlookup;
 
-    uint public balance;
+    uint256 public balance;
     address public lender;
 
-    constructor(address currency_, address title_, address pile_, address ceiling_) TitleOwned(title_) public {
+    constructor(
+        address currency_,
+        address title_,
+        address pile_,
+        address ceiling_
+    ) public TitleOwned(title_) {
         wards[msg.sender] = 1;
         currency = TokenLike(currency_);
         title = TitleLike(title_);
@@ -93,36 +118,40 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         ceiling = CeilingLike(ceiling_);
     }
 
-
     /// sets the dependency to another contract
     function depend(bytes32 contractName, address addr) external auth {
         if (contractName == "lender") {
             if (lender != address(0)) {
-                currency.approve(lender, uint(0));
+                currency.approve(lender, uint256(0));
             }
-            currency.approve(addr, uint(-1));
+            currency.approve(addr, uint256(-1));
             lender = addr;
-        }
-        else if (contractName == "token") { currency = TokenLike(addr); }
-        else if (contractName == "title") { title = TitleLike(addr); }
-        else if (contractName == "pile") { pile = PileLike(addr); }
-        else if (contractName == "ceiling") { ceiling = CeilingLike(addr); }
-        else if (contractName == "distributor") { distributor = DistributorLike(addr);}
-        else if (contractName == "subscriber") { subscriber = SubscriberLike(addr);}
-        else revert();
+        } else if (contractName == "token") {
+            currency = TokenLike(addr);
+        } else if (contractName == "title") {
+            title = TitleLike(addr);
+        } else if (contractName == "pile") {
+            pile = PileLike(addr);
+        } else if (contractName == "ceiling") {
+            ceiling = CeilingLike(addr);
+        } else if (contractName == "distributor") {
+            distributor = DistributorLike(addr);
+        } else if (contractName == "subscriber") {
+            subscriber = SubscriberLike(addr);
+        } else revert();
     }
 
-    function token(uint loan) public view returns (address registry, uint nft) {
+    function token(uint256 loan) public view returns (address registry, uint256 nft) {
         return (shelf[loan].registry, shelf[loan].tokenId);
     }
 
     /// issues a new loan in Galaxy - it requires the ownership of an nft
     /// first step in the loan process - everyone could add an nft
-    function issue(address registry_, uint token_) external note returns (uint) {
+    function issue(address registry_, uint256 token_) external note returns (uint256) {
         require(NFTLike(registry_).ownerOf(token_) == msg.sender, "nft-not-owned");
         bytes32 nft = keccak256(abi.encodePacked(registry_, token_));
         require(nftlookup[nft] == 0, "nft-in-use");
-        uint loan = title.issue(msg.sender);
+        uint256 loan = title.issue(msg.sender);
         nftlookup[nft] = loan;
         shelf[loan].registry = registry_;
         shelf[loan].tokenId = token_;
@@ -130,10 +159,10 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         return loan;
     }
 
-    function close(uint loan) external note{
+    function close(uint256 loan) external note {
         require(pile.debt(loan) == 0, "loan-has-outstanding-debt");
         require(!nftLocked(loan), "nft-not-locked");
-        (address registry, uint tokenId) = token(loan);
+        (address registry, uint256 tokenId) = token(loan);
         require(title.ownerOf(loan) == msg.sender || NFTLike(registry).ownerOf(tokenId) == msg.sender, "not-loan-or-nft-owner");
         title.close(loan);
         bytes32 nft = keccak256(abi.encodePacked(shelf[loan].registry, shelf[loan].tokenId));
@@ -142,11 +171,10 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
     }
 
     /// used by the lender contracts to know if currency is needed or currency can be taken
-    function balanceRequest() external view returns (bool, uint) {
-        uint currencyBalance = currency.balanceOf(address(this));
+    function balanceRequest() external view returns (bool, uint256) {
+        uint256 currencyBalance = currency.balanceOf(address(this));
         if (balance > currencyBalance) {
             return (true, safeSub(balance, currencyBalance));
-
         } else {
             return (false, safeSub(currencyBalance, balance));
         }
@@ -157,9 +185,9 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
     /// interest accumulation starts with this method
     /// the method can only be called if the nft is locked
     /// a max ceiling needs to be defined by an oracle
-    function borrow(uint loan, uint currencyAmount) external owner(loan) note {
+    function borrow(uint256 loan, uint256 currencyAmount) external owner(loan) note {
         require(nftLocked(loan), "nft-not-locked");
-        if(address(subscriber) != address(0)) {
+        if (address(subscriber) != address(0)) {
             subscriber.borrowEvent(loan);
         }
         pile.accrue(loan);
@@ -169,10 +197,13 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         balance = safeAdd(balance, currencyAmount);
     }
 
-
     /// transfers the requested currencyAmount to the address of the loan owner
     /// the method triggers the distributor to ensure the shelf has enough currency
-    function withdraw(uint loan, uint currencyAmount, address usr) external owner(loan) note {
+    function withdraw(
+        uint256 loan,
+        uint256 currencyAmount,
+        address usr
+    ) external owner(loan) note {
         require(nftLocked(loan), "nft-not-locked");
         require(currencyAmount <= balances[loan], "withdraw-amount-too-high");
 
@@ -183,7 +214,7 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
     }
 
     /// repays the entire or partial debt of a loan
-    function repay(uint loan, uint currencyAmount) external owner(loan) note {
+    function repay(uint256 loan, uint256 currencyAmount) external owner(loan) note {
         require(nftLocked(loan), "nft-not-locked");
         require(balances[loan] == 0, "withdraw-required-before-repay");
         _repay(loan, msg.sender, currencyAmount);
@@ -191,10 +222,14 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
 
     /// a collector can recover defaulted loans
     /// it is not required to recover the entire loan debt
-    function recover(uint loan, address usr, uint currencyAmount) external auth note {
+    function recover(
+        uint256 loan,
+        address usr,
+        uint256 currencyAmount
+    ) external auth note {
         pile.accrue(loan);
 
-        uint loanDebt = pile.debt(loan);
+        uint256 loanDebt = pile.debt(loan);
 
         require(currency.transferFrom(usr, address(this), currencyAmount), "currency-transfer-failed");
 
@@ -205,10 +240,14 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
         distributor.balance();
     }
 
-    function _repay(uint loan, address usr, uint currencyAmount) internal {
+    function _repay(
+        uint256 loan,
+        address usr,
+        uint256 currencyAmount
+    ) internal {
         pile.accrue(loan);
-        uint loanDebt = pile.debt(loan);
-        
+        uint256 loanDebt = pile.debt(loan);
+
         // only repay max loan debt
         if (currencyAmount > loanDebt) {
             currencyAmount = loanDebt;
@@ -221,8 +260,8 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
 
     /// locks an nft in the shelf
     /// requires an issued loan
-    function lock(uint loan) external owner(loan) note {
-        if(address(subscriber) != address(0)) {
+    function lock(uint256 loan) external owner(loan) note {
+        if (address(subscriber) != address(0)) {
             subscriber.unlockEvent(loan);
         }
         NFTLike(shelf[loan].registry).transferFrom(msg.sender, address(this), shelf[loan].tokenId);
@@ -230,24 +269,24 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
 
     /// unlocks an nft in the shelf
     /// requires zero debt
-    function unlock(uint loan) external owner(loan) note {
+    function unlock(uint256 loan) external owner(loan) note {
         require(pile.debt(loan) == 0, "loan-has-outstanding-debt");
         NFTLike(shelf[loan].registry).transferFrom(address(this), msg.sender, shelf[loan].tokenId);
     }
 
-    function nftLocked(uint loan) public view returns (bool) {
+    function nftLocked(uint256 loan) public view returns (bool) {
         return NFTLike(shelf[loan].registry).ownerOf(shelf[loan].tokenId) == address(this);
     }
 
     /// a loan can be claimed by a collector if the loan debt is above the loan threshold
     /// transfers the nft to the collector
-    function claim(uint loan, address usr) public auth note {
+    function claim(uint256 loan, address usr) public auth note {
         NFTLike(shelf[loan].registry).transferFrom(address(this), usr, shelf[loan].tokenId);
     }
 
-    function resetLoanBalance(uint loan) internal {
-        uint loanBalance = balances[loan];
-        if (loanBalance  > 0) {
+    function resetLoanBalance(uint256 loan) internal {
+        uint256 loanBalance = balances[loan];
+        if (loanBalance > 0) {
             balances[loan] = 0;
             balance = safeSub(balance, loanBalance);
         }

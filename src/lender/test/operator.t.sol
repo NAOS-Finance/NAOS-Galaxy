@@ -23,11 +23,9 @@ import "../token/restricted.sol";
 import "../token/memberlist.sol";
 import "../../../lib/galaxy-math/src/math.sol";
 
-
 contract OperatorTest is Math, DSTest {
-
-    uint256 constant ONE = 10 ** 27;
-    uint memberlistValidity = safeAdd(now, 8 days);
+    uint256 constant ONE = 10**27;
+    uint256 memberlistValidity = safeAdd(now, 8 days);
     TrancheMock tranche;
     Operator operator;
     Memberlist memberlist;
@@ -50,7 +48,7 @@ contract OperatorTest is Math, DSTest {
     }
 
     function testSupplyOrder() public {
-        uint amount = 10;
+        uint256 amount = 10;
 
         // rely operator on tranche
         tranche.rely(operator_);
@@ -64,7 +62,7 @@ contract OperatorTest is Math, DSTest {
     }
 
     function testFailSupplyOrderNotMember() public {
-        uint amount = 10;
+        uint256 amount = 10;
 
         // rely operator on tranche
         tranche.rely(operator_);
@@ -72,14 +70,14 @@ contract OperatorTest is Math, DSTest {
     }
 
     function testFailSupplyOrderOperatorNotWard() public {
-        uint amount = 10;
+        uint256 amount = 10;
         // add investor to memberlist of tokenholders
         memberlist.updateMember(self, safeAdd(now, memberlistValidity));
         operator.supplyOrder(amount);
     }
 
     function testRedeemOrder() public {
-        uint amount = 10;
+        uint256 amount = 10;
         // rely operator on tranche
         tranche.rely(operator_);
         // add investor to memberlist of tokenholders
@@ -92,15 +90,15 @@ contract OperatorTest is Math, DSTest {
     }
 
     function testFailRedeemOrderNotMember() public {
-        uint amount = 10;
+        uint256 amount = 10;
         // rely operator on tranche
         tranche.rely(operator_);
         operator.redeemOrder(amount);
     }
 
     function testFailRedeemOrderOperatorNotWard() public {
-        uint amount = 10;
-       // add investor to memberlist of tokenholders
+        uint256 amount = 10;
+        // add investor to memberlist of tokenholders
         memberlist.updateMember(self, safeAdd(now, memberlistValidity));
         operator.redeemOrder(amount);
     }
@@ -125,10 +123,9 @@ contract OperatorTest is Math, DSTest {
     }
 
     function testFailDisburseOperatorNotWard() public {
-       // add investor to memberlist of tokenholders
+        // add investor to memberlist of tokenholders
         memberlist.updateMember(self, safeAdd(now, memberlistValidity));
 
         operator.disburse();
     }
-
 }

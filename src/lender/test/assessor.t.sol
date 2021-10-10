@@ -62,10 +62,10 @@ contract AssessorTest is DSTest, Math {
     }
 
     function testFileAssessor() public {
-        uint maxReserve = 10000 ether;
-        uint maxSeniorRatio = 80 * 10 **25;
-        uint minSeniorRatio = 75 * 10 **25;
-        uint seniorInterestRate = 1000000593415115246806684338; // 5% per day
+        uint256 maxReserve = 10000 ether;
+        uint256 maxSeniorRatio = 80 * 10**25;
+        uint256 minSeniorRatio = 75 * 10**25;
+        uint256 seniorInterestRate = 1000000593415115246806684338; // 5% per day
 
         assessor.file("seniorInterestRate", seniorInterestRate);
         assertEq(assessor.seniorInterestRate(), seniorInterestRate);
@@ -82,15 +82,15 @@ contract AssessorTest is DSTest, Math {
 
     function testFailFileMinRatio() public {
         // min needs to be smaller than max
-        uint minSeniorRatio = 75 * 10 **25;
+        uint256 minSeniorRatio = 75 * 10**25;
         assessor.file("minSeniorRatio", minSeniorRatio);
         assertEq(assessor.minSeniorRatio(), minSeniorRatio);
     }
 
     function testFailFileMaxRatio() public {
         // min needs to be smaller than max
-        uint minSeniorRatio = 75 * 10 **25;
-        uint maxSeniorRatio = 80 * 10 **25;
+        uint256 minSeniorRatio = 75 * 10**25;
+        uint256 maxSeniorRatio = 80 * 10**25;
 
         assessor.file("maxSeniorRatio", maxSeniorRatio);
         assertEq(assessor.maxSeniorRatio(), maxSeniorRatio);
@@ -99,28 +99,27 @@ contract AssessorTest is DSTest, Math {
         assertEq(assessor.minSeniorRatio(), minSeniorRatio);
 
         // should fail
-        assessor.file("maxSeniorRatio", minSeniorRatio-1);
+        assessor.file("maxSeniorRatio", minSeniorRatio - 1);
     }
 
     function testBorrowUpdate() public {
-        uint currencyAmount = 100 ether;
+        uint256 currencyAmount = 100 ether;
         assessor.borrowUpdate(currencyAmount);
         // current senior ratio 0 no change
         assertEq(assessor.seniorBalance(), 0);
         assertEq(assessor.seniorDebt(), 0);
 
-        uint seniorSupply = 200 ether;
-        uint seniorRatio = 6 * 10**26;
+        uint256 seniorSupply = 200 ether;
+        uint256 seniorRatio = 6 * 10**26;
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, 0);
         assertEq(assessor.seniorRatio(), seniorRatio);
 
         assessor.borrowUpdate(currencyAmount);
         // current senior ratio 0 no change
 
-        uint increase = rmul(currencyAmount, seniorRatio);
+        uint256 increase = rmul(currencyAmount, seniorRatio);
         assertEq(assessor.seniorDebt(), increase);
-        assertEq(assessor.seniorBalance(), seniorSupply-increase);
-
+        assertEq(assessor.seniorBalance(), seniorSupply - increase);
 
         // very high increase very rare case
         currencyAmount = 1000 ether;
@@ -131,9 +130,9 @@ contract AssessorTest is DSTest, Math {
     }
 
     function testChangeSeniorAsset() public {
-        uint seniorSupply =  100 ether;
-        uint seniorRedeem = 0;
-        uint seniorRatio = 6 * 10**26;
+        uint256 seniorSupply = 100 ether;
+        uint256 seniorRedeem = 0;
+        uint256 seniorRatio = 6 * 10**26;
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, seniorRedeem);
 
         // NAV = 0
@@ -157,14 +156,14 @@ contract AssessorTest is DSTest, Math {
     }
 
     function testRepayUpdate() public {
-        uint repayAmount = 100 ether;
+        uint256 repayAmount = 100 ether;
         assessor.repaymentUpdate(repayAmount);
         // current senior ratio 0 no change
         assertEq(assessor.seniorBalance(), 0);
         assertEq(assessor.seniorDebt(), 0);
 
-        uint seniorSupply = 200 ether;
-        uint seniorRatio = 6 * 10**26;
+        uint256 seniorSupply = 200 ether;
+        uint256 seniorRatio = 6 * 10**26;
 
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, 0);
         assertEq(assessor.seniorRatio(), seniorRatio);
@@ -172,7 +171,7 @@ contract AssessorTest is DSTest, Math {
         assertEq(assessor.seniorBalance(), 200 ether);
 
         // required to borrow first
-        uint borrowAmount = 100 ether;
+        uint256 borrowAmount = 100 ether;
         assessor.borrowUpdate(borrowAmount);
         // 100 * 0.6 = 60 ether
         assertEq(assessor.seniorDebt(), 60 ether);
@@ -190,13 +189,13 @@ contract AssessorTest is DSTest, Math {
 
     function testSeniorInterest() public {
         // 5% per day
-        uint interestRate = uint(1000000564701133626865910626);
+        uint256 interestRate = uint256(1000000564701133626865910626);
         assessor.file("seniorInterestRate", interestRate);
 
         navFeed.setReturn("approximatedNAV", 200 ether);
 
-        uint seniorSupply = 200 ether;
-        uint seniorRatio = 5 * 10**26;
+        uint256 seniorSupply = 200 ether;
+        uint256 seniorRatio = 5 * 10**26;
 
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, 0);
         assertEq(assessor.seniorDebt(), 100 ether);
@@ -207,70 +206,68 @@ contract AssessorTest is DSTest, Math {
         assessor.dripSeniorDebt();
         assertEq(assessor.seniorDebt(), 105 ether);
 
-        hevm.warp(now +  1 days);
+        hevm.warp(now + 1 days);
         assessor.dripSeniorDebt();
         assertEq(assessor.seniorDebt(), 110.25 ether);
     }
 
     function testCalcSeniorTokenPrice() public {
-        assertEq(assessor.calcSeniorTokenPrice(0,0), ONE);
+        assertEq(assessor.calcSeniorTokenPrice(0, 0), ONE);
 
-        uint reserve = 50 ether;
-        uint nav = 50 ether;
+        uint256 reserve = 50 ether;
+        uint256 nav = 50 ether;
 
         seniorTranche.setReturn("tokenSupply", 0);
-        uint seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
+        uint256 seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
         assertEq(seniorTokenPrice, ONE);
 
         navFeed.setReturn("approximatedNAV", 200 ether);
 
-        uint seniorSupply = 200 ether;
-        uint seniorRatio = 5 * 10**26;
+        uint256 seniorSupply = 200 ether;
+        uint256 seniorRatio = 5 * 10**26;
 
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, 0);
         assertEq(assessor.seniorDebt(), 100 ether);
         assertEq(assessor.seniorBalance(), 100 ether);
-
 
         seniorTranche.setReturn("tokenSupply", 100 ether);
         reserve = 100 ether;
         nav = 100 ether;
         seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
         // token price 2.0
-        assertEq(seniorTokenPrice, 2 * 10 ** 27);
-
+        assertEq(seniorTokenPrice, 2 * 10**27);
 
         reserve = 1000 ether;
         nav = 100 ether;
         seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
-        assertEq(seniorTokenPrice, 2 * 10 ** 27);
+        assertEq(seniorTokenPrice, 2 * 10**27);
 
         reserve = 100 ether;
         nav = 1000 ether;
         seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
-        assertEq(seniorTokenPrice, 2 * 10 ** 27);
+        assertEq(seniorTokenPrice, 2 * 10**27);
 
         reserve = 25 ether;
         nav = 25 ether;
         seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
         // price: 0.5
-        assertEq(seniorTokenPrice, 5 * 10 ** 26);
+        assertEq(seniorTokenPrice, 5 * 10**26);
     }
 
     function testCalcJuniorTokenPrice() public {
-        assertEq(assessor.calcJuniorTokenPrice(0,0), ONE);
+        assertEq(assessor.calcJuniorTokenPrice(0, 0), ONE);
 
-        uint reserve = 50 ether;
-        uint nav = 50 ether;
+        uint256 reserve = 50 ether;
+        uint256 nav = 50 ether;
 
         juniorTranche.setReturn("tokenSupply", 0);
-        uint juniorTokenPrice = assessor.calcJuniorTokenPrice(nav, reserve);
+        uint256 juniorTokenPrice = assessor.calcJuniorTokenPrice(nav, reserve);
         assertEq(juniorTokenPrice, ONE);
 
         // set up senior asset
         navFeed.setReturn("approximatedNAV", 200 ether);
-        uint seniorSupply = 200 ether;
-        uint seniorRatio = 5 * 10**26;
+        uint256 seniorSupply = 200 ether;
+        uint256 seniorRatio = 5 * 10**26;
 
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, 0);
         assertEq(assessor.seniorDebt(), 100 ether);
@@ -286,7 +283,7 @@ contract AssessorTest is DSTest, Math {
         // juniorAsset = 300 ether
 
         // junior price: 3.0
-        assertEq(juniorTokenPrice, 3 * 10 ** 27);
+        assertEq(juniorTokenPrice, 3 * 10**27);
 
         reserve = 300 ether;
         nav = 0 ether;
@@ -301,22 +298,21 @@ contract AssessorTest is DSTest, Math {
         assertEq(juniorTokenPrice, 0);
 
         seniorTranche.setReturn("tokenSupply", 200 ether);
-        uint seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
+        uint256 seniorTokenPrice = assessor.calcSeniorTokenPrice(nav, reserve);
         assertEq(seniorTokenPrice, 75 * 10**25);
     }
 
     function testCalcTokenPrices() public {
-        (uint juniorPrice, uint seniorPrice) = assessor.calcTokenPrices(0,0);
+        (uint256 juniorPrice, uint256 seniorPrice) = assessor.calcTokenPrices(0, 0);
         assertEq(juniorPrice, ONE);
         assertEq(seniorPrice, ONE);
 
-        uint reserve = 300 ether;
-        uint nav = 200 ether;
-
+        uint256 reserve = 300 ether;
+        uint256 nav = 200 ether;
 
         navFeed.setReturn("approximatedNAV", 200 ether);
-        uint seniorSupply = 200 ether;
-        uint seniorRatio = 5 * 10**26;
+        uint256 seniorSupply = 200 ether;
+        uint256 seniorRatio = 5 * 10**26;
 
         assessor.changeSeniorAsset(seniorRatio, seniorSupply, 0);
         assertEq(assessor.seniorDebt(), 100 ether);
@@ -332,8 +328,7 @@ contract AssessorTest is DSTest, Math {
 
         // junior price: 3.0
         (juniorPrice, seniorPrice) = assessor.calcTokenPrices(nav, reserve);
-        assertEq(juniorPrice, 3 * 10 ** 27);
-        assertEq(seniorPrice, 1 * 10 ** 27);
+        assertEq(juniorPrice, 3 * 10**27);
+        assertEq(seniorPrice, 1 * 10**27);
     }
-
 }

@@ -15,24 +15,23 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { Title } from "../../../../lib/galaxy-title/src/title.sol";
+import {Title} from "../../../../lib/galaxy-title/src/title.sol";
 import "../interfaces.sol";
 
 contract Keeper {
     ERC20Like currency;
     CollectorLike collector;
 
-    constructor (address collector_, address currency_) public {
+    constructor(address collector_, address currency_) public {
         collector = CollectorLike(collector_);
         currency = ERC20Like(currency_);
     }
 
-    function collect(uint loan) public {
+    function collect(uint256 loan) public {
         collector.collect(loan);
     }
 
-    function approveCurrency(address usr, uint currencyPrice) public {
+    function approveCurrency(address usr, uint256 currencyPrice) public {
         currency.approve(usr, currencyPrice);
     }
-
 }

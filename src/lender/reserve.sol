@@ -12,10 +12,7 @@ contract ERC20Like {
         uint256
     ) public returns (bool);
 
-    function transfer(
-        address,
-        uint256
-    ) public returns (bool);
+    function transfer(address, uint256) public returns (bool);
 
     function mint(address, uint256) public;
 
@@ -29,8 +26,9 @@ contract ShelfLike {
 }
 
 contract AssessorLike {
-    function repaymentUpdate(uint amount) public;
-    function borrowUpdate(uint amount) public;
+    function repaymentUpdate(uint256 amount) public;
+
+    function borrowUpdate(uint256 amount) public;
 }
 
 // The reserve keeps track of the currency and the bookkeeping
@@ -47,7 +45,7 @@ contract Reserve is Math, Auth {
     address self;
 
     // total currency in the reserve
-    uint public balance_;
+    uint256 public balance_;
 
     constructor(address currency_) public {
         wards[msg.sender] = 1;
@@ -55,7 +53,7 @@ contract Reserve is Math, Auth {
         self = address(this);
     }
 
-    function file(bytes32 what, uint amount) public auth {
+    function file(bytes32 what, uint256 amount) public auth {
         if (what == "currencyAvailable") {
             currencyAvailable = amount;
         } else revert();
@@ -71,33 +69,33 @@ contract Reserve is Math, Auth {
         } else revert();
     }
 
-    function totalBalance() public view returns (uint) {
+    function totalBalance() public view returns (uint256) {
         return balance_;
     }
 
     // deposits currency in the the reserve
-    function deposit(uint currencyAmount) public auth {
+    function deposit(uint256 currencyAmount) public auth {
         _deposit(msg.sender, currencyAmount);
     }
 
-    function _deposit(address usr, uint currencyAmount) internal {
+    function _deposit(address usr, uint256 currencyAmount) internal {
         require(currency.transferFrom(usr, self, currencyAmount), "reserve-deposit-failed");
         balance_ = safeAdd(balance_, currencyAmount);
     }
 
     // remove currency from the reserve
-    function payout(uint currencyAmount) public auth {
+    function payout(uint256 currencyAmount) public auth {
         _payout(msg.sender, currencyAmount);
     }
 
     // remove currency from the reserve and send to user
-    function payoutTo(address to, uint currencyAmount) public auth {
+    function payoutTo(address to, uint256 currencyAmount) public auth {
         _payout(to, currencyAmount);
     }
 
-    function _payout(address usr, uint currencyAmount)  internal {
-      require(currency.transfer(usr, currencyAmount), "reserve-payout-failed");
-      balance_ = safeSub(balance_, currencyAmount);
+    function _payout(address usr, uint256 currencyAmount) internal {
+        require(currency.transfer(usr, currencyAmount), "reserve-payout-failed");
+        balance_ = safeSub(balance_, currencyAmount);
     }
 
     // balance handles currency requests from the borrower side
@@ -105,10 +103,7 @@ contract Reserve is Math, Auth {
     function balance() public {
         (bool requestWant, uint256 currencyAmount) = shelf.balanceRequest();
         if (requestWant) {
-            require(
-                currencyAvailable >= currencyAmount,
-                "not-enough-currency-reserve"
-            );
+            require(currencyAvailable >= currencyAmount, "not-enough-currency-reserve");
 
             currencyAvailable = safeSub(currencyAvailable, currencyAmount);
             _payout(address(shelf), currencyAmount);

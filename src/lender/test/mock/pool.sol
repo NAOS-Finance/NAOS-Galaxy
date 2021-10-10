@@ -17,7 +17,7 @@ import "../../../../lib/ds-test/src/test.sol";
 import "../../../test/mock/mock.sol";
 
 contract PoolMock is Mock {
-    function totalValue() public view returns (uint) {
+    function totalValue() public view returns (uint256) {
         return values_return["totalValue"];
     }
 }

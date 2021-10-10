@@ -24,14 +24,13 @@ import "../../test/mock/pile.sol";
 
 import "../collector.sol";
 
-
 contract CollectorTest is DSTest {
-    ShelfMock       shelf;
-    PileMock        pile;
+    ShelfMock shelf;
+    PileMock pile;
     DistributorMock distributor;
-    NFTMock         nft;
+    NFTMock nft;
 
-    Collector    collector;
+    Collector collector;
 
     function setUp() public {
         nft = new NFTMock();
@@ -43,7 +42,11 @@ contract CollectorTest is DSTest {
         collector.depend("distributor", address(distributor));
     }
 
-    function collect(uint loan, uint tokenId, uint price) internal {
+    function collect(
+        uint256 loan,
+        uint256 tokenId,
+        uint256 price
+    ) internal {
         collector.collect(loan, address(this));
         assertEq(nft.calls("transferFrom"), 1);
         assertEq(nft.values_address("transferFrom_to"), address(this));
@@ -53,27 +56,27 @@ contract CollectorTest is DSTest {
         assertEq(shelf.values_address("recover_usr"), address(this));
     }
 
-    function seize(uint loan) internal {
+    function seize(uint256 loan) internal {
         collector.seize(loan);
         assertEq(shelf.calls("claim"), 1);
         assertEq(shelf.values_uint("claim_loan"), loan);
         assertEq(shelf.values_address("claim_usr"), address(collector));
     }
 
-    function setUpLoan(uint tokenId, uint debt) public {
+    function setUpLoan(uint256 tokenId, uint256 debt) public {
         shelf.setReturn("token", address(nft), tokenId);
         pile.setReturn("debt_loan", debt);
     }
 
     function testSeizeCollect() public {
         collector.relyCollector(address(this));
-        uint loan = 1;
-        uint tokenId = 123;
-        uint debt = 100;
-        uint price = debt-1;
+        uint256 loan = 1;
+        uint256 tokenId = 123;
+        uint256 debt = 100;
+        uint256 price = debt - 1;
         setUpLoan(tokenId, debt);
 
-        nft.setThreshold(loan, debt-1);
+        nft.setThreshold(loan, debt - 1);
         collector.file("loan", loan, address(this), price);
         seize(loan);
         collect(loan, tokenId, price);
@@ -81,37 +84,40 @@ contract CollectorTest is DSTest {
 
     function testSeizeCollectAnyUser() public {
         collector.relyCollector(address(this));
-        uint loan = 1; uint tokenId = 123;
-        uint debt = 100;
-        uint price = debt-1;
+        uint256 loan = 1;
+        uint256 tokenId = 123;
+        uint256 debt = 100;
+        uint256 price = debt - 1;
         setUpLoan(tokenId, debt);
 
         collector.file("loan", loan, address(0), price);
-        nft.setThreshold(loan, debt-1);
+        nft.setThreshold(loan, debt - 1);
         seize(loan);
         collect(loan, tokenId, price);
     }
 
     function testFailSeizeThresholdNotReached() public {
         collector.relyCollector(address(this));
-        uint loan = 1; uint tokenId = 123;
-        uint debt = 100;
-        uint price = debt-1;
+        uint256 loan = 1;
+        uint256 tokenId = 123;
+        uint256 debt = 100;
+        uint256 price = debt - 1;
         setUpLoan(tokenId, debt);
 
-        nft.setThreshold(loan, debt+1);
+        nft.setThreshold(loan, debt + 1);
         collector.file("loan", loan, address(this), price);
         seize(loan);
     }
 
     function testFailSeizeCollectUnauthorizedUser() public {
         collector.relyCollector(address(this));
-        uint loan = 1; uint tokenId = 123;
-        uint debt = 100;
-        uint price = debt-1;
+        uint256 loan = 1;
+        uint256 tokenId = 123;
+        uint256 debt = 100;
+        uint256 price = debt - 1;
         setUpLoan(tokenId, debt);
 
-        nft.setThreshold(loan, debt+1);
+        nft.setThreshold(loan, debt + 1);
         collector.file("loan", loan, address(1), price);
         seize(loan);
         collect(loan, tokenId, price);
@@ -119,15 +125,14 @@ contract CollectorTest is DSTest {
 
     function testFailNoPriceDefined() public {
         collector.relyCollector(address(this));
-        uint loan = 1; uint tokenId = 123;
-        uint debt = 100;
+        uint256 loan = 1;
+        uint256 tokenId = 123;
+        uint256 debt = 100;
         setUpLoan(tokenId, debt);
 
-        nft.setThreshold(loan, debt-1);
+        nft.setThreshold(loan, debt - 1);
 
         seize(loan);
         collect(loan, tokenId, 0);
     }
 }
-
-

@@ -20,82 +20,160 @@ contract Hevm {
 }
 
 contract TitleLike {
-    function issue(address) public returns (uint);
-    function close(uint) public;
-    function ownerOf (uint) public returns (address);
+    function issue(address) public returns (uint256);
+
+    function close(uint256) public;
+
+    function ownerOf(uint256) public returns (address);
 }
 
-contract TokenLike{
-    function totalSupply() public returns (uint);
-    function balanceOf(address) public returns (uint);
-    function transferFrom(address,address,uint) public;
-    function approve(address, uint) public;
-    function mint(address, uint) public;
-    function burn(address, uint) public;
+contract TokenLike {
+    function totalSupply() public returns (uint256);
+
+    function balanceOf(address) public returns (uint256);
+
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public;
+
+    function approve(address, uint256) public;
+
+    function mint(address, uint256) public;
+
+    function burn(address, uint256) public;
 }
 
 contract NFTFeedLike {
-    function update(bytes32 nftID, uint value) public;
-    function update(bytes32 nftID, uint value, uint risk) public;
-    function ceiling(uint loan) public view returns(uint);
-    function values(uint) public view returns(uint);
-    function ceilingRatio(uint) public view returns(uint);
-    function thresholdRatio(uint) public view returns(uint);
-    function threshold(uint) public view returns (uint);
+    function update(bytes32 nftID, uint256 value) public;
+
+    function update(
+        bytes32 nftID,
+        uint256 value,
+        uint256 risk
+    ) public;
+
+    function ceiling(uint256 loan) public view returns (uint256);
+
+    function values(uint256) public view returns (uint256);
+
+    function ceilingRatio(uint256) public view returns (uint256);
+
+    function thresholdRatio(uint256) public view returns (uint256);
+
+    function threshold(uint256) public view returns (uint256);
+
     // function file(bytes32 what, uint loan, uint currencyAmount) public;
-    function borrow(uint loan, uint currencyAmount) public;
-    function repay(uint loan, uint currencyAmount) public;
-    function file(bytes32 what, bytes32 nftID_, uint maturityDate_) public;
+    function borrow(uint256 loan, uint256 currencyAmount) public;
+
+    function repay(uint256 loan, uint256 currencyAmount) public;
+
+    function file(
+        bytes32 what,
+        bytes32 nftID_,
+        uint256 maturityDate_
+    ) public;
 }
 
 contract PileLike {
-    function debt(uint loan) public returns(uint);
-    function file(bytes32 what, uint rate, uint speed) public;
-    function setRate(uint loan, uint rate) public;
+    function debt(uint256 loan) public returns (uint256);
+
+    function file(
+        bytes32 what,
+        uint256 rate,
+        uint256 speed
+    ) public;
+
+    function setRate(uint256 loan, uint256 rate) public;
 }
 
 contract TDistributorLike {
     function balance() public;
+
     function file(bytes32 what, bool flag) public;
 }
 
 contract ShelfLike {
-    function lock(uint loan) public;
-    function unlock(uint loan) public;
-    function issue(address registry, uint token) public returns (uint loan);
-    function close(uint loan) public;
-    function borrow(uint loan, uint wad) public;
-    function withdraw(uint loan, uint wad, address usr) public;
-    function repay(uint loan, uint wad) public;
-    function shelf(uint loan) public returns(address registry,uint256 tokenId,uint price,uint principal, uint initial);
-    function file(bytes32 what, uint loan, address registry, uint nft) public;
+    function lock(uint256 loan) public;
+
+    function unlock(uint256 loan) public;
+
+    function issue(address registry, uint256 token) public returns (uint256 loan);
+
+    function close(uint256 loan) public;
+
+    function borrow(uint256 loan, uint256 wad) public;
+
+    function withdraw(
+        uint256 loan,
+        uint256 wad,
+        address usr
+    ) public;
+
+    function repay(uint256 loan, uint256 wad) public;
+
+    function shelf(uint256 loan)
+        public
+        returns (
+            address registry,
+            uint256 tokenId,
+            uint256 price,
+            uint256 principal,
+            uint256 initial
+        );
+
+    function file(
+        bytes32 what,
+        uint256 loan,
+        address registry,
+        uint256 nft
+    ) public;
 }
 
 contract ERC20Like {
-    function transferFrom(address, address, uint) public;
-    function mint(address, uint) public;
-    function approve(address usr, uint wad) public returns (bool);
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public;
+
+    function mint(address, uint256) public;
+
+    function approve(address usr, uint256 wad) public returns (bool);
+
     function totalSupply() public returns (uint256);
-    function balanceOf(address usr) public returns (uint);
+
+    function balanceOf(address usr) public returns (uint256);
 }
 
 contract TrancheLike {
-    function balance() public returns(uint);
-    function tokenSupply() public returns(uint);
+    function balance() public returns (uint256);
+
+    function tokenSupply() public returns (uint256);
 }
 
 contract CollectorLike {
-    function collect(uint loan) public;
-    function collect(uint loan, address buyer) public;
-    function file(bytes32 what, uint loan, address buyer, uint price) public;
+    function collect(uint256 loan) public;
+
+    function collect(uint256 loan, address buyer) public;
+
+    function file(
+        bytes32 what,
+        uint256 loan,
+        address buyer,
+        uint256 price
+    ) public;
+
     function relyCollector(address user) public;
 }
 
 contract ThresholdLike {
-    function set(uint, uint) public;
+    function set(uint256, uint256) public;
 }
 
 contract MemberlistLike {
-    function updateMember(address usr, uint validUntil) public;
-    function removeMember(address usr, uint validUntil) public;
+    function updateMember(address usr, uint256 validUntil) public;
+
+    function removeMember(address usr, uint256 validUntil) public;
 }

@@ -18,8 +18,18 @@ pragma solidity >=0.5.15 <0.6.0;
 import "../../ds-note/src/note.sol";
 
 contract Auth is DSNote {
-    mapping (address => uint) public wards;
-    function rely(address usr) public auth note { wards[usr] = 1; }
-    function deny(address usr) public auth note { wards[usr] = 0; }
-    modifier auth { require(wards[msg.sender] == 1); _; }
+    mapping(address => uint256) public wards;
+
+    function rely(address usr) public auth note {
+        wards[usr] = 1;
+    }
+
+    function deny(address usr) public auth note {
+        wards[usr] = 0;
+    }
+
+    modifier auth() {
+        require(wards[msg.sender] == 1);
+        _;
+    }
 }

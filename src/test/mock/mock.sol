@@ -17,29 +17,29 @@ pragma solidity >=0.5.15 <0.6.0;
 
 contract Mock {
     // counting calls
-    mapping (bytes32 => uint) public calls;
+    mapping(bytes32 => uint256) public calls;
 
     // returns
-    mapping (bytes32 => uint) public values_return;
-    mapping (bytes32 => address) public values_address_return;
-    mapping (bytes32 => bool) public values_bool_return;
+    mapping(bytes32 => uint256) public values_return;
+    mapping(bytes32 => address) public values_address_return;
+    mapping(bytes32 => bool) public values_bool_return;
 
     // passed parameter
-    mapping (bytes32 => uint) public values_uint;
-    mapping (bytes32 => address) public values_address;
-    mapping (bytes32 => bytes32) public values_bytes32;
+    mapping(bytes32 => uint256) public values_uint;
+    mapping(bytes32 => address) public values_address;
+    mapping(bytes32 => bytes32) public values_bytes32;
 
-    mapping (bytes32 =>bool) method_fail;
+    mapping(bytes32 => bool) method_fail;
 
     // function values(bytes32 name) public returns (uint) {return values_uint[name];}
     // function values(bytes32 name) public returns (address) {return values_address[name];}
 
-    function call(bytes32 name) internal returns (uint) {
+    function call(bytes32 name) internal returns (uint256) {
         calls[name]++;
         return values_return[name];
     }
 
-    function setReturn(bytes32 name, uint returnValue) public {
+    function setReturn(bytes32 name, uint256 returnValue) public {
         values_return[name] = returnValue;
     }
 
@@ -47,12 +47,20 @@ contract Mock {
         values_bool_return[name] = returnValue;
     }
 
-    function setReturn(bytes32 name, bool flag, uint value) public {
+    function setReturn(
+        bytes32 name,
+        bool flag,
+        uint256 value
+    ) public {
         setReturn(name, flag);
         setReturn(name, value);
     }
 
-    function setReturn(bytes32 name, address addr, uint value) public {
+    function setReturn(
+        bytes32 name,
+        address addr,
+        uint256 value
+    ) public {
         setReturn(name, addr);
         setReturn(name, value);
     }

@@ -20,37 +20,44 @@ import "../../../../lib/galaxy-auth/src/auth.sol";
 import "../../../test/mock/mock.sol";
 
 interface CurrencyLike {
-    function transferFrom(address from, address to, uint amount) external;
-    function transfer(address to,uint256 amount) external;
-    function balanceOf(address usr) external returns (uint);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external;
+
+    function transfer(address to, uint256 amount) external;
+
+    function balanceOf(address usr) external returns (uint256);
 }
 
 contract ReserveMock is Mock, Auth {
     CurrencyLike public currency;
+
     constructor(address currency_) public {
         wards[msg.sender] = 1;
         currency = CurrencyLike(currency_);
     }
 
-    function file(bytes32 , uint currencyAmount) public auth {
+    function file(bytes32, uint256 currencyAmount) public auth {
         values_uint["currency_available"] = currencyAmount;
     }
 
-    function balance() public returns (uint) {
+    function balance() public returns (uint256) {
         return call("balance");
     }
 
-    function totalBalance() public returns (uint) {
+    function totalBalance() public returns (uint256) {
         return call("balance");
     }
 
-    function deposit(uint amount) public {
+    function deposit(uint256 amount) public {
         values_uint["deposit_amount"] = amount;
         currency.transferFrom(msg.sender, address(this), amount);
     }
-    function payout(uint amount) public {
+
+    function payout(uint256 amount) public {
         values_uint["deposit_amount"] = amount;
         currency.transfer(msg.sender, amount);
     }
 }
-

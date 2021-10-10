@@ -20,17 +20,18 @@ import "../../../ds-test/src/test.sol";
 import "../title.sol";
 
 contract TitleUser {
-   Title title;
-   constructor (Title title_) public {
-    title = title_;
-   }
-   function doIssue(address usr) public returns (uint) {
-       return title.issue(usr);
-   }
+    Title title;
+
+    constructor(Title title_) public {
+        title = title_;
+    }
+
+    function doIssue(address usr) public returns (uint256) {
+        return title.issue(usr);
+    }
 }
 
 contract TitleTest is DSTest {
-
     function setUp() public {}
 
     function testSetupPrecondition() public {
@@ -46,6 +47,7 @@ contract TitleTest is DSTest {
         assertEq(user.doIssue(address(this)), 2);
         assertEq(user.doIssue(address(this)), 3);
     }
+
     function testClose() public {
         Title title = new Title("title", "TLO");
         TitleUser user = new TitleUser(title);
@@ -56,6 +58,7 @@ contract TitleTest is DSTest {
         title.close(2);
         assertEq(user.doIssue(address(this)), 3);
     }
+
     function testFailClose() public {
         Title title = new Title("title", "TLO");
         TitleUser user = new TitleUser(title);
@@ -68,11 +71,9 @@ contract TitleTest is DSTest {
 }
 
 contract TitleOwnable is TitleOwned {
-    constructor (address title_) TitleOwned (title_) public {
-    }
+    constructor(address title_) public TitleOwned(title_) {}
 
-    function testPermission(uint loan) owner(loan) public {
-    }
+    function testPermission(uint256 loan) public owner(loan) {}
 }
 
 contract TitleOwnedTest is DSTest {
@@ -87,16 +88,18 @@ contract TitleOwnedTest is DSTest {
     }
 
     function testLoanPermission() public {
-        uint loan = title.issue(address(this));
+        uint256 loan = title.issue(address(this));
         test.testPermission(loan);
     }
+
     function testFailLoanPermissionNonExisting() public {
         // non existing loan
         test.testPermission(12);
     }
+
     function testFailLoanPermissionWrongOwner() public {
         // wrong owner
-        uint loan = title.issue(address(someAddr));
+        uint256 loan = title.issue(address(someAddr));
         test.testPermission(loan);
     }
 }

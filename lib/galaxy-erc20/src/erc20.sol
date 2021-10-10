@@ -17,34 +17,45 @@ pragma solidity >=0.5.15;
 
 contract ERC20 {
     // --- Auth ---
-    mapping (address => uint) public wards;
-    function rely(address usr) public auth { wards[usr] = 1; }
-    function deny(address usr) public auth { wards[usr] = 0; }
-    modifier auth { require(wards[msg.sender] == 1); _; }
+    mapping(address => uint256) public wards;
+
+    function rely(address usr) public auth {
+        wards[usr] = 1;
+    }
+
+    function deny(address usr) public auth {
+        wards[usr] = 0;
+    }
+
+    modifier auth() {
+        require(wards[msg.sender] == 1);
+        _;
+    }
 
     // --- ERC20 Data ---
-    uint8   public decimals = 18;
-    string  public name;
-    string  public symbol;
-    string  public version;
+    uint8 public decimals = 18;
+    string public name;
+    string public symbol;
+    string public version;
     uint256 public totalSupply;
 
     bytes32 public DOMAIN_SEPARATOR;
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
-    mapping(address => uint) public nonces;
+    mapping(address => uint256) public nonces;
 
-    mapping (address => uint)                      public balanceOf;
-    mapping (address => mapping (address => uint)) public allowance;
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
 
-    event Approval(address indexed src, address indexed usr, uint wad);
-    event Transfer(address indexed src, address indexed dst, uint wad);
+    event Approval(address indexed src, address indexed usr, uint256 wad);
+    event Transfer(address indexed src, address indexed dst, uint256 wad);
 
     // --- Math ---
-    function add(uint x, uint y) internal pure returns (uint z) {
+    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x + y) >= x, "math-add-overflow");
     }
-    function sub(uint x, uint y) internal pure returns (uint z) {
+
+    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x - y) <= x, "math-sub-underflow");
     }
 
@@ -53,15 +64,15 @@ contract ERC20 {
         symbol = symbol_;
         name = name_;
 
-        uint chainId;
+        uint256 chainId;
         assembly {
             chainId := chainid()
         }
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
-                keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256(bytes(name)),
-                keccak256(bytes('1')),
+                keccak256(bytes("1")),
                 chainId,
                 address(this)
             )
@@ -69,14 +80,17 @@ contract ERC20 {
     }
 
     // --- ERC20 ---
-    function transfer(address dst, uint wad) external returns (bool) {
+    function transfer(address dst, uint256 wad) external returns (bool) {
         return transferFrom(msg.sender, dst, wad);
     }
-    function transferFrom(address src, address dst, uint wad)
-        public returns (bool)
-    {
+
+    function transferFrom(
+        address src,
+        address dst,
+        uint256 wad
+    ) public returns (bool) {
         require(balanceOf[src] >= wad, "cent/insufficient-balance");
-        if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
+        if (src != msg.sender && allowance[src][msg.sender] != uint256(-1)) {
             require(allowance[src][msg.sender] >= wad, "cent/insufficient-allowance");
             allowance[src][msg.sender] = sub(allowance[src][msg.sender], wad);
         }
@@ -85,50 +99,63 @@ contract ERC20 {
         emit Transfer(src, dst, wad);
         return true;
     }
-    function mint(address usr, uint wad) external auth {
+
+    function mint(address usr, uint256 wad) external auth {
         balanceOf[usr] = add(balanceOf[usr], wad);
-        totalSupply    = add(totalSupply, wad);
+        totalSupply = add(totalSupply, wad);
         emit Transfer(address(0), usr, wad);
     }
-    function burn(address usr, uint wad) external {
+
+    function burn(address usr, uint256 wad) external {
         require(balanceOf[usr] >= wad, "cent/insufficient-balance");
-        if (usr != msg.sender && allowance[usr][msg.sender] != uint(-1)) {
+        if (usr != msg.sender && allowance[usr][msg.sender] != uint256(-1)) {
             require(allowance[usr][msg.sender] >= wad, "cent/insufficient-allowance");
             allowance[usr][msg.sender] = sub(allowance[usr][msg.sender], wad);
         }
         balanceOf[usr] = sub(balanceOf[usr], wad);
-        totalSupply    = sub(totalSupply, wad);
+        totalSupply = sub(totalSupply, wad);
         emit Transfer(usr, address(0), wad);
     }
-    function approve(address usr, uint wad) external returns (bool) {
+
+    function approve(address usr, uint256 wad) external returns (bool) {
         allowance[msg.sender][usr] = wad;
         emit Approval(msg.sender, usr, wad);
         return true;
     }
 
     // --- Alias ---
-    function push(address usr, uint wad) external {
+    function push(address usr, uint256 wad) external {
         transferFrom(msg.sender, usr, wad);
     }
-    function pull(address usr, uint wad) external {
+
+    function pull(address usr, uint256 wad) external {
         transferFrom(usr, msg.sender, wad);
     }
-    function move(address src, address dst, uint wad) external {
+
+    function move(
+        address src,
+        address dst,
+        uint256 wad
+    ) external {
         transferFrom(src, dst, wad);
     }
 
     // --- Approve by signature ---
-    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
-        require(deadline >= block.timestamp, 'cent/past-deadline');
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        require(deadline >= block.timestamp, "cent/past-deadline");
         bytes32 digest = keccak256(
-            abi.encodePacked(
-                '\x19\x01',
-                DOMAIN_SEPARATOR,
-                keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline))
-            )
+            abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline)))
         );
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner, 'cent-erc20/invalid-sig');
+        require(recoveredAddress != address(0) && recoveredAddress == owner, "cent-erc20/invalid-sig");
         allowance[owner][spender] = value;
         emit Approval(owner, spender, value);
     }

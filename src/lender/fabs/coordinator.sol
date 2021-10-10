@@ -15,16 +15,16 @@
 
 pragma solidity >=0.5.15 <0.6.0;
 
-import { EpochCoordinator } from "./../coordinator.sol";
+import {EpochCoordinator} from "./../coordinator.sol";
 import "../../../lib/galaxy-erc20/src/erc20.sol";
 import "../coordinator.sol";
 
 interface CoordinatorFabLike {
-    function newCoordinator(uint) external returns (address);
+    function newCoordinator(uint256) external returns (address);
 }
 
 contract CoordinatorFab {
-    function newCoordinator(uint challengeTime) public returns (address) {
+    function newCoordinator(uint256 challengeTime) public returns (address) {
         EpochCoordinator coordinator = new EpochCoordinator(challengeTime);
         coordinator.rely(msg.sender);
         coordinator.deny(address(this));

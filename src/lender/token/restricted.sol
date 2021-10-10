@@ -19,28 +19,35 @@ import "../../../lib/galaxy-erc20/src/erc20.sol";
 
 contract MemberlistLike {
     function hasMember(address) public view returns (bool);
+
     function member(address) public;
 }
 
 // Only mebmber with a valid (not expired) membership should be allowed to receive tokens
 contract RestrictedToken is ERC20 {
+    MemberlistLike public memberlist;
+    modifier checkMember(address usr) {
+        memberlist.member(usr);
+        _;
+    }
 
-    MemberlistLike public memberlist; 
-    modifier checkMember(address usr) { memberlist.member(usr); _; }
-    
     function hasMember(address usr) public view returns (bool) {
         return memberlist.hasMember(usr);
     }
 
-    constructor(string memory symbol_, string memory name_) ERC20(symbol_, name_) public {}
+    constructor(string memory symbol_, string memory name_) public ERC20(symbol_, name_) {}
 
     function depend(bytes32 contractName, address addr) public auth {
-        if (contractName == "memberlist") { memberlist = MemberlistLike(addr); }
-        else revert();
+        if (contractName == "memberlist") {
+            memberlist = MemberlistLike(addr);
+        } else revert();
     }
 
-    function transferFrom(address from, address to, uint wad) checkMember(to) public returns (bool) {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 wad
+    ) public checkMember(to) returns (bool) {
         return super.transferFrom(from, to, wad);
     }
 }
-
