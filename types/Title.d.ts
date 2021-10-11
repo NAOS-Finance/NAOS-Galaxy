@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface TitleInterface extends ethers.utils.Interface {
   functions: {
@@ -139,6 +139,37 @@ interface TitleInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "LogNote"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
+
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber] & {
+    owner: string;
+    approved: string;
+    tokenId: BigNumber;
+  }
+>;
+
+export type ApprovalForAllEvent = TypedEvent<
+  [string, string, boolean] & {
+    owner: string;
+    operator: string;
+    approved: boolean;
+  }
+>;
+
+export type LogNoteEvent = TypedEvent<
+  [string, string, string, string, BigNumber, string] & {
+    sig: string;
+    guy: string;
+    foo: string;
+    bar: string;
+    wad: BigNumber;
+    fax: string;
+  }
+>;
+
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber] & { from: string; to: string; tokenId: BigNumber }
+>;
 
 export class Title extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -440,6 +471,15 @@ export class Title extends BaseContract {
   };
 
   filters: {
+    "Approval(address,address,uint256)"(
+      owner?: string | null,
+      approved?: string | null,
+      tokenId?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { owner: string; approved: string; tokenId: BigNumber }
+    >;
+
     Approval(
       owner?: string | null,
       approved?: string | null,
@@ -449,6 +489,15 @@ export class Title extends BaseContract {
       { owner: string; approved: string; tokenId: BigNumber }
     >;
 
+    "ApprovalForAll(address,address,bool)"(
+      owner?: string | null,
+      operator?: string | null,
+      approved?: null
+    ): TypedEventFilter<
+      [string, string, boolean],
+      { owner: string; operator: string; approved: boolean }
+    >;
+
     ApprovalForAll(
       owner?: string | null,
       operator?: string | null,
@@ -456,6 +505,25 @@ export class Title extends BaseContract {
     ): TypedEventFilter<
       [string, string, boolean],
       { owner: string; operator: string; approved: boolean }
+    >;
+
+    "LogNote(bytes4,address,bytes32,bytes32,uint256,bytes)"(
+      sig?: BytesLike | null,
+      guy?: string | null,
+      foo?: BytesLike | null,
+      bar?: BytesLike | null,
+      wad?: null,
+      fax?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string],
+      {
+        sig: string;
+        guy: string;
+        foo: string;
+        bar: string;
+        wad: BigNumber;
+        fax: string;
+      }
     >;
 
     LogNote(
@@ -475,6 +543,15 @@ export class Title extends BaseContract {
         wad: BigNumber;
         fax: string;
       }
+    >;
+
+    "Transfer(address,address,uint256)"(
+      from?: string | null,
+      to?: string | null,
+      tokenId?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { from: string; to: string; tokenId: BigNumber }
     >;
 
     Transfer(

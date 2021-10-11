@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface EpochCoordinatorInterface extends ethers.utils.Interface {
   functions: {
@@ -552,6 +552,17 @@ interface EpochCoordinatorInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "LogNote"): EventFragment;
 }
+
+export type LogNoteEvent = TypedEvent<
+  [string, string, string, string, BigNumber, string] & {
+    sig: string;
+    guy: string;
+    foo: string;
+    bar: string;
+    wad: BigNumber;
+    fax: string;
+  }
+>;
 
 export class EpochCoordinator extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1403,6 +1414,25 @@ export class EpochCoordinator extends BaseContract {
   };
 
   filters: {
+    "LogNote(bytes4,address,bytes32,bytes32,uint256,bytes)"(
+      sig?: BytesLike | null,
+      guy?: string | null,
+      foo?: BytesLike | null,
+      bar?: BytesLike | null,
+      wad?: null,
+      fax?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string],
+      {
+        sig: string;
+        guy: string;
+        foo: string;
+        bar: string;
+        wad: BigNumber;
+        fax: string;
+      }
+    >;
+
     LogNote(
       sig?: BytesLike | null,
       guy?: string | null,

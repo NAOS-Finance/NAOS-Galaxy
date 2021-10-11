@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface SimpleTokenInterface extends ethers.utils.Interface {
   functions: {
@@ -196,6 +196,25 @@ interface SimpleTokenInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "LogNote"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
+
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber] & { src: string; usr: string; wad: BigNumber }
+>;
+
+export type LogNoteEvent = TypedEvent<
+  [string, string, string, string, BigNumber, string] & {
+    sig: string;
+    guy: string;
+    foo: string;
+    bar: string;
+    wad: BigNumber;
+    fax: string;
+  }
+>;
+
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber] & { src: string; dst: string; wad: BigNumber }
+>;
 
 export class SimpleToken extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -638,6 +657,15 @@ export class SimpleToken extends BaseContract {
   };
 
   filters: {
+    "Approval(address,address,uint256)"(
+      src?: string | null,
+      usr?: string | null,
+      wad?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { src: string; usr: string; wad: BigNumber }
+    >;
+
     Approval(
       src?: string | null,
       usr?: string | null,
@@ -645,6 +673,25 @@ export class SimpleToken extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber],
       { src: string; usr: string; wad: BigNumber }
+    >;
+
+    "LogNote(bytes4,address,bytes32,bytes32,uint256,bytes)"(
+      sig?: BytesLike | null,
+      guy?: string | null,
+      foo?: BytesLike | null,
+      bar?: BytesLike | null,
+      wad?: null,
+      fax?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string],
+      {
+        sig: string;
+        guy: string;
+        foo: string;
+        bar: string;
+        wad: BigNumber;
+        fax: string;
+      }
     >;
 
     LogNote(
@@ -664,6 +711,15 @@ export class SimpleToken extends BaseContract {
         wad: BigNumber;
         fax: string;
       }
+    >;
+
+    "Transfer(address,address,uint256)"(
+      src?: string | null,
+      dst?: string | null,
+      wad?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { src: string; dst: string; wad: BigNumber }
     >;
 
     Transfer(

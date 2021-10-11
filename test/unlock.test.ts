@@ -77,6 +77,9 @@ describe("Unlock", function () {
     await root.relyBorrowerAdmin(admin.address)
     await root.relyLenderAdmin(admin.address)
     await createInvestorUser()
+    const signers = await ethers.getSigners()
+    const govAddr = await signers[0].getAddress()
+    await root.relyContract(await lenderDeployer.coordinator(), govAddr)
   }
 
   const createInvestorUser = async () => {

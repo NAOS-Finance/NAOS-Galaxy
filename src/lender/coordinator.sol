@@ -194,7 +194,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
     /// closeEpoch creates a snapshot of the current lender state
     /// if all orders can be fulfilled epoch is executed otherwise
     /// submission period starts
-    function closeEpoch() external minimumEpochTimePassed {
+    function closeEpoch() external minimumEpochTimePassed auth {
         require(submissionPeriod == false);
         lastEpochClosed = block.timestamp;
         currentEpoch = currentEpoch + 1;
@@ -271,7 +271,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         uint256 juniorRedeem,
         uint256 juniorSupply,
         uint256 seniorSupply
-    ) public returns (int256) {
+    ) public auth returns (int256) {
         require(submissionPeriod == true, "submission-period-not-active");
 
         int256 valid = _submitSolution(seniorRedeem, juniorRedeem, juniorSupply, seniorSupply);
@@ -559,7 +559,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
     }
 
     /// public method to execute an epoch which required a submission period and the challenge period is over
-    function executeEpoch() public {
+    function executeEpoch() public auth {
         require(block.timestamp >= minChallengePeriodEnd && minChallengePeriodEnd != 0);
 
         _executeEpoch(bestSubmission.seniorRedeem, bestSubmission.juniorRedeem, bestSubmission.seniorSupply, bestSubmission.juniorSupply);
