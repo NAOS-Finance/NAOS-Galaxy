@@ -28,6 +28,7 @@ interface TokenMockInterface extends ethers.utils.Interface {
     "mint(address,uint256)": FunctionFragment;
     "setFail(bytes32,bool)": FunctionFragment;
     "setReturn(bytes32,bool)": FunctionFragment;
+    "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "values_address(bytes32)": FunctionFragment;
     "values_address_return(bytes32)": FunctionFragment;
@@ -58,6 +59,10 @@ interface TokenMockInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setReturn",
     values: [BytesLike, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transfer",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
@@ -95,6 +100,7 @@ interface TokenMockInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setFail", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setReturn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -234,6 +240,12 @@ export class TokenMock extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    transfer(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transferFrom(
       from: string,
       to: string,
@@ -335,6 +347,12 @@ export class TokenMock extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  transfer(
+    to: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transferFrom(
     from: string,
     to: string,
@@ -420,6 +438,12 @@ export class TokenMock extends BaseContract {
       value: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    transfer(
+      to: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     transferFrom(
       from: string,
@@ -513,6 +537,12 @@ export class TokenMock extends BaseContract {
       name: BytesLike,
       addr: string,
       value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    transfer(
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -615,6 +645,12 @@ export class TokenMock extends BaseContract {
       name: BytesLike,
       addr: string,
       value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transfer(
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

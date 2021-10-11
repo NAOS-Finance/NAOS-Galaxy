@@ -9,30 +9,15 @@ import type { AssessorLike, AssessorLikeInterface } from "../AssessorLike";
 const _abi = [
   {
     constant: false,
-    inputs: [
+    inputs: [],
+    name: "availableWithdrawFee",
+    outputs: [
       {
         internalType: "uint256",
-        name: "amount",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "borrowUpdate",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "repaymentUpdate",
-    outputs: [],
     payable: false,
     stateMutability: "nonpayable",
     type: "function",

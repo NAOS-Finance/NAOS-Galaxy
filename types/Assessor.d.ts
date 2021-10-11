@@ -21,6 +21,7 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface AssessorInterface extends ethers.utils.Interface {
   functions: {
+    "availableWithdrawFee()": FunctionFragment;
     "borrowUpdate(uint256)": FunctionFragment;
     "calcJuniorTokenPrice(uint256,uint256)": FunctionFragment;
     "calcSeniorAssetValue(uint256,uint256)": FunctionFragment;
@@ -61,10 +62,13 @@ interface AssessorInterface extends ethers.utils.Interface {
     "toAmount(uint256,uint256)": FunctionFragment;
     "toPie(uint256,uint256)": FunctionFragment;
     "wards(address)": FunctionFragment;
-    "withdrawFee(uint256)": FunctionFragment;
-    "withdrawFeeRate()": FunctionFragment;
+    "withdrawFeeRatio()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "availableWithdrawFee",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "borrowUpdate",
     values: [BigNumberish]
@@ -211,14 +215,14 @@ interface AssessorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "wards", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "withdrawFee",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdrawFeeRate",
+    functionFragment: "withdrawFeeRatio",
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "availableWithdrawFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "borrowUpdate",
     data: BytesLike
@@ -326,11 +330,7 @@ interface AssessorInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "toPie", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "wards", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "withdrawFeeRate",
+    functionFragment: "withdrawFeeRatio",
     data: BytesLike
   ): Result;
 
@@ -396,6 +396,14 @@ export class Assessor extends BaseContract {
   interface: AssessorInterface;
 
   functions: {
+    "availableWithdrawFee()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "availableWithdrawFee(uint256,uint256)"(
+      epochNAV: BigNumberish,
+      epochReserve: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     borrowUpdate(
       currencyAmount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -592,15 +600,18 @@ export class Assessor extends BaseContract {
 
     wards(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    withdrawFee(
-      currencyAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    withdrawFeeRate(
+    withdrawFeeRatio(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { value: BigNumber }>;
   };
+
+  "availableWithdrawFee()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "availableWithdrawFee(uint256,uint256)"(
+    epochNAV: BigNumberish,
+    epochReserve: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   borrowUpdate(
     currencyAmount: BigNumberish,
@@ -790,14 +801,17 @@ export class Assessor extends BaseContract {
 
   wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  withdrawFee(
-    currencyAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  withdrawFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
+  withdrawFeeRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    "availableWithdrawFee()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "availableWithdrawFee(uint256,uint256)"(
+      epochNAV: BigNumberish,
+      epochReserve: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     borrowUpdate(
       currencyAmount: BigNumberish,
       overrides?: CallOverrides
@@ -976,12 +990,7 @@ export class Assessor extends BaseContract {
 
     wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    withdrawFee(
-      currencyAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    withdrawFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
+    withdrawFeeRatio(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
@@ -1025,6 +1034,14 @@ export class Assessor extends BaseContract {
   };
 
   estimateGas: {
+    "availableWithdrawFee()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "availableWithdrawFee(uint256,uint256)"(
+      epochNAV: BigNumberish,
+      epochReserve: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     borrowUpdate(
       currencyAmount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1204,15 +1221,20 @@ export class Assessor extends BaseContract {
 
     wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    withdrawFee(
-      currencyAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    withdrawFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
+    withdrawFeeRatio(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    "availableWithdrawFee()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "availableWithdrawFee(uint256,uint256)"(
+      epochNAV: BigNumberish,
+      epochReserve: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     borrowUpdate(
       currencyAmount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1405,11 +1427,6 @@ export class Assessor extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    withdrawFee(
-      currencyAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    withdrawFeeRate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    withdrawFeeRatio(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

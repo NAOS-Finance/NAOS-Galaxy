@@ -28,6 +28,7 @@ interface TestRootInterface extends ethers.utils.Interface {
     "deploy()": FunctionFragment;
     "deployUsr()": FunctionFragment;
     "deployed()": FunctionFragment;
+    "file(bytes32,address)": FunctionFragment;
     "lenderDeployer()": FunctionFragment;
     "prepare(address,address,address)": FunctionFragment;
     "rely(address)": FunctionFragment;
@@ -35,6 +36,8 @@ interface TestRootInterface extends ethers.utils.Interface {
     "relyContract(address,address)": FunctionFragment;
     "relyLenderAdmin(address)": FunctionFragment;
     "wards(address)": FunctionFragment;
+    "withdrawAddress()": FunctionFragment;
+    "withdrawFee(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -53,6 +56,10 @@ interface TestRootInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "deploy", values?: undefined): string;
   encodeFunctionData(functionFragment: "deployUsr", values?: undefined): string;
   encodeFunctionData(functionFragment: "deployed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "file",
+    values: [BytesLike, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "lenderDeployer",
     values?: undefined
@@ -75,6 +82,14 @@ interface TestRootInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "wards", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "withdrawAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFee",
+    values: [BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "borrowerDeployer",
@@ -92,6 +107,7 @@ interface TestRootInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "deploy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deployUsr", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deployed", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "file", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "lenderDeployer",
     data: BytesLike
@@ -111,6 +127,14 @@ interface TestRootInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "wards", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFee",
+    data: BytesLike
+  ): Result;
 
   events: {
     "LogNote(bytes4,address,bytes32,bytes32,uint256,bytes)": EventFragment;
@@ -200,6 +224,12 @@ export class TestRoot extends BaseContract {
 
     deployed(overrides?: CallOverrides): Promise<[boolean]>;
 
+    file(
+      name: BytesLike,
+      usr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     lenderDeployer(overrides?: CallOverrides): Promise<[string]>;
 
     prepare(
@@ -231,6 +261,13 @@ export class TestRoot extends BaseContract {
     ): Promise<ContractTransaction>;
 
     wards(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    withdrawAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    withdrawFee(
+      currencyAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   borrowerDeployer(overrides?: CallOverrides): Promise<string>;
@@ -256,6 +293,12 @@ export class TestRoot extends BaseContract {
   ): Promise<ContractTransaction>;
 
   deployUsr(overrides?: CallOverrides): Promise<string>;
+
+  file(
+    name: BytesLike,
+    usr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   lenderDeployer(overrides?: CallOverrides): Promise<string>;
 
@@ -289,6 +332,13 @@ export class TestRoot extends BaseContract {
 
   wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  withdrawAddress(overrides?: CallOverrides): Promise<string>;
+
+  withdrawFee(
+    currencyAmount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     borrowerDeployer(overrides?: CallOverrides): Promise<string>;
 
@@ -307,6 +357,12 @@ export class TestRoot extends BaseContract {
     deployUsr(overrides?: CallOverrides): Promise<string>;
 
     deployed(overrides?: CallOverrides): Promise<boolean>;
+
+    file(
+      name: BytesLike,
+      usr: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     lenderDeployer(overrides?: CallOverrides): Promise<string>;
 
@@ -330,6 +386,13 @@ export class TestRoot extends BaseContract {
     relyLenderAdmin(usr: string, overrides?: CallOverrides): Promise<void>;
 
     wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawAddress(overrides?: CallOverrides): Promise<string>;
+
+    withdrawFee(
+      currencyAmount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -399,6 +462,12 @@ export class TestRoot extends BaseContract {
 
     deployed(overrides?: CallOverrides): Promise<BigNumber>;
 
+    file(
+      name: BytesLike,
+      usr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     lenderDeployer(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
@@ -430,6 +499,13 @@ export class TestRoot extends BaseContract {
     ): Promise<BigNumber>;
 
     wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawFee(
+      currencyAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -458,6 +534,12 @@ export class TestRoot extends BaseContract {
     deployUsr(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     deployed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    file(
+      name: BytesLike,
+      usr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     lenderDeployer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -492,6 +574,13 @@ export class TestRoot extends BaseContract {
     wards(
       arg0: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    withdrawFee(
+      currencyAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -51,7 +51,7 @@ contract Assessor is Auth, FixedPoint, Interest {
     Fixed27 public seniorInterestRate;
 
     // withdraw fee rate
-    Fixed27 public withdrawFeeRate;
+    Fixed27         public withdrawFeeRatio;
 
     // last time the senior interest has been updated
     uint256 public lastUpdateSeniorInterest;
@@ -69,7 +69,7 @@ contract Assessor is Auth, FixedPoint, Interest {
     constructor() public {
         wards[msg.sender] = 1;
         seniorInterestRate.value = ONE;
-        withdrawFeeRate.value = ONE;
+        withdrawFeeRatio.value = ONE;
         lastUpdateSeniorInterest = block.timestamp;
         seniorRatio.value = 0;
     }
@@ -97,10 +97,11 @@ contract Assessor is Auth, FixedPoint, Interest {
         } else if (name == "minSeniorRatio") {
             require(value < maxSeniorRatio.value, "value-too-big");
             minSeniorRatio = Fixed27(value);
-        } else if (name == "withdrawFeeRate") {
-            withdrawFeeRate = Fixed27(value);
-        } else {
-            revert("unknown-variable");
+        }
+        else if(name == "withdrawFeeRatio") {
+            require(value <= ONE, "value-too-big");
+            require(value >= 10**25, "value-too-small");
+            withdrawFeeRatio = Fixed27(value);
         }
     }
 
@@ -251,12 +252,24 @@ contract Assessor is Auth, FixedPoint, Interest {
         return seniorBalance_;
     }
 
-    /// withdraw fee
-    function withdrawFee(uint256 currencyAmount) public auth {
-        uint256 totalBalance = ReserveLike(reserve).totalBalance();
-        require(totalBalance > 0, "insufficient reserve balance");
-        uint256 withdrawFeeAmount = rmul(safeSub(totalBalance, seniorBalance_), withdrawFeeRate.value);
-        require(withdrawFeeAmount >= currencyAmount, "insufficient currency left in reserve");
-        ReserveLike(reserve).payoutTo(msg.sender, currencyAmount);
+    /// available withdraw fee
+    function availableWithdrawFee() public view returns (uint) {
+        return availableWithdrawFee(navFeed.currentNAV(), reserve.totalBalance());
+    }
+
+    /// available withdraw fee with epochNAV and epochReserve
+    function availableWithdrawFee(uint epochNAV, uint epochReserve) public view returns (uint) {
+        if (epochNAV == 0 && epochReserve == 0) {
+            return 0;
+        }
+        uint totalAssets = safeAdd(epochNAV, epochReserve);
+        uint seniorAssetValue = calcSeniorAssetValue(seniorDebt(), seniorBalance());
+
+        if(totalAssets < seniorAssetValue) {
+            return 0;
+        }
+
+        uint withdrawFeeAmount = rmul(safeSub(totalAssets, seniorAssetValue), withdrawFeeRatio.value);
+        return withdrawFeeAmount;
     }
 }

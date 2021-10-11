@@ -1,7 +1,9 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { percentToBig, zeroPadEnd, MAX_UINT256, now, ONE, timeFly, div, mul, deployTestRoot, deployCollateralNFT, deployCurrency, deployBorrower, prepareDeployLender, deployLender } from "./utils"
+import { percentToBig, zeroPadEnd, MAX_UINT256, now, timeFly, div, mul, deployTestRoot, deployCollateralNFT, deployCurrency, deployBorrower, prepareDeployLender, deployLender } from "./utils"
+import { toUtf8Bytes } from "ethers/lib/utils"
+import { ZERO_ADDRESS } from "../scripts/utils"
 
 describe("Scenarios", function () {
   let accounts: Signer[]
@@ -373,5 +375,44 @@ describe("Scenarios", function () {
     // await borrower.issue(collateralNFT.address, BigNumber.from("123"))
     // const ceiling = await nftFeed.ceiling(loan)
     // await borrower.borrowAction(loan, ceiling)
+  })
+
+  it("Should withdrawFee", async () => {
+    const { nftPrice, riskGroup } = await defaultCollateral()
+    const tokenId = await collateralNFT.callStatic.issue(borrower.address)
+    await collateralNFT.issue(borrower.address)
+    await priceNFTandSetRisk(tokenId, nftPrice, riskGroup)
+    const loan = await borrower.callStatic.issue(collateralNFT.address, tokenId)
+    await borrower.issue(collateralNFT.address, tokenId)
+    const ceiling = await nftFeed.ceiling(loan)
+
+    await borrower.approveNFT(collateralNFT.address, shelf.address)
+    await fundLender(ceiling)
+    await borrower.borrowAction(loan, ceiling)
+    await checkAfterBorrow(tokenId, ceiling)
+
+    let availableWithdrawFee = await assessor.callStatic['availableWithdrawFee()']()
+    expect(availableWithdrawFee).to.be.gt(0)
+
+    // setup withdraw fee address
+    const signers = await ethers.getSigners()
+    const withdrawAddress = await signers[1].getAddress()
+    let padded = zeroPadEnd(toUtf8Bytes("withdrawAddress"), 32)
+    await expect (
+      root["file(bytes32,address)"](padded, ZERO_ADDRESS)
+    ).to.be.revertedWith("zero withdraw address")
+
+    await root["file(bytes32,address)"](padded, withdrawAddress)
+    expect(await root.withdrawAddress()).to.be.eq(withdrawAddress)
+
+    let beforeBalance = await currency.balanceOf(withdrawAddress)
+    const reserveBalance = await reserve.totalBalance()
+    
+    if (reserveBalance.lt(availableWithdrawFee)) {
+      availableWithdrawFee = reserveBalance
+    }
+    await root.withdrawFee(availableWithdrawFee)
+    let afterBalance = await currency.balanceOf(withdrawAddress)
+    expect(afterBalance.sub(beforeBalance)).to.be.eq(availableWithdrawFee)
   })
 })
