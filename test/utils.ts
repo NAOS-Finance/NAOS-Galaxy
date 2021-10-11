@@ -38,8 +38,11 @@ export const ONE = BigNumber.from('1000000000000000000000000000')
 export const MAX_UINT256 = BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
 export const percentToBig = (percent: number): BigNumber => {
-  if (percent <= 0 || percent >= 100) {
+  if (percent < 0 || percent > 100) {
     throw new Error('invalid percent value')
+  }
+  if (percent == 0) {
+    return BigNumber.from('10000000000000000000000000')
   }
   const bigPercent = BigNumber.from(percent)
   return bigPercent.mul(ONE).div(100)

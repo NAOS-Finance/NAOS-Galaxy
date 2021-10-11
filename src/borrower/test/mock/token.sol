@@ -26,6 +26,17 @@ contract TokenMock is Mock {
         return true;
     }
 
+    function transfer(
+        address to,
+        uint256 amount
+    ) public returns (bool) {
+        calls["transfer"]++;
+        values_address["transfer_from"] = msg.sender;
+        values_address["transfer_to"] = to;
+        values_uint["transfer_amount"] = amount;
+        return true;
+    }
+
     function burn(address usr, uint256 amount) public {
         calls["burn"]++;
         values_address["burn_usr"] = usr;

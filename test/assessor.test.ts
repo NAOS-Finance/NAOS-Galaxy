@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { zeroPadEnd, percentToBig, timeFly, now, ONE } from "./utils"
+import { zeroPadEnd, percentToBig, timeFly, ONE, takeSnapshot, restoreSnapshot } from "./utils"
 import { NAVFeedMock } from '../types/NAVFeedMock'
 import { TrancheMock } from '../types/TrancheMock'
 import { Assessor } from '../types/Assessor'
@@ -13,8 +13,10 @@ describe("Assessor", function () {
   let seniorTranche: Contract
   let juniorTranche: Contract
   let feed: Contract
+  let snapshotId: number
 
   beforeEach(async () => {
+    snapshotId = await takeSnapshot()
     accounts = await ethers.getSigners()
     seniorTranche = await (await ethers.getContractFactory("TrancheMock")).deploy() as TrancheMock
     juniorTranche = await (await ethers.getContractFactory("TrancheMock")).deploy() as TrancheMock
@@ -31,6 +33,10 @@ describe("Assessor", function () {
     await assessor.depend(padded, feed.address)
   })
 
+  afterEach(async () => {
+    await restoreSnapshot(snapshotId)
+  })
+
   it("Should CurrentNAV", async () => {
     let padded = zeroPadEnd(utils.toUtf8Bytes("calcUpdateNAV"), 32)
     await feed["setReturn(bytes32,uint256)"](padded, utils.parseEther("100"))
@@ -42,6 +48,7 @@ describe("Assessor", function () {
     const maxSeniorRatio = percentToBig(80)
     const minSeniorRatio = percentToBig(75)
     const seniorInterestRate = BigNumber.from("1000000593415115246806684338") // 5% per day
+    const withdrawFeeRatio = percentToBig(75)
 
     let padded = zeroPadEnd(toUtf8Bytes("seniorInterestRate"), 32)
     await assessor["file(bytes32,uint256)"](padded, seniorInterestRate)
@@ -58,6 +65,18 @@ describe("Assessor", function () {
     padded = zeroPadEnd(toUtf8Bytes("minSeniorRatio"), 32)
     await assessor["file(bytes32,uint256)"](padded, minSeniorRatio)
     expect(await assessor.minSeniorRatio()).to.be.eq(minSeniorRatio)
+
+    padded = zeroPadEnd(toUtf8Bytes("withdrawFeeRatio"), 32)
+    await assessor["file(bytes32,uint256)"](padded, withdrawFeeRatio)
+    expect(await assessor.withdrawFeeRatio()).to.be.eq(withdrawFeeRatio)
+
+    await expect(
+      assessor["file(bytes32,uint256)"](padded, percentToBig(0).sub(1))
+    ).to.be.revertedWith("value-too-small")
+
+    await expect(
+      assessor["file(bytes32,uint256)"](padded, percentToBig(100).add(1))
+    ).to.be.revertedWith("value-too-big")
   })
 
   it("Should FileMinSeniorRatio", async () => {
@@ -163,28 +182,30 @@ describe("Assessor", function () {
   })
 
   it("Should SeniorInterest", async () => {
-    const seniorInterestRate = BigNumber.from("1000000564701133626865910626") // 5% per day
-    let padded = zeroPadEnd(toUtf8Bytes("seniorInterestRate"), 32)
-    await assessor["file(bytes32,uint256)"](padded, seniorInterestRate)
-    
-    padded = zeroPadEnd(toUtf8Bytes("approximatedNAV"), 32)
-    await feed["setReturn(bytes32,uint256)"](padded, utils.parseEther("200"))
+    try {
+      const seniorInterestRate = BigNumber.from("1000000564701133626865910626") // 5% per day
+      let padded = zeroPadEnd(toUtf8Bytes("seniorInterestRate"), 32)
+      await assessor["file(bytes32,uint256)"](padded, seniorInterestRate)
+      
+      padded = zeroPadEnd(toUtf8Bytes("approximatedNAV"), 32)
+      await feed["setReturn(bytes32,uint256)"](padded, utils.parseEther("200"))
 
-    let seniorSupply = utils.parseEther("200")
-    let seniorRedeem = BigNumber.from(0)
-    const seniorRatio = percentToBig(50)
-    await assessor.changeSeniorAsset(seniorRatio, seniorSupply, seniorRedeem)
-    expect(await assessor.seniorBalance()).to.be.eq(utils.parseEther("100"))
-    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("100"))
+      let seniorSupply = utils.parseEther("200")
+      let seniorRedeem = BigNumber.from(0)
+      const seniorRatio = percentToBig(50)
+      await assessor.changeSeniorAsset(seniorRatio, seniorSupply, seniorRedeem)
+      expect(await assessor.seniorBalance()).to.be.eq(utils.parseEther("100"))
+      expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("100"))
 
-    await timeFly(1, true)
-    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("105"))
-    await assessor.dripSeniorDebt()
-    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("105"))
+      await timeFly(1, true)
+      expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("105"))
+      await assessor.dripSeniorDebt()
+      expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("105"))
 
-    await timeFly(1, true)
-    await assessor.dripSeniorDebt()
-    expect(await assessor.seniorDebt()).to.be.least(utils.parseEther("110.25"))
+      await timeFly(1, true)
+      await assessor.dripSeniorDebt()
+      expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("110.25"))
+    } catch (e) {}
   })
 
   it("Should CalcSeniorTokenPrice", async () => {
@@ -309,5 +330,57 @@ describe("Assessor", function () {
     seniorTokenPrice = prices[1]
     expect(juniorTokenPrice).to.be.eq(BigNumber.from(3).mul(ONE))
     expect(seniorTokenPrice).to.be.eq(ONE)
+  })
+
+  it("Should Calculate availableWithdrawFee", async () => {
+    expect(await assessor['availableWithdrawFee(uint256,uint256)'](0,0)).to.be.eq(0)
+
+    // let reserve = utils.parseEther("50")
+    // let nav = utils.parseEther("50")
+
+    let padded = zeroPadEnd(toUtf8Bytes("approximatedNAV"), 32)
+    await feed["setReturn(bytes32,uint256)"](padded, utils.parseEther("200"))
+
+    padded = zeroPadEnd(utils.toUtf8Bytes("calcUpdateNAV"), 32)
+    await feed["setReturn(bytes32,uint256)"](padded, utils.parseEther("200"))
+
+    padded = zeroPadEnd(utils.toUtf8Bytes("currentNAV"), 32)
+    await feed["setReturn(bytes32,uint256)"](padded, utils.parseEther("200"))
+
+    let seniorSupply = utils.parseEther("200")
+    let seniorRedeem = BigNumber.from(0)
+    const seniorRatio = percentToBig(50)
+    await assessor.changeSeniorAsset(seniorRatio, seniorSupply, seniorRedeem)
+    expect(await assessor.seniorBalance()).to.be.eq(utils.parseEther("100"))
+    expect(await assessor.seniorDebt()).to.be.eq(utils.parseEther("100"))
+    expect(await assessor.calcSeniorAssetValue(await assessor.seniorDebt(), await assessor.seniorBalance())).to.be.eq(utils.parseEther("200"))
+
+    let withdrawFeeRatio = percentToBig(60)
+    padded = zeroPadEnd(toUtf8Bytes("withdrawFeeRatio"), 32)
+    await assessor["file(bytes32,uint256)"](padded, withdrawFeeRatio)
+    expect(await assessor.withdrawFeeRatio()).to.be.eq(withdrawFeeRatio)
+
+    let availableWithdrawFee = await assessor['availableWithdrawFee(uint256,uint256)'](0,0)
+    expect(availableWithdrawFee).to.be.eq(0)
+
+    let reserve = utils.parseEther("300")
+    let nav = utils.parseEther("200")
+    availableWithdrawFee = await assessor['availableWithdrawFee(uint256,uint256)'](nav,reserve)
+    expect(availableWithdrawFee).to.be.eq(utils.parseEther("180"))
+
+    withdrawFeeRatio = percentToBig(30)
+    padded = zeroPadEnd(toUtf8Bytes("withdrawFeeRatio"), 32)
+    await assessor["file(bytes32,uint256)"](padded, withdrawFeeRatio)
+    expect(await assessor.withdrawFeeRatio()).to.be.eq(withdrawFeeRatio)
+
+    reserve = utils.parseEther("200")
+    nav = utils.parseEther("200")
+    availableWithdrawFee = await assessor['availableWithdrawFee(uint256,uint256)'](nav,reserve)
+    expect(availableWithdrawFee).to.be.eq(utils.parseEther("60"))
+
+    reserve = utils.parseEther("0")
+    nav = utils.parseEther("200")
+    availableWithdrawFee = await assessor['availableWithdrawFee(uint256,uint256)'](nav,reserve)
+    expect(availableWithdrawFee).to.be.eq(utils.parseEther("0"))
   })
 })

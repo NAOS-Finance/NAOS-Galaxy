@@ -17,29 +17,20 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface AssessorLikeInterface extends ethers.utils.Interface {
   functions: {
-    "borrowUpdate(uint256)": FunctionFragment;
-    "repaymentUpdate(uint256)": FunctionFragment;
+    "availableWithdrawFee()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "borrowUpdate",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "repaymentUpdate",
-    values: [BigNumberish]
+    functionFragment: "availableWithdrawFee",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "borrowUpdate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "repaymentUpdate",
+    functionFragment: "availableWithdrawFee",
     data: BytesLike
   ): Result;
 
@@ -90,61 +81,29 @@ export class AssessorLike extends BaseContract {
   interface: AssessorLikeInterface;
 
   functions: {
-    borrowUpdate(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    repaymentUpdate(
-      amount: BigNumberish,
+    availableWithdrawFee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  borrowUpdate(
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  repaymentUpdate(
-    amount: BigNumberish,
+  availableWithdrawFee(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    borrowUpdate(
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    repaymentUpdate(
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    availableWithdrawFee(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    borrowUpdate(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    repaymentUpdate(
-      amount: BigNumberish,
+    availableWithdrawFee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    borrowUpdate(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    repaymentUpdate(
-      amount: BigNumberish,
+    availableWithdrawFee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

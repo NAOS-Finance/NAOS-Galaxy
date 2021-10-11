@@ -101,10 +101,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ThresholdRegistryLike__factory>;
     getContractFactory(
-      name: "CollectorTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CollectorTest__factory>;
-    getContractFactory(
       name: "AuthLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AuthLike__factory>;
@@ -209,18 +205,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Hevm__factory>;
     getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "NAVTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NAVTest__factory>;
-    getContractFactory(
-      name: "NFTFeedTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NFTFeedTest__factory>;
-    getContractFactory(
       name: "Pile",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Pile__factory>;
@@ -257,10 +241,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenLike__factory>;
     getContractFactory(
-      name: "DeployerTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.DeployerTest__factory>;
-    getContractFactory(
       name: "CeilingMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CeilingMock__factory>;
@@ -292,18 +272,6 @@ declare module "hardhat/types/runtime" {
       name: "TokenMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenMock__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "PileTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.PileTest__factory>;
-    getContractFactory(
-      name: "ShelfTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ShelfTest__factory>;
     getContractFactory(
       name: "Assessor",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -477,14 +445,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ShelfLike__factory>;
     getContractFactory(
-      name: "AssessorTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AssessorTest__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
       name: "CoordinatorLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CoordinatorLike__factory>;
@@ -497,29 +457,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Hevm__factory>;
     getContractFactory(
-      name: "CoordinatorCloseEpochTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorCloseEpochTest__factory>;
-    getContractFactory(
-      name: "CoordinatorExecuteEpochTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorExecuteEpochTest__factory>;
-    getContractFactory(
-      name: "CoordinatorImprovementScoreTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorImprovementScoreTest__factory>;
-    getContractFactory(
       name: "CoordinatorSubmitEpochTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CoordinatorSubmitEpochTest__factory>;
-    getContractFactory(
-      name: "CoordinatorValidateTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorValidateTest__factory>;
-    getContractFactory(
-      name: "MemberlistTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.MemberlistTest__factory>;
     getContractFactory(
       name: "AssessorMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -553,34 +493,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TrancheMock__factory>;
     getContractFactory(
-      name: "OperatorTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OperatorTest__factory>;
-    getContractFactory(
-      name: "ReserveTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ReserveTest__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "RestrictedTokenTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RestrictedTokenTest__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "TrancheTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.TrancheTest__factory>;
-    getContractFactory(
-      name: "User",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.User__factory>;
-    getContractFactory(
       name: "Memberlist",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Memberlist__factory>;
@@ -609,6 +521,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Tranche__factory>;
     getContractFactory(
+      name: "AssessorLike",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AssessorLike__factory>;
+    getContractFactory(
       name: "AuthLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AuthLike__factory>;
@@ -628,6 +544,10 @@ declare module "hardhat/types/runtime" {
       name: "LenderDeployerLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.LenderDeployerLike__factory>;
+    getContractFactory(
+      name: "ReserveLike",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReserveLike__factory>;
     getContractFactory(
       name: "Mock",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -652,38 +572,6 @@ declare module "hardhat/types/runtime" {
       name: "BaseSystemTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BaseSystemTest__factory>;
-    getContractFactory(
-      name: "PrincipalBorrowTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.PrincipalBorrowTest__factory>;
-    getContractFactory(
-      name: "CloseTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CloseTest__factory>;
-    getContractFactory(
-      name: "IssueTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IssueTest__factory>;
-    getContractFactory(
-      name: "LockTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.LockTest__factory>;
-    getContractFactory(
-      name: "PrincipalRepayTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.PrincipalRepayTest__factory>;
-    getContractFactory(
-      name: "UnlockTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.UnlockTest__factory>;
-    getContractFactory(
-      name: "WithdrawTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.WithdrawTest__factory>;
-    getContractFactory(
-      name: "CollectTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CollectTest__factory>;
     getContractFactory(
       name: "CollectorLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -733,21 +621,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TrancheLike__factory>;
     getContractFactory(
-      name: "LenderIntegrationTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.LenderIntegrationTest__factory>;
-    getContractFactory(
-      name: "LenderSystemTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.LenderSystemTest__factory>;
-    getContractFactory(
       name: "TestRoot",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestRoot__factory>;
-    getContractFactory(
-      name: "ScenarioTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ScenarioTest__factory>;
     getContractFactory(
       name: "TestSetup",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -777,6 +653,807 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Keeper__factory>;
 
+    getContractAt(
+      name: "DSNote",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DSNote>;
+    getContractAt(
+      name: "DSTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DSTest>;
+    getContractAt(
+      name: "Auth",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Auth>;
+    getContractAt(
+      name: "ERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20>;
+    getContractAt(
+      name: "Interest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Interest>;
+    getContractAt(
+      name: "Math",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Math>;
+    getContractAt(
+      name: "ERC165",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC165>;
+    getContractAt(
+      name: "IERC165",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC165>;
+    getContractAt(
+      name: "ERC721",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721>;
+    getContractAt(
+      name: "ERC721Metadata",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721Metadata>;
+    getContractAt(
+      name: "IERC721",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721>;
+    getContractAt(
+      name: "IERC721Metadata",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Metadata>;
+    getContractAt(
+      name: "IERC721Receiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Receiver>;
+    getContractAt(
+      name: "Title",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Title>;
+    getContractAt(
+      name: "TitleLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleLike>;
+    getContractAt(
+      name: "TitleOwned",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleOwned>;
+    getContractAt(
+      name: "Collector",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Collector>;
+    getContractAt(
+      name: "DistributorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DistributorLike>;
+    getContractAt(
+      name: "NFTLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTLike>;
+    getContractAt(
+      name: "PileLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileLike>;
+    getContractAt(
+      name: "ShelfLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfLike>;
+    getContractAt(
+      name: "ThresholdRegistryLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ThresholdRegistryLike>;
+    getContractAt(
+      name: "AuthLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AuthLike>;
+    getContractAt(
+      name: "BorrowerDeployer",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BorrowerDeployer>;
+    getContractAt(
+      name: "DependLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DependLike>;
+    getContractAt(
+      name: "FeedFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.FeedFabLike>;
+    getContractAt(
+      name: "FileLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.FileLike>;
+    getContractAt(
+      name: "NFTFeedLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTFeedLike>;
+    getContractAt(
+      name: "CollectorFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CollectorFab>;
+    getContractAt(
+      name: "CollectorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CollectorFabLike>;
+    getContractAt(
+      name: "NAVFeedFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NAVFeedFabLike>;
+    getContractAt(
+      name: "PileFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileFabLike>;
+    getContractAt(
+      name: "ShelfFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfFabLike>;
+    getContractAt(
+      name: "TitleFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleFabLike>;
+    getContractAt(
+      name: "NAVFeedFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NAVFeedFab>;
+    getContractAt(
+      name: "NFTFeedFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTFeedFab>;
+    getContractAt(
+      name: "NFTFeedFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTFeedFabLike>;
+    getContractAt(
+      name: "PileFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileFab>;
+    getContractAt(
+      name: "ShelfFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfFab>;
+    getContractAt(
+      name: "TitleFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleFab>;
+    getContractAt(
+      name: "Buckets",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Buckets>;
+    getContractAt(
+      name: "NAVFeed",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NAVFeed>;
+    getContractAt(
+      name: "BaseNFTFeed",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BaseNFTFeed>;
+    getContractAt(
+      name: "PileLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileLike>;
+    getContractAt(
+      name: "ShelfLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfLike>;
+    getContractAt(
+      name: "BucketList",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BucketList>;
+    getContractAt(
+      name: "BucketTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BucketTest>;
+    getContractAt(
+      name: "Hevm",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Hevm>;
+    getContractAt(
+      name: "Pile",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Pile>;
+    getContractAt(
+      name: "CeilingLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CeilingLike>;
+    getContractAt(
+      name: "DistributorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DistributorLike>;
+    getContractAt(
+      name: "NFTLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTLike>;
+    getContractAt(
+      name: "PileLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileLike>;
+    getContractAt(
+      name: "Shelf",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Shelf>;
+    getContractAt(
+      name: "SubscriberLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SubscriberLike>;
+    getContractAt(
+      name: "TitleLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleLike>;
+    getContractAt(
+      name: "TokenLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenLike>;
+    getContractAt(
+      name: "CeilingMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CeilingMock>;
+    getContractAt(
+      name: "DistributorMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DistributorMock>;
+    getContractAt(
+      name: "NFTMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTMock>;
+    getContractAt(
+      name: "PileMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileMock>;
+    getContractAt(
+      name: "ShelfMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfMock>;
+    getContractAt(
+      name: "SubscriberMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SubscriberMock>;
+    getContractAt(
+      name: "TitleMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleMock>;
+    getContractAt(
+      name: "TokenMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenMock>;
+    getContractAt(
+      name: "Assessor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Assessor>;
+    getContractAt(
+      name: "NAVFeedLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NAVFeedLike>;
+    getContractAt(
+      name: "ReserveLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveLike>;
+    getContractAt(
+      name: "TrancheLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheLike>;
+    getContractAt(
+      name: "AssessorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorLike>;
+    getContractAt(
+      name: "EpochCoordinator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EpochCoordinator>;
+    getContractAt(
+      name: "EpochTrancheLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EpochTrancheLike>;
+    getContractAt(
+      name: "ReserveLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveLike>;
+    getContractAt(
+      name: "AuthLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AuthLike>;
+    getContractAt(
+      name: "DependLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DependLike>;
+    getContractAt(
+      name: "FileLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.FileLike>;
+    getContractAt(
+      name: "LenderDeployer",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LenderDeployer>;
+    getContractAt(
+      name: "MemberlistLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MemberlistLike>;
+    getContractAt(
+      name: "AssessorFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorFab>;
+    getContractAt(
+      name: "AssessorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorFabLike>;
+    getContractAt(
+      name: "CoordinatorFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CoordinatorFab>;
+    getContractAt(
+      name: "CoordinatorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CoordinatorFabLike>;
+    getContractAt(
+      name: "AssessorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorFabLike>;
+    getContractAt(
+      name: "CoordinatorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CoordinatorFabLike>;
+    getContractAt(
+      name: "MemberlistFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MemberlistFabLike>;
+    getContractAt(
+      name: "OperatorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OperatorFabLike>;
+    getContractAt(
+      name: "ReserveFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveFabLike>;
+    getContractAt(
+      name: "RestrictedTokenFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RestrictedTokenFabLike>;
+    getContractAt(
+      name: "TrancheFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheFabLike>;
+    getContractAt(
+      name: "MemberlistFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MemberlistFab>;
+    getContractAt(
+      name: "MemberlistFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MemberlistFabLike>;
+    getContractAt(
+      name: "OperatorFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OperatorFab>;
+    getContractAt(
+      name: "OperatorFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OperatorFabLike>;
+    getContractAt(
+      name: "ReserveFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveFab>;
+    getContractAt(
+      name: "ReserveFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveFabLike>;
+    getContractAt(
+      name: "RestrictedTokenFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RestrictedTokenFab>;
+    getContractAt(
+      name: "RestrictedTokenFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RestrictedTokenFabLike>;
+    getContractAt(
+      name: "TrancheFab",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheFab>;
+    getContractAt(
+      name: "TrancheFabLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheFabLike>;
+    getContractAt(
+      name: "DaiPermitLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DaiPermitLike>;
+    getContractAt(
+      name: "EIP2612PermitLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EIP2612PermitLike>;
+    getContractAt(
+      name: "Operator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Operator>;
+    getContractAt(
+      name: "RestrictedTokenLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RestrictedTokenLike>;
+    getContractAt(
+      name: "TrancheLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheLike>;
+    getContractAt(
+      name: "AssessorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorLike>;
+    getContractAt(
+      name: "ERC20Like",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Like>;
+    getContractAt(
+      name: "Reserve",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Reserve>;
+    getContractAt(
+      name: "ShelfLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfLike>;
+    getContractAt(
+      name: "CoordinatorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CoordinatorLike>;
+    getContractAt(
+      name: "CoordinatorTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CoordinatorTest>;
+    getContractAt(
+      name: "Hevm",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Hevm>;
+    getContractAt(
+      name: "CoordinatorSubmitEpochTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CoordinatorSubmitEpochTest>;
+    getContractAt(
+      name: "AssessorMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorMock>;
+    getContractAt(
+      name: "DistributorMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DistributorMock>;
+    getContractAt(
+      name: "EpochTickerMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EpochTickerMock>;
+    getContractAt(
+      name: "NAVFeedMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NAVFeedMock>;
+    getContractAt(
+      name: "PoolMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PoolMock>;
+    getContractAt(
+      name: "CurrencyLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CurrencyLike>;
+    getContractAt(
+      name: "ReserveMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveMock>;
+    getContractAt(
+      name: "TrancheMock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheMock>;
+    getContractAt(
+      name: "Memberlist",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Memberlist>;
+    getContractAt(
+      name: "MemberlistLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MemberlistLike>;
+    getContractAt(
+      name: "RestrictedToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RestrictedToken>;
+    getContractAt(
+      name: "EpochTickerLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EpochTickerLike>;
+    getContractAt(
+      name: "ERC20Like",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Like>;
+    getContractAt(
+      name: "ReserveLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveLike>;
+    getContractAt(
+      name: "Tranche",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Tranche>;
+    getContractAt(
+      name: "AssessorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AssessorLike>;
+    getContractAt(
+      name: "AuthLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AuthLike>;
+    getContractAt(
+      name: "BorrowerDeployerLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BorrowerDeployerLike>;
+    getContractAt(
+      name: "DependLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DependLike>;
+    getContractAt(
+      name: "GalaxyRoot",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.GalaxyRoot>;
+    getContractAt(
+      name: "LenderDeployerLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LenderDeployerLike>;
+    getContractAt(
+      name: "ReserveLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveLike>;
+    getContractAt(
+      name: "Mock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Mock>;
+    getContractAt(
+      name: "Distributor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Distributor>;
+    getContractAt(
+      name: "DistTokenLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DistTokenLike>;
+    getContractAt(
+      name: "DShelfLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DShelfLike>;
+    getContractAt(
+      name: "SimpleToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SimpleToken>;
+    getContractAt(
+      name: "BaseSystemTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BaseSystemTest>;
+    getContractAt(
+      name: "CollectorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CollectorLike>;
+    getContractAt(
+      name: "ERC20Like",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Like>;
+    getContractAt(
+      name: "Hevm",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Hevm>;
+    getContractAt(
+      name: "MemberlistLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MemberlistLike>;
+    getContractAt(
+      name: "NFTFeedLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTFeedLike>;
+    getContractAt(
+      name: "PileLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PileLike>;
+    getContractAt(
+      name: "ShelfLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShelfLike>;
+    getContractAt(
+      name: "TDistributorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TDistributorLike>;
+    getContractAt(
+      name: "ThresholdLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ThresholdLike>;
+    getContractAt(
+      name: "TitleLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TitleLike>;
+    getContractAt(
+      name: "TokenLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenLike>;
+    getContractAt(
+      name: "TrancheLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TrancheLike>;
+    getContractAt(
+      name: "TestRoot",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestRoot>;
+    getContractAt(
+      name: "TestSetup",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestSetup>;
+    getContractAt(
+      name: "AdminOperatorLike",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AdminOperatorLike>;
+    getContractAt(
+      name: "AdminUser",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AdminUser>;
+    getContractAt(
+      name: "Borrower",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Borrower>;
+    getContractAt(
+      name: "Investor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Investor>;
+    getContractAt(
+      name: "InvestorOperator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.InvestorOperator>;
+    getContractAt(
+      name: "Keeper",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Keeper>;
+
     // default types
     getContractFactory(
       name: string,
@@ -787,5 +1464,10 @@ declare module "hardhat/types/runtime" {
       bytecode: ethers.utils.BytesLike,
       signer?: ethers.Signer
     ): Promise<ethers.ContractFactory>;
+    getContractAt(
+      nameOrAbi: string | any[],
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<ethers.Contract>;
   }
 }

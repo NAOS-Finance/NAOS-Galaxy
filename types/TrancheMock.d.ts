@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface TrancheMockInterface extends ethers.utils.Interface {
   functions: {
@@ -196,6 +196,61 @@ interface TrancheMockInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "log_named_uint"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "logs"): EventFragment;
 }
+
+export type LogNoteEvent = TypedEvent<
+  [string, string, string, string, BigNumber, string] & {
+    sig: string;
+    guy: string;
+    foo: string;
+    bar: string;
+    wad: BigNumber;
+    fax: string;
+  }
+>;
+
+export type eventListenerEvent = TypedEvent<
+  [string, boolean] & { target: string; exact: boolean }
+>;
+
+export type log_bytes32Event = TypedEvent<[string] & { arg0: string }>;
+
+export type log_named_addressEvent = TypedEvent<
+  [string, string] & { key: string; val: string }
+>;
+
+export type log_named_bytes32Event = TypedEvent<
+  [string, string] & { key: string; val: string }
+>;
+
+export type log_named_decimal_intEvent = TypedEvent<
+  [string, BigNumber, BigNumber] & {
+    key: string;
+    val: BigNumber;
+    decimals: BigNumber;
+  }
+>;
+
+export type log_named_decimal_uintEvent = TypedEvent<
+  [string, BigNumber, BigNumber] & {
+    key: string;
+    val: BigNumber;
+    decimals: BigNumber;
+  }
+>;
+
+export type log_named_intEvent = TypedEvent<
+  [string, BigNumber] & { key: string; val: BigNumber }
+>;
+
+export type log_named_stringEvent = TypedEvent<
+  [string, string] & { key: string; val: string }
+>;
+
+export type log_named_uintEvent = TypedEvent<
+  [string, BigNumber] & { key: string; val: BigNumber }
+>;
+
+export type logsEvent = TypedEvent<[string] & { arg0: string }>;
 
 export class TrancheMock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -605,6 +660,25 @@ export class TrancheMock extends BaseContract {
   };
 
   filters: {
+    "LogNote(bytes4,address,bytes32,bytes32,uint256,bytes)"(
+      sig?: BytesLike | null,
+      guy?: string | null,
+      foo?: BytesLike | null,
+      bar?: BytesLike | null,
+      wad?: null,
+      fax?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string],
+      {
+        sig: string;
+        guy: string;
+        foo: string;
+        bar: string;
+        wad: BigNumber;
+        fax: string;
+      }
+    >;
+
     LogNote(
       sig?: BytesLike | null,
       guy?: string | null,
@@ -624,14 +698,33 @@ export class TrancheMock extends BaseContract {
       }
     >;
 
+    "eventListener(address,bool)"(
+      target?: null,
+      exact?: null
+    ): TypedEventFilter<[string, boolean], { target: string; exact: boolean }>;
+
     eventListener(
       target?: null,
       exact?: null
     ): TypedEventFilter<[string, boolean], { target: string; exact: boolean }>;
 
+    "log_bytes32(bytes32)"(
+      undefined?: null
+    ): TypedEventFilter<[string], { arg0: string }>;
+
     log_bytes32(undefined?: null): TypedEventFilter<[string], { arg0: string }>;
 
+    "log_named_address(bytes32,address)"(
+      key?: null,
+      val?: null
+    ): TypedEventFilter<[string, string], { key: string; val: string }>;
+
     log_named_address(
+      key?: null,
+      val?: null
+    ): TypedEventFilter<[string, string], { key: string; val: string }>;
+
+    "log_named_bytes32(bytes32,bytes32)"(
       key?: null,
       val?: null
     ): TypedEventFilter<[string, string], { key: string; val: string }>;
@@ -641,7 +734,25 @@ export class TrancheMock extends BaseContract {
       val?: null
     ): TypedEventFilter<[string, string], { key: string; val: string }>;
 
+    "log_named_decimal_int(bytes32,int256,uint256)"(
+      key?: null,
+      val?: null,
+      decimals?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber],
+      { key: string; val: BigNumber; decimals: BigNumber }
+    >;
+
     log_named_decimal_int(
+      key?: null,
+      val?: null,
+      decimals?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber],
+      { key: string; val: BigNumber; decimals: BigNumber }
+    >;
+
+    "log_named_decimal_uint(bytes32,uint256,uint256)"(
       key?: null,
       val?: null,
       decimals?: null
@@ -659,20 +770,39 @@ export class TrancheMock extends BaseContract {
       { key: string; val: BigNumber; decimals: BigNumber }
     >;
 
+    "log_named_int(bytes32,int256)"(
+      key?: null,
+      val?: null
+    ): TypedEventFilter<[string, BigNumber], { key: string; val: BigNumber }>;
+
     log_named_int(
       key?: null,
       val?: null
     ): TypedEventFilter<[string, BigNumber], { key: string; val: BigNumber }>;
+
+    "log_named_string(bytes32,string)"(
+      key?: null,
+      val?: null
+    ): TypedEventFilter<[string, string], { key: string; val: string }>;
 
     log_named_string(
       key?: null,
       val?: null
     ): TypedEventFilter<[string, string], { key: string; val: string }>;
 
+    "log_named_uint(bytes32,uint256)"(
+      key?: null,
+      val?: null
+    ): TypedEventFilter<[string, BigNumber], { key: string; val: BigNumber }>;
+
     log_named_uint(
       key?: null,
       val?: null
     ): TypedEventFilter<[string, BigNumber], { key: string; val: BigNumber }>;
+
+    "logs(bytes)"(
+      undefined?: null
+    ): TypedEventFilter<[string], { arg0: string }>;
 
     logs(undefined?: null): TypedEventFilter<[string], { arg0: string }>;
   };

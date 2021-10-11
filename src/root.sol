@@ -40,13 +40,21 @@ interface LenderDeployerLike {
 
     function reserve() external returns (address);
 }
+interface AssessorLike {
+    function availableWithdrawFee() external returns (uint);
+}
+interface ReserveLike {
+    function totalBalance() external view returns(uint);
+    function payoutTo(address to, uint currencyAmount) external;
+}
 
 contract GalaxyRoot is Auth {
     BorrowerDeployerLike public borrowerDeployer;
     LenderDeployerLike public lenderDeployer;
 
-    bool public deployed;
-    address public deployUsr;
+    bool public             deployed;
+    address public          deployUsr;
+    address public          withdrawAddress;
 
     constructor(address deployUsr_) public {
         deployUsr = deployUsr_;
@@ -100,5 +108,22 @@ contract GalaxyRoot is Auth {
 
     function denyContract(address target, address usr) public auth {
         AuthLike(target).deny(usr);
+    }
+
+    function file(bytes32 name, address payable usr) public auth {
+        if(name == "withdrawAddress") {
+            require(usr != address(0), "zero withdraw address");
+            withdrawAddress = usr;
+        }
+        else {revert("unknown-variable");}
+    }
+
+    /// withdraw fee
+    function withdrawFee(uint currencyAmount) public auth {
+        uint withdrawFeeAmount = AssessorLike(lenderDeployer.assessor()).availableWithdrawFee();
+        require(withdrawFeeAmount > 0, "zero fee left in reserve");
+        require(withdrawFeeAmount >= currencyAmount && ReserveLike(lenderDeployer.reserve()).totalBalance() >= currencyAmount, "insufficient currency left in reserve");
+        require(withdrawAddress != address(0), "zero withdraw address");
+        ReserveLike(lenderDeployer.reserve()).payoutTo(withdrawAddress, currencyAmount);
     }
 }

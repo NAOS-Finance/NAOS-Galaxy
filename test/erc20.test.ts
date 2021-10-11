@@ -1,15 +1,22 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract } from "ethers"
+import { takeSnapshot, restoreSnapshot } from "./utils"
 
 // Since erc20 is different with openzeppelin library, we migrate some test
 describe("ERC20", function () {
   let accounts: Signer[]
   let erc20: Contract
+  let snapshotId: number
 
   beforeEach(async function () {
+    snapshotId = await takeSnapshot()
     accounts = await ethers.getSigners()
     erc20 = await (await ethers.getContractFactory('ERC20')).deploy("NAOS", "NAOS")
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(snapshotId)
   })
 
   it("Symbol and name should be NAOS", async function () {
