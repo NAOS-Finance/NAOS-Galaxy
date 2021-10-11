@@ -72,18 +72,9 @@ contract CoordinatorExecuteEpochTest is CoordinatorTest {
         checkTrancheUpdates(model_, input);
 
         // check for rebalancing
-        uint256 shouldNewReserve = safeSub(
-            safeAdd(safeAdd(model_.reserve, input.seniorSupply), input.juniorSupply),
-            safeAdd(input.seniorRedeem, input.juniorRedeem)
-        );
+        uint256 shouldNewReserve = safeSub(safeAdd(safeAdd(model_.reserve, input.seniorSupply), input.juniorSupply), safeAdd(input.seniorRedeem, input.juniorRedeem));
 
-        uint256 seniorAsset = coordinator.calcSeniorAssetValue(
-            input.seniorRedeem,
-            input.seniorSupply,
-            safeAdd(model_.seniorDebt, model_.seniorBalance),
-            shouldNewReserve,
-            model_.NAV
-        );
+        uint256 seniorAsset = coordinator.calcSeniorAssetValue(input.seniorRedeem, input.seniorSupply, safeAdd(model_.seniorDebt, model_.seniorBalance), shouldNewReserve, model_.NAV);
 
         // change or orders delta = -2 ether
         uint256 shouldSeniorAsset = safeSub(safeAdd(model_.seniorDebt, model_.seniorBalance), 2 ether);

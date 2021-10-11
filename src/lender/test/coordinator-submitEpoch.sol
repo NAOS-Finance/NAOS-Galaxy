@@ -109,13 +109,9 @@ contract CoordinatorSubmitEpochTest is CoordinatorTest, FixedPoint {
         bool reserveHealthy
     ) public {
         // check if current ratio is healthy
-        Fixed27 memory currSeniorRatio = Fixed27(
-            coordinator.calcSeniorRatio(coordinator.epochSeniorAsset(), coordinator.epochNAV(), coordinator.epochReserve())
-        );
+        Fixed27 memory currSeniorRatio = Fixed27(coordinator.calcSeniorRatio(coordinator.epochSeniorAsset(), coordinator.epochNAV(), coordinator.epochReserve()));
 
-        assertTrue(
-            coordinator.checkRatioInRange(currSeniorRatio, Fixed27(model.minSeniorRatio), Fixed27(model.maxSeniorRatio)) == currSeniorRatioInRange
-        );
+        assertTrue(coordinator.checkRatioInRange(currSeniorRatio, Fixed27(model.minSeniorRatio), Fixed27(model.maxSeniorRatio)) == currSeniorRatioInRange);
         assertTrue((coordinator.epochReserve() <= assessor.maxReserve()) == reserveHealthy);
     }
 

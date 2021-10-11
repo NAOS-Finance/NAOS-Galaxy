@@ -134,18 +134,7 @@ contract TestSetup {
 
         uint256 discountRate = uint256(1000000342100000000000000000);
 
-        borrowerDeployer = new BorrowerDeployer(
-            root_,
-            address(titlefab),
-            address(shelffab),
-            address(pileFab),
-            address(collectorFab),
-            nftFeedFab_,
-            currency_,
-            "Galaxy Loan Token",
-            "TLNT",
-            discountRate
-        );
+        borrowerDeployer = new BorrowerDeployer(root_, address(titlefab), address(shelffab), address(pileFab), address(collectorFab), nftFeedFab_, currency_, "Galaxy Loan Token", "TLNT", discountRate);
 
         borrowerDeployer.deployTitle();
         borrowerDeployer.deployPile();
@@ -186,17 +175,7 @@ contract TestSetup {
         CoordinatorFab coordinatorFab = new CoordinatorFab();
 
         // root is testcase
-        lenderDeployer = new LenderDeployer(
-            rootAddr,
-            currency_,
-            address(trancheFab),
-            address(memberlistFab),
-            address(restrictedTokenFab),
-            address(reserveFab),
-            address(assessorFab),
-            address(coordinatorFab),
-            address(operatorFab)
-        );
+        lenderDeployer = new LenderDeployer(rootAddr, currency_, address(trancheFab), address(memberlistFab), address(restrictedTokenFab), address(reserveFab), address(assessorFab), address(coordinatorFab), address(operatorFab));
     }
 
     function deployLender() public {
@@ -212,17 +191,7 @@ contract TestSetup {
         string memory juniorTokenName = "TIN Token";
         string memory juniorTokenSymbol = "TIN";
 
-        lenderDeployer.init(
-            minSeniorRatio,
-            maxSeniorRatio,
-            maxReserve,
-            challengeTime,
-            seniorInterestRate,
-            seniorTokenName,
-            seniorTokenSymbol,
-            juniorTokenName,
-            juniorTokenSymbol
-        );
+        lenderDeployer.init(minSeniorRatio, maxSeniorRatio, maxReserve, challengeTime, seniorInterestRate, seniorTokenName, seniorTokenSymbol, juniorTokenName, juniorTokenSymbol);
 
         lenderDeployer.deployJunior();
         lenderDeployer.deploySenior();

@@ -70,46 +70,22 @@ contract CoordinatorValidateTest is CoordinatorTest {
         LenderModel memory model = getDefaultModel();
 
         // case 1: simple happy case
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 10 ether, juniorSupply: 10 ether, seniorRedeem: 10 ether, juniorRedeem: 10 ether}),
-            TestCaseDesc({name: "simple happy case", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 10 ether, juniorSupply: 10 ether, seniorRedeem: 10 ether, juniorRedeem: 10 ether}), TestCaseDesc({name: "simple happy case", status: successful}));
 
         // case 2: edge case orders
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 100 ether, juniorSupply: 100 ether, seniorRedeem: 100 ether, juniorRedeem: 100 ether}),
-            TestCaseDesc({name: "order edge cases", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 100 ether, juniorSupply: 100 ether, seniorRedeem: 100 ether, juniorRedeem: 100 ether}), TestCaseDesc({name: "order edge cases", status: successful}));
 
         // case 3: seniorSupply too high
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 101 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "seniorSupply too high", status: validateErr.MAX_ORDER})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 101 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "seniorSupply too high", status: validateErr.MAX_ORDER}));
 
         // case 3: juniorSupply too high
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 101 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "juniorSupply too high", status: validateErr.MAX_ORDER})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 101 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "juniorSupply too high", status: validateErr.MAX_ORDER}));
 
         // case 3: seniorRedeem too high
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 101 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "seniorRedeem too high", status: validateErr.MAX_ORDER})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 101 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "seniorRedeem too high", status: validateErr.MAX_ORDER}));
 
         // case 4: juniorRedeem too high
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 101 ether}),
-            TestCaseDesc({name: "juniorRedeem too high", status: validateErr.MAX_ORDER})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 101 ether}), TestCaseDesc({name: "juniorRedeem too high", status: validateErr.MAX_ORDER}));
     }
 
     function testCurrencyAvailable() public {
@@ -118,80 +94,40 @@ contract CoordinatorValidateTest is CoordinatorTest {
         model.reserve = 100 ether;
         model.NAV = 900 ether;
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 101 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "not enough currency available", status: validateErr.CURRENCY_AVAILABLE})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 101 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "not enough currency available", status: validateErr.CURRENCY_AVAILABLE}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 51 ether, juniorRedeem: 50 ether}),
-            TestCaseDesc({name: "not enough currency two redeems", status: validateErr.CURRENCY_AVAILABLE})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 51 ether, juniorRedeem: 50 ether}), TestCaseDesc({name: "not enough currency two redeems", status: validateErr.CURRENCY_AVAILABLE}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 50 ether, juniorRedeem: 50 ether}),
-            TestCaseDesc({name: "not enough currency edge case", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 0 ether, seniorRedeem: 50 ether, juniorRedeem: 50 ether}), TestCaseDesc({name: "not enough currency edge case", status: successful}));
     }
 
     function testMaxReserve() public {
         LenderModel memory model = getDefaultModel();
         model.maxReserve = 210 ether;
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 10 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "max reserve edge case", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 10 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "max reserve edge case", status: successful}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 11 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "reserve > maxReserve", status: validateErr.MAX_RESERVE})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 11 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "reserve > maxReserve", status: validateErr.MAX_RESERVE}));
     }
 
     function testSeniorRatioTooHigh() public {
         LenderModel memory model = getDefaultModel();
         model.seniorSupplyOrder = 1000 ether;
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 1000 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "senior ratio too high", status: validateErr.MAX_SENIOR_RATIO})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 1000 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "senior ratio too high", status: validateErr.MAX_SENIOR_RATIO}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 333 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "senior ratio not to high", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 333 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "senior ratio not to high", status: successful}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 334 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "senior ratio too high edge", status: validateErr.MAX_SENIOR_RATIO})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 334 ether, juniorSupply: 0 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "senior ratio too high edge", status: validateErr.MAX_SENIOR_RATIO}));
     }
 
     function testSeniorRatioTooLow() public {
         LenderModel memory model = getDefaultModel();
         model.juniorSupplyOrder = 1000 ether;
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 1000 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "senior ratio too low", status: validateErr.MIN_SENIOR_RATIO})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 1000 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "senior ratio too low", status: validateErr.MIN_SENIOR_RATIO}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 50 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "junior ratio not too low", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 50 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "junior ratio not too low", status: successful}));
 
         // edge case
         /*
@@ -208,17 +144,9 @@ contract CoordinatorValidateTest is CoordinatorTest {
         juniorSupply = (800 - 0.75 * 1000) * 1/0.75
         */
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 66 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "junior ratio edge case in range", status: successful})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 66 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "junior ratio edge case in range", status: successful}));
 
-        executeTestCase(
-            model,
-            ModelInput({seniorSupply: 0 ether, juniorSupply: 67 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}),
-            TestCaseDesc({name: "junior ratio edge case too high", status: validateErr.MIN_SENIOR_RATIO})
-        );
+        executeTestCase(model, ModelInput({seniorSupply: 0 ether, juniorSupply: 67 ether, seniorRedeem: 0 ether, juniorRedeem: 0 ether}), TestCaseDesc({name: "junior ratio edge case too high", status: validateErr.MIN_SENIOR_RATIO}));
     }
 
     function testPoolClosing() public {

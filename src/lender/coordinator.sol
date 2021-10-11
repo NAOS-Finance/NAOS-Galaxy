@@ -377,9 +377,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
 
         uint256 newReserve = calcNewReserve(seniorRedeem, juniorRedeem, seniorSupply, juniorSupply);
 
-        Fixed27 memory newSeniorRatio = Fixed27(
-            calcSeniorRatio(calcSeniorAssetValue(seniorRedeem, seniorSupply, epochSeniorAsset, newReserve, epochNAV), epochNAV, newReserve)
-        );
+        Fixed27 memory newSeniorRatio = Fixed27(calcSeniorRatio(calcSeniorAssetValue(seniorRedeem, seniorSupply, epochSeniorAsset, newReserve, epochNAV), epochNAV, newReserve));
 
         (err, impScoreRatio, impScoreReserve) = scoreImprovement(newSeniorRatio, newReserve);
 
@@ -420,8 +418,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
             return BIG_NUMBER;
         }
         // absDistance of ratio can never be zero
-        return
-            rmul(IMPROVEMENT_WEIGHT, rdiv(ONE, absDistance(newSeniorRatio.value, safeDiv(safeAdd(minSeniorRatio.value, maxSeniorRatio.value), 2))));
+        return rmul(IMPROVEMENT_WEIGHT, rdiv(ONE, absDistance(newSeniorRatio.value, safeDiv(safeAdd(minSeniorRatio.value, maxSeniorRatio.value), 2))));
     }
 
     // internal method to save new improvement score
@@ -474,11 +471,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         // 2. junior redeem
         // 3. junior supply
         // 4. senior supply
-        return
-            safeAdd(
-                safeAdd(safeMul(seniorRedeem, weightSeniorRedeem), safeMul(juniorRedeem, weightJuniorRedeem)),
-                safeAdd(safeMul(juniorSupply, weightJuniorSupply), safeMul(seniorSupply, weightSeniorSupply))
-            );
+        return safeAdd(safeAdd(safeMul(seniorRedeem, weightSeniorRedeem), safeMul(juniorRedeem, weightJuniorRedeem)), safeAdd(safeMul(juniorSupply, weightJuniorSupply), safeMul(seniorSupply, weightSeniorSupply)));
     }
 
     /// validates if a solution satisfy the core constraints
@@ -498,12 +491,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         }
 
         // constraint 2: max order
-        if (
-            seniorSupply > order.seniorSupply ||
-            juniorSupply > order.juniorSupply ||
-            seniorRedeem > order.seniorRedeem ||
-            juniorRedeem > order.juniorRedeem
-        ) {
+        if (seniorSupply > order.seniorSupply || juniorSupply > order.juniorSupply || seniorRedeem > order.seniorRedeem || juniorRedeem > order.juniorRedeem) {
             // maxOrderConstraint => -2
             return ERR_MAX_ORDER;
         }
@@ -567,8 +555,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
             }
             return ERR_POOL_CLOSING;
         }
-        return
-            validatePoolConstraints(newReserve, calcSeniorAssetValue(seniorRedeem, seniorSupply, epochSeniorAsset, newReserve, epochNAV), epochNAV);
+        return validatePoolConstraints(newReserve, calcSeniorAssetValue(seniorRedeem, seniorSupply, epochSeniorAsset, newReserve, epochNAV), epochNAV);
     }
 
     /// public method to execute an epoch which required a submission period and the challenge period is over
@@ -642,23 +629,9 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
     ) internal {
         uint256 epochID = safeAdd(lastEpochExecuted, 1);
 
-        seniorTranche.epochUpdate(
-            epochID,
-            calcFulfillment(seniorSupply, order.seniorSupply).value,
-            calcFulfillment(seniorRedeem, order.seniorRedeem).value,
-            epochSeniorTokenPrice.value,
-            order.seniorSupply,
-            order.seniorRedeem
-        );
+        seniorTranche.epochUpdate(epochID, calcFulfillment(seniorSupply, order.seniorSupply).value, calcFulfillment(seniorRedeem, order.seniorRedeem).value, epochSeniorTokenPrice.value, order.seniorSupply, order.seniorRedeem);
 
-        juniorTranche.epochUpdate(
-            epochID,
-            calcFulfillment(juniorSupply, order.juniorSupply).value,
-            calcFulfillment(juniorRedeem, order.juniorRedeem).value,
-            epochJuniorTokenPrice.value,
-            order.juniorSupply,
-            order.juniorRedeem
-        );
+        juniorTranche.epochUpdate(epochID, calcFulfillment(juniorSupply, order.juniorSupply).value, calcFulfillment(juniorRedeem, order.juniorRedeem).value, epochJuniorTokenPrice.value, order.juniorSupply, order.juniorRedeem);
 
         uint256 newReserve = calcNewReserve(seniorRedeem, juniorRedeem, seniorSupply, juniorSupply);
 

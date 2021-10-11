@@ -49,18 +49,7 @@ contract DeployerTest is DSTest {
 
     function testBorrowerDeploy() public logs_gas {
         uint256 discountRate = uint256(1000000342100000000000000000);
-        BorrowerDeployer deployer = new BorrowerDeployer(
-            address(0),
-            address(titlefab),
-            address(shelffab),
-            address(pilefab),
-            address(collectorFab),
-            address(feedFab),
-            address(dai),
-            "Test",
-            "TEST",
-            discountRate
-        );
+        BorrowerDeployer deployer = new BorrowerDeployer(address(0), address(titlefab), address(shelffab), address(pilefab), address(collectorFab), address(feedFab), address(dai), "Test", "TEST", discountRate);
 
         deployer.deployTitle();
         deployer.deployPile();

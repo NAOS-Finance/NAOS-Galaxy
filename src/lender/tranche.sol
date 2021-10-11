@@ -89,10 +89,7 @@ contract Tranche is Math, Auth, FixedPoint {
     bool public waitingForUpdate = false;
 
     modifier orderAllowed(address usr) {
-        require(
-            (users[usr].supplyCurrencyAmount == 0 && users[usr].redeemTokenAmount == 0) || users[usr].orderedInEpoch == epochTicker.currentEpoch(),
-            "disburse required"
-        );
+        require((users[usr].supplyCurrencyAmount == 0 && users[usr].redeemTokenAmount == 0) || users[usr].orderedInEpoch == epochTicker.currentEpoch(), "disburse required");
         _;
     }
 
@@ -327,10 +324,7 @@ contract Tranche is Math, Auth, FixedPoint {
         adjustCurrencyBalance(epochID, epochSupplyOrderCurrency, epochRedeemOrderCurrency);
 
         // the unfulfilled orders (1-fulfillment) is automatically ordered
-        totalSupply = safeAdd(
-            safeTotalSub(totalSupply, epochSupplyOrderCurrency),
-            rmul(epochSupplyOrderCurrency, safeSub(ONE, epochs[epochID].supplyFulfillment.value))
-        );
+        totalSupply = safeAdd(safeTotalSub(totalSupply, epochSupplyOrderCurrency), rmul(epochSupplyOrderCurrency, safeSub(ONE, epochs[epochID].supplyFulfillment.value)));
         totalRedeem = safeAdd(safeTotalSub(totalRedeem, redeemInToken), rmul(redeemInToken, safeSub(ONE, epochs[epochID].redeemFulfillment.value)));
     }
 

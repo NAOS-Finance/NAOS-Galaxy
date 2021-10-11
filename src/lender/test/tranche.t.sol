@@ -161,8 +161,7 @@ contract TrancheTest is DSTest, Math, FixedPoint {
         closeAndUpdate(supplyFulfillment_, redeemFulfillment_, tokenPrice_);
 
         // should receive 60% => 60 ether
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = tranche
-            .calcDisburse(self);
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = tranche.calcDisburse(self);
 
         assertEq(payoutTokenAmount, 60 ether);
         assertEq(remainingSupplyCurrency, 40 ether);
@@ -233,9 +232,7 @@ contract TrancheTest is DSTest, Math, FixedPoint {
         // 50 % for redeem Fulfillment
         closeAndUpdate(0, 5 * 10**26, ONE);
 
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = tranche.disburse(
-            self
-        );
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = tranche.disburse(self);
 
         // currency payout = 100 * 0.7 + 30 * 0.5 = 85 ether
         assertEq(payoutCurrencyAmount, 85 ether);
@@ -329,10 +326,7 @@ contract TrancheTest is DSTest, Math, FixedPoint {
         uint256 endEpoch = orderedInEpoch;
 
         // execute disburse first epoch
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = tranche.disburse(
-            self,
-            endEpoch
-        );
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = tranche.disburse(self, endEpoch);
 
         // 10 currency for 20 tokens
         assertEq(payoutTokenAmount, 20 ether);

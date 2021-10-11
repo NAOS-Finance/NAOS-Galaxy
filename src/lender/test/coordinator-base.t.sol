@@ -60,8 +60,7 @@ contract BaseTypes {
     }
 
     function submitSolution(address coordinator, ModelInput memory solution) internal returns (int256) {
-        return
-            CoordinatorLike(coordinator).submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply);
+        return CoordinatorLike(coordinator).submitSolution(solution.seniorRedeem, solution.juniorRedeem, solution.juniorSupply, solution.seniorSupply);
     }
 }
 

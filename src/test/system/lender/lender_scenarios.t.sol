@@ -100,8 +100,7 @@ contract LenderSystemTest is BaseSystemTest, BaseTypes, Interest {
         assertEq(reserve.totalBalance(), submission.seniorSupply + submission.juniorSupply);
 
         // senior
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor
-            .disburse();
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor.disburse();
         // equal because of token price 1
         assertEq(payoutTokenAmount, submission.seniorSupply);
         assertEq(remainingSupplyCurrency, seniorSupplyAmount - submission.seniorSupply);
@@ -248,8 +247,7 @@ contract LenderSystemTest is BaseSystemTest, BaseTypes, Interest {
         assertEq(seniorToken.balanceOf(seniorInvestor_), 80 ether);
         // senior
 
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorTranche
-            .calcDisburse(seniorInvestor_);
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorTranche.calcDisburse(seniorInvestor_);
 
         assertEq(payoutTokenAmount, seniorToken.balanceOf(address(seniorTranche)));
         assertEq(remainingSupplyCurrency, 0);
@@ -266,11 +264,7 @@ contract LenderSystemTest is BaseSystemTest, BaseTypes, Interest {
         // juniorAssetValue increased more than seniorAssetValue therefore higher juniorTokenPrice
         assertTrue(juniorTokenPrice > seniorTokenPrice);
 
-        assertEq(
-            nftFeed.approximatedNAV() + reserve.totalBalance(),
-            rmul(seniorTranche.tokenSupply(), seniorTokenPrice) + rmul(juniorTranche.tokenSupply(), juniorTokenPrice),
-            10
-        );
+        assertEq(nftFeed.approximatedNAV() + reserve.totalBalance(), rmul(seniorTranche.tokenSupply(), seniorTokenPrice) + rmul(juniorTranche.tokenSupply(), juniorTokenPrice), 10);
     }
 
     function testLoanRepayments() public {
@@ -311,8 +305,7 @@ contract LenderSystemTest is BaseSystemTest, BaseTypes, Interest {
         assertTrue(coordinator.submissionPeriod() == false);
 
         // senior full payout
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor
-            .disburse();
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor.disburse();
         assertEq(payoutCurrencyAmount, rmul(80 ether, coordinator.epochSeniorTokenPrice()));
 
         // junior full payout
@@ -406,8 +399,7 @@ contract LenderSystemTest is BaseSystemTest, BaseTypes, Interest {
         assertTrue(coordinator.submissionPeriod() == false);
 
         // senior full payout
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor
-            .disburse();
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor.disburse();
         assertEq(payoutCurrencyAmount, rmul(80 ether, coordinator.epochSeniorTokenPrice()));
         assertEq(remainingRedeemToken, 0);
         assertEq(remainingSupplyCurrency, 0);

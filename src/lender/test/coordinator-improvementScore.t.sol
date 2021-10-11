@@ -80,11 +80,7 @@ contract CoordinatorImprovementScoreTest is CoordinatorTest, FixedPoint {
         emit log_named_uint("maxSeniorRatio", model.maxSeniorRatio);
         emit log_named_uint("maxSeniorRatio", model.minSeniorRatio);
 
-        uint256 currentRatio = coordinator.calcSeniorRatio(
-            coordinator.calcSeniorAssetValue(0, 0, safeAdd(model.seniorDebt, model.seniorBalance), model.reserve, model.NAV),
-            model.NAV,
-            model.reserve
-        );
+        uint256 currentRatio = coordinator.calcSeniorRatio(coordinator.calcSeniorAssetValue(0, 0, safeAdd(model.seniorDebt, model.seniorBalance), model.reserve, model.NAV), model.NAV, model.reserve);
 
         // check if ratio is broken
         assertTrue(currentRatio > model.maxSeniorRatio);
@@ -154,11 +150,7 @@ contract CoordinatorImprovementScoreTest is CoordinatorTest, FixedPoint {
         hevm.warp(now + 1 days);
         coordinator.closeEpoch();
 
-        uint256 currentRatio = coordinator.calcSeniorRatio(
-            coordinator.calcSeniorAssetValue(0, 0, safeAdd(model.seniorDebt, model.seniorBalance), model.reserve, model.NAV),
-            model.NAV,
-            model.reserve
-        );
+        uint256 currentRatio = coordinator.calcSeniorRatio(coordinator.calcSeniorAssetValue(0, 0, safeAdd(model.seniorDebt, model.seniorBalance), model.reserve, model.NAV), model.NAV, model.reserve);
 
         // check ratio okay
         assertTrue(currentRatio <= model.maxSeniorRatio);

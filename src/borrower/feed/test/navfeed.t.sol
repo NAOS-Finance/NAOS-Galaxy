@@ -401,12 +401,7 @@ contract NAVTest is DSTest, Math {
 
     function testRemoveBuckets() public {
         // buckets are removed by completely repaying it
-        uint256[4] memory buckets = [
-            uint256(52500000000000000000),
-            uint256(55125000000000000000),
-            uint256(121550625000000000000),
-            uint256(63814078125000000000)
-        ];
+        uint256[4] memory buckets = [uint256(52500000000000000000), uint256(55125000000000000000), uint256(121550625000000000000), uint256(63814078125000000000)];
         // token and loan id are the same in tests
         uint256[4] memory tokenIdForBuckets = [uint256(4), uint256(1), uint256(3), uint256(2)];
         // list : [1 days] -> [2 days] -> [4 days] -> [5 days]

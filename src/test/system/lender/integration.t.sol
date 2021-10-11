@@ -73,8 +73,7 @@ contract LenderIntegrationTest is BaseSystemTest {
         // submission was valid
         assertTrue(coordinator.submissionPeriod() == false);
         // inital token price is ONE
-        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor
-            .disburse();
+        (uint256 payoutCurrencyAmount, uint256 payoutTokenAmount, uint256 remainingSupplyCurrency, uint256 remainingRedeemToken) = seniorInvestor.disburse();
         assertEq(payoutCurrencyAmount, 0);
         assertEq(payoutTokenAmount, seniorAmount);
         assertEq(seniorToken.balanceOf(seniorInvestor_), seniorAmount);
