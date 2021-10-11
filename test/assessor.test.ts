@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { zeroPadEnd, percentToBig, timeFly, ONE } from "./utils"
+import { zeroPadEnd, percentToBig, timeFly, ONE, takeSnapshot, restoreSnapshot } from "./utils"
 import { NAVFeedMock } from '../types/NAVFeedMock'
 import { TrancheMock } from '../types/TrancheMock'
 import { Assessor } from '../types/Assessor'
@@ -13,8 +13,10 @@ describe("Assessor", function () {
   let seniorTranche: Contract
   let juniorTranche: Contract
   let feed: Contract
+  let snapshotId: number
 
   beforeEach(async () => {
+    snapshotId = await takeSnapshot()
     accounts = await ethers.getSigners()
     seniorTranche = await (await ethers.getContractFactory("TrancheMock")).deploy() as TrancheMock
     juniorTranche = await (await ethers.getContractFactory("TrancheMock")).deploy() as TrancheMock
@@ -29,6 +31,10 @@ describe("Assessor", function () {
 
     padded = zeroPadEnd(utils.toUtf8Bytes("navFeed"), 32)
     await assessor.depend(padded, feed.address)
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(snapshotId)
   })
 
   it("Should CurrentNAV", async () => {

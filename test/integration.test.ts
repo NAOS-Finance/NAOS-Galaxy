@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { percentToBig, zeroPadEnd, MAX_UINT256, now, ONE, timeFly, div, mul, prepareDeployLender, deployCurrency } from "./utils"
+import { percentToBig, zeroPadEnd, MAX_UINT256, now, ONE, timeFly, div, mul } from "./utils"
 
 describe("Integration", function () {
   let accounts: Signer[]
@@ -32,25 +32,19 @@ describe("Integration", function () {
   let admin: Contract
   let seniorInvestor: Contract
   let juniorInvestor: Contract
-  // let lastSnapshotId: number
 
   beforeEach(async () => {
-    // lastSnapshotId = await takeSnapshot()
     accounts = await ethers.getSigners()
     await deployLenderMockBorrower(await accounts[0].getAddress())
     await createInvestorUser()
   })
 
-  // afterEach(async () => {
-  //   await restoreSnapshot(lastSnapshotId)
-  // })
-
   // setup ======>
 
   const deployLenderMockBorrower = async (rootAddr: string) => {
-    currency = await deployCurrency()
-    lenderDeployer = await prepareDeployLender(rootAddr, currency.address)
-    await deployLender(lenderDeployer)
+    currency = await (await ethers.getContractFactory("SimpleToken")).deploy("C", "Currency")
+    await prepareDeployLender(rootAddr)
+    await deployLender()
 
     let shelf_ = await (await ethers.getContractFactory("ShelfMock")).deploy()
     let nav = await (await ethers.getContractFactory("NAVFeedMock")).deploy()
@@ -66,16 +60,28 @@ describe("Integration", function () {
     juniorInvestor = await (await ethers.getContractFactory("Investor")).deploy(juniorOperator.address, juniorTranche.address, currency.address, juniorToken.address)
   }
 
-  const deployLender = async (lenderDeployer: Contract) => {
+  const prepareDeployLender = async (rootAddr: string) => {
+    let reserveFab = await (await ethers.getContractFactory("ReserveFab")).deploy()
+    let assessorFab = await (await ethers.getContractFactory("AssessorFab")).deploy()
+    let trancheFab = await (await ethers.getContractFactory("TrancheFab")).deploy()
+    let memberlistFab = await (await ethers.getContractFactory("MemberlistFab")).deploy()
+    let restrictedTokenFab = await (await ethers.getContractFactory("RestrictedTokenFab")).deploy()
+    let operatorFab = await (await ethers.getContractFactory("OperatorFab")).deploy()
+    let coordinatorFab = await (await ethers.getContractFactory("CoordinatorFab")).deploy()
+
+    lenderDeployer = await (await ethers.getContractFactory("LenderDeployer")).deploy(rootAddr, currency.address, trancheFab.address, memberlistFab.address, restrictedTokenFab.address, reserveFab.address, assessorFab.address, coordinatorFab.address, operatorFab.address)
+  }
+
+  const deployLender = async () => {
     let seniorInterestRate = BigNumber.from("1000000229200000000000000000")
     let maxReserve = MAX_UINT256
     let maxSeniorRatio = percentToBig(85)
     let minSeniorRatio = percentToBig(75)
-    let challengeTime = 60 * 60
-    let seniorTokenName = "ALPHA Token"
-    let seniorTokenSymbol = "ALPHA"
-    let juniorTokenName = "BETA Token"
-    let juniorTokenSymbol = "BETA"
+    let challengeTime = 3 * 60 * 60
+    let seniorTokenName = "DROP Token"
+    let seniorTokenSymbol = "DROP"
+    let juniorTokenName = "TIN Token"
+    let juniorTokenSymbol = "TIN"
     await lenderDeployer.init(minSeniorRatio, maxSeniorRatio, maxReserve, challengeTime, seniorInterestRate, seniorTokenName, seniorTokenSymbol, juniorTokenName, juniorTokenSymbol)
     await lenderDeployer.deployJunior()
     await lenderDeployer.deploySenior()

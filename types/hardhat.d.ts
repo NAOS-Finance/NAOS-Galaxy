@@ -101,10 +101,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ThresholdRegistryLike__factory>;
     getContractFactory(
-      name: "CollectorTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CollectorTest__factory>;
-    getContractFactory(
       name: "AuthLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AuthLike__factory>;
@@ -209,18 +205,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Hevm__factory>;
     getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "NAVTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NAVTest__factory>;
-    getContractFactory(
-      name: "NFTFeedTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NFTFeedTest__factory>;
-    getContractFactory(
       name: "Pile",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Pile__factory>;
@@ -257,10 +241,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenLike__factory>;
     getContractFactory(
-      name: "DeployerTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.DeployerTest__factory>;
-    getContractFactory(
       name: "CeilingMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CeilingMock__factory>;
@@ -292,18 +272,6 @@ declare module "hardhat/types/runtime" {
       name: "TokenMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenMock__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "PileTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.PileTest__factory>;
-    getContractFactory(
-      name: "ShelfTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ShelfTest__factory>;
     getContractFactory(
       name: "Assessor",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -477,14 +445,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ShelfLike__factory>;
     getContractFactory(
-      name: "AssessorTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AssessorTest__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
       name: "CoordinatorLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CoordinatorLike__factory>;
@@ -497,29 +457,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Hevm__factory>;
     getContractFactory(
-      name: "CoordinatorCloseEpochTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorCloseEpochTest__factory>;
-    getContractFactory(
-      name: "CoordinatorExecuteEpochTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorExecuteEpochTest__factory>;
-    getContractFactory(
-      name: "CoordinatorImprovementScoreTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorImprovementScoreTest__factory>;
-    getContractFactory(
       name: "CoordinatorSubmitEpochTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CoordinatorSubmitEpochTest__factory>;
-    getContractFactory(
-      name: "CoordinatorValidateTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CoordinatorValidateTest__factory>;
-    getContractFactory(
-      name: "MemberlistTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.MemberlistTest__factory>;
     getContractFactory(
       name: "AssessorMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -552,34 +492,6 @@ declare module "hardhat/types/runtime" {
       name: "TrancheMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TrancheMock__factory>;
-    getContractFactory(
-      name: "OperatorTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OperatorTest__factory>;
-    getContractFactory(
-      name: "ReserveTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ReserveTest__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "RestrictedTokenTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RestrictedTokenTest__factory>;
-    getContractFactory(
-      name: "Hevm",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Hevm__factory>;
-    getContractFactory(
-      name: "TrancheTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.TrancheTest__factory>;
-    getContractFactory(
-      name: "User",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.User__factory>;
     getContractFactory(
       name: "Memberlist",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -661,38 +573,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BaseSystemTest__factory>;
     getContractFactory(
-      name: "PrincipalBorrowTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.PrincipalBorrowTest__factory>;
-    getContractFactory(
-      name: "CloseTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CloseTest__factory>;
-    getContractFactory(
-      name: "IssueTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IssueTest__factory>;
-    getContractFactory(
-      name: "LockTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.LockTest__factory>;
-    getContractFactory(
-      name: "PrincipalRepayTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.PrincipalRepayTest__factory>;
-    getContractFactory(
-      name: "UnlockTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.UnlockTest__factory>;
-    getContractFactory(
-      name: "WithdrawTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.WithdrawTest__factory>;
-    getContractFactory(
-      name: "CollectTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CollectTest__factory>;
-    getContractFactory(
       name: "CollectorLike",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CollectorLike__factory>;
@@ -741,21 +621,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TrancheLike__factory>;
     getContractFactory(
-      name: "LenderIntegrationTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.LenderIntegrationTest__factory>;
-    getContractFactory(
-      name: "LenderSystemTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.LenderSystemTest__factory>;
-    getContractFactory(
       name: "TestRoot",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestRoot__factory>;
-    getContractFactory(
-      name: "ScenarioTest",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ScenarioTest__factory>;
     getContractFactory(
       name: "TestSetup",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -896,11 +764,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ThresholdRegistryLike>;
     getContractAt(
-      name: "CollectorTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CollectorTest>;
-    getContractAt(
       name: "AuthLike",
       address: string,
       signer?: ethers.Signer
@@ -1031,21 +894,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Hevm>;
     getContractAt(
-      name: "Hevm",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Hevm>;
-    getContractAt(
-      name: "NAVTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.NAVTest>;
-    getContractAt(
-      name: "NFTFeedTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.NFTFeedTest>;
-    getContractAt(
       name: "Pile",
       address: string,
       signer?: ethers.Signer
@@ -1091,11 +939,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TokenLike>;
     getContractAt(
-      name: "DeployerTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.DeployerTest>;
-    getContractAt(
       name: "CeilingMock",
       address: string,
       signer?: ethers.Signer
@@ -1135,21 +978,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TokenMock>;
-    getContractAt(
-      name: "Hevm",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Hevm>;
-    getContractAt(
-      name: "PileTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.PileTest>;
-    getContractAt(
-      name: "ShelfTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ShelfTest>;
     getContractAt(
       name: "Assessor",
       address: string,
@@ -1366,16 +1194,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ShelfLike>;
     getContractAt(
-      name: "AssessorTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AssessorTest>;
-    getContractAt(
-      name: "Hevm",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Hevm>;
-    getContractAt(
       name: "CoordinatorLike",
       address: string,
       signer?: ethers.Signer
@@ -1391,35 +1209,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Hevm>;
     getContractAt(
-      name: "CoordinatorCloseEpochTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CoordinatorCloseEpochTest>;
-    getContractAt(
-      name: "CoordinatorExecuteEpochTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CoordinatorExecuteEpochTest>;
-    getContractAt(
-      name: "CoordinatorImprovementScoreTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CoordinatorImprovementScoreTest>;
-    getContractAt(
       name: "CoordinatorSubmitEpochTest",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.CoordinatorSubmitEpochTest>;
-    getContractAt(
-      name: "CoordinatorValidateTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CoordinatorValidateTest>;
-    getContractAt(
-      name: "MemberlistTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.MemberlistTest>;
     getContractAt(
       name: "AssessorMock",
       address: string,
@@ -1460,41 +1253,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TrancheMock>;
-    getContractAt(
-      name: "OperatorTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OperatorTest>;
-    getContractAt(
-      name: "ReserveTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ReserveTest>;
-    getContractAt(
-      name: "Hevm",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Hevm>;
-    getContractAt(
-      name: "RestrictedTokenTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.RestrictedTokenTest>;
-    getContractAt(
-      name: "Hevm",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Hevm>;
-    getContractAt(
-      name: "TrancheTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.TrancheTest>;
-    getContractAt(
-      name: "User",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.User>;
     getContractAt(
       name: "Memberlist",
       address: string,
@@ -1596,46 +1354,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BaseSystemTest>;
     getContractAt(
-      name: "PrincipalBorrowTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.PrincipalBorrowTest>;
-    getContractAt(
-      name: "CloseTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CloseTest>;
-    getContractAt(
-      name: "IssueTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IssueTest>;
-    getContractAt(
-      name: "LockTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.LockTest>;
-    getContractAt(
-      name: "PrincipalRepayTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.PrincipalRepayTest>;
-    getContractAt(
-      name: "UnlockTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.UnlockTest>;
-    getContractAt(
-      name: "WithdrawTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.WithdrawTest>;
-    getContractAt(
-      name: "CollectTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CollectTest>;
-    getContractAt(
       name: "CollectorLike",
       address: string,
       signer?: ethers.Signer
@@ -1696,25 +1414,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TrancheLike>;
     getContractAt(
-      name: "LenderIntegrationTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.LenderIntegrationTest>;
-    getContractAt(
-      name: "LenderSystemTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.LenderSystemTest>;
-    getContractAt(
       name: "TestRoot",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TestRoot>;
-    getContractAt(
-      name: "ScenarioTest",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ScenarioTest>;
     getContractAt(
       name: "TestSetup",
       address: string,

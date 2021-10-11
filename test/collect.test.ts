@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
-import { percentToBig, MAX_UINT256, now, timeFly, mul, deployTestRoot, deployCollateralNFT, deployCurrency, deployBorrower, prepareDeployLender, deployLender } from "./utils"
+import { percentToBig, MAX_UINT256, now, timeFly, mul, deployTestRoot, deployCollateralNFT, deployCurrency, deployBorrower, prepareDeployLender, deployLender, takeSnapshot, restoreSnapshot } from "./utils"
 
 describe("Collect", function () {
   let accounts: Signer[]
@@ -32,13 +32,19 @@ describe("Collect", function () {
   let admin: Contract
   let seniorInvestor: Contract
   let juniorInvestor: Contract
+  // let snapshotId: number
 
   beforeEach(async () => {
+    // snapshotId = await takeSnapshot()
     accounts = await ethers.getSigners()
     await deployContracts()
     await createTestUsers()
     await fundTranches()
   })
+
+  // afterEach(async () => {
+  //   await restoreSnapshot(snapshotId)
+  // })
 
   const deployContracts = async () => {
     root = await deployTestRoot(accounts)
