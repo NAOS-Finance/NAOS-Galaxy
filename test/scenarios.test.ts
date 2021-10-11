@@ -3,7 +3,7 @@ import { ethers } from "hardhat"
 import { Signer, Contract, BigNumber, utils } from "ethers"
 import { percentToBig, zeroPadEnd, MAX_UINT256, now, timeFly, div, mul, deployTestRoot, deployCollateralNFT, deployCurrency, deployBorrower, prepareDeployLender, deployLender } from "./utils"
 import { toUtf8Bytes } from "ethers/lib/utils"
-import { ZERO_ADDRESS } from "../scripts/utils"
+import { ZERO_ADDRESS } from "./utils"
 
 describe("Scenarios", function () {
   let accounts: Signer[]
