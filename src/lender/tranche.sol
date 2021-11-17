@@ -303,7 +303,7 @@ contract Tranche is Math, Auth, FixedPoint {
         uint256 epochSupplyOrderCurrency,
         uint256 epochRedeemOrderCurrency
     ) external auth {
-        require(waitingForUpdate == true);
+        require(waitingForUpdate);
         waitingForUpdate = false;
 
         epochs[epochID].supplyFulfillment.value = supplyFulfillment_;
@@ -329,7 +329,7 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     function closeEpoch() external auth returns (uint256 totalSupplyCurrency_, uint256 totalRedeemToken_) {
-        require(waitingForUpdate == false);
+        require(!waitingForUpdate);
         waitingForUpdate = true;
         return (totalSupply, totalRedeem);
     }
