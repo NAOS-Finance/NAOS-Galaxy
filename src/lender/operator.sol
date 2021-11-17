@@ -83,7 +83,7 @@ contract Operator is DSNote, Auth {
     }
 
     /// sets the dependency to another contract
-    function depend(bytes32 contractName, address addr) public auth {
+    function depend(bytes32 contractName, address addr) external auth {
         if (contractName == "tranche") {
             tranche = TrancheLike(addr);
         } else if (contractName == "token") {
@@ -139,7 +139,7 @@ contract Operator is DSNote, Auth {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public {
+    ) external {
         DaiPermitLike(tranche.currency()).permit(msg.sender, address(tranche), nonce, expiry, true, v, r, s);
         supplyOrder(amount);
     }
@@ -151,7 +151,7 @@ contract Operator is DSNote, Auth {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public {
+    ) external {
         EIP2612PermitLike(tranche.currency()).permit(msg.sender, address(tranche), value, deadline, v, r, s);
         supplyOrder(amount);
     }
@@ -163,7 +163,7 @@ contract Operator is DSNote, Auth {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public {
+    ) external {
         EIP2612PermitLike(address(token)).permit(msg.sender, address(tranche), value, deadline, v, r, s);
         redeemOrder(amount);
     }
