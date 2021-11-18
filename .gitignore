@@ -11,3 +11,4 @@ config_unknown.json
 node_modules/
 artifacts/
 cache/
+types/
