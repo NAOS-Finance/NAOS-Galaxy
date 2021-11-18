@@ -78,7 +78,7 @@ contract GalaxyRoot is Auth {
     // After going through the deploy process on the lender and borrower method, this method is called to connect
     // lender and borrower contracts.
     function deploy() public {
-        require(address(borrowerDeployer) != address(0) && address(lenderDeployer) != address(0) && deployed == false);
+        require(address(borrowerDeployer) != address(0) && address(lenderDeployer) != address(0) && !deployed);
         deployed = true;
 
         address reserve_ = lenderDeployer.reserve();
