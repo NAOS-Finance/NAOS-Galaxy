@@ -90,7 +90,7 @@ contract BaseNFTFeed is DSNote, Auth, Math {
     }
 
     // part of Feed interface
-    function file(bytes32 name, uint256 value) public auth {}
+    function file(bytes32 name, uint256 value) external auth {}
 
     /// sets the dependency to another contract
     function depend(bytes32 contractName, address addr) external auth {
@@ -134,7 +134,7 @@ contract BaseNFTFeed is DSNote, Auth, Math {
     ///  -- Oracle Updates --
 
     // The nft value is to be updated by authenticated oracles
-    function update(bytes32 nftID_, uint256 value) public auth {
+    function update(bytes32 nftID_, uint256 value) external auth {
         // switch of collateral risk group results in new: ceiling, threshold for existing loan
         nftValues[nftID_] = value;
     }
@@ -144,7 +144,7 @@ contract BaseNFTFeed is DSNote, Auth, Math {
         bytes32 nftID_,
         uint256 value,
         uint256 risk_
-    ) public auth {
+    ) external auth {
         // the risk group has to exist
         require(thresholdRatio[risk_] != 0, "threshold for risk group not defined");
 
@@ -174,7 +174,7 @@ contract BaseNFTFeed is DSNote, Auth, Math {
     }
 
     // borrowEvent is called by the shelf in the borrow method
-    function borrowEvent(uint256 loan) public auth {
+    function borrowEvent(uint256 loan) external auth {
         uint256 risk_ = risk[nftID(loan)];
 
         // when issued every loan has per default interest rate of risk group 0.
@@ -186,7 +186,7 @@ contract BaseNFTFeed is DSNote, Auth, Math {
     }
 
     // part of Feed interface
-    function unlockEvent(uint256 loan) public auth {}
+    function unlockEvent(uint256 loan) external auth {}
 
     ///  -- Getter methods --
     // returns the ceiling of a loan
