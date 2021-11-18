@@ -74,7 +74,7 @@ contract Assessor is Auth, FixedPoint, Interest {
         seniorRatio.value = 0;
     }
 
-    function depend(bytes32 contractName, address addr) public auth {
+    function depend(bytes32 contractName, address addr) external auth {
         if (contractName == "navFeed") {
             navFeed = NAVFeedLike(addr);
         } else if (contractName == "seniorTranche") {
@@ -86,7 +86,7 @@ contract Assessor is Auth, FixedPoint, Interest {
         } else revert();
     }
 
-    function file(bytes32 name, uint256 value) public auth {
+    function file(bytes32 name, uint256 value) external auth {
         if (name == "seniorInterestRate") {
             seniorInterestRate = Fixed27(value);
         } else if (name == "maxReserve") {
@@ -186,7 +186,7 @@ contract Assessor is Auth, FixedPoint, Interest {
 
     /// repayment update keeps track of senior bookkeeping for repaid loans
     /// the seniorDebt needs to be decreased
-    function repaymentUpdate(uint256 currencyAmount) public auth {
+    function repaymentUpdate(uint256 currencyAmount) external auth {
         dripSeniorDebt();
 
         uint256 decAmount = rmul(currencyAmount, seniorRatio.value);
@@ -205,7 +205,7 @@ contract Assessor is Auth, FixedPoint, Interest {
 
     /// borrow update keeps track of the senior bookkeeping for new borrowed loans
     /// the seniorDebt needs to be increased to accumulate interest
-    function borrowUpdate(uint256 currencyAmount) public auth {
+    function borrowUpdate(uint256 currencyAmount) external auth {
         dripSeniorDebt();
 
         // the current senior ratio defines
