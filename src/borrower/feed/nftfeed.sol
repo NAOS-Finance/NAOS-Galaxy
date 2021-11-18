@@ -122,6 +122,7 @@ contract BaseNFTFeed is DSNote, Auth, Math {
     ) public auth {
         if (name == "riskGroupNFT") {
             require(ceilingRatio[risk_] == 0, "risk-group-in-usage");
+            require(thresholdRatio_ > ceilingRatio_, "thresholdRatio_ must be greater than ceilingRatio_");
             thresholdRatio[risk_] = thresholdRatio_;
             ceilingRatio[risk_] = ceilingRatio_;
             // set interestRate for risk group
