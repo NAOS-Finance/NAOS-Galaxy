@@ -53,13 +53,13 @@ contract Reserve is Math, Auth {
         self = address(this);
     }
 
-    function file(bytes32 what, uint256 amount) public auth {
+    function file(bytes32 what, uint256 amount) external auth {
         if (what == "currencyAvailable") {
             currencyAvailable = amount;
         } else revert();
     }
 
-    function depend(bytes32 contractName, address addr) public auth {
+    function depend(bytes32 contractName, address addr) external auth {
         if (contractName == "shelf") {
             shelf = ShelfLike(addr);
         } else if (contractName == "currency") {
@@ -74,7 +74,7 @@ contract Reserve is Math, Auth {
     }
 
     // deposits currency in the the reserve
-    function deposit(uint256 currencyAmount) public auth {
+    function deposit(uint256 currencyAmount) external auth {
         _deposit(msg.sender, currencyAmount);
     }
 
@@ -84,12 +84,12 @@ contract Reserve is Math, Auth {
     }
 
     // remove currency from the reserve
-    function payout(uint256 currencyAmount) public auth {
+    function payout(uint256 currencyAmount) external auth {
         _payout(msg.sender, currencyAmount);
     }
 
     // remove currency from the reserve and send to user
-    function payoutTo(address to, uint256 currencyAmount) public auth {
+    function payoutTo(address to, uint256 currencyAmount) external auth {
         _payout(to, currencyAmount);
     }
 
@@ -100,7 +100,7 @@ contract Reserve is Math, Auth {
 
     // balance handles currency requests from the borrower side
     // currency is moved between shelf and reserve if needed
-    function balance() public {
+    function balance() external {
         (bool requestWant, uint256 currencyAmount) = shelf.balanceRequest();
         if (requestWant) {
             require(currencyAvailable >= currencyAmount, "not-enough-currency-reserve");
