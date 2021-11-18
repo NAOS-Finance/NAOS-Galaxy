@@ -67,7 +67,7 @@ contract GalaxyRoot is Auth {
         address lender_,
         address borrower_,
         address ward_
-    ) public {
+    ) external {
         require(deployUsr == msg.sender);
         borrowerDeployer = BorrowerDeployerLike(borrower_);
         lenderDeployer = LenderDeployerLike(lender_);
@@ -78,7 +78,7 @@ contract GalaxyRoot is Auth {
     // --- Deploy ---
     // After going through the deploy process on the lender and borrower method, this method is called to connect
     // lender and borrower contracts.
-    function deploy() public {
+    function deploy() external {
         require(address(borrowerDeployer) != address(0) && address(lenderDeployer) != address(0) && !deployed);
         deployed = true;
 
@@ -111,7 +111,7 @@ contract GalaxyRoot is Auth {
         AuthLike(target).deny(usr);
     }
 
-    function file(bytes32 name, address payable usr) public auth {
+    function file(bytes32 name, address payable usr) external auth {
         if(name == "withdrawAddress") {
             require(usr != address(0), "zero withdraw address");
             withdrawAddress = usr;
@@ -120,7 +120,7 @@ contract GalaxyRoot is Auth {
     }
 
     /// withdraw fee
-    function withdrawFee(uint currencyAmount) public auth {
+    function withdrawFee(uint currencyAmount) external auth {
         uint withdrawFeeAmount = AssessorLike(lenderDeployer.assessor()).availableWithdrawFee();
         require(withdrawFeeAmount > 0, "zero fee left in reserve");
         require(withdrawFeeAmount >= currencyAmount && ReserveLike(lenderDeployer.reserve()).totalBalance() >= currencyAmount, "insufficient currency left in reserve");
