@@ -93,13 +93,13 @@ contract Operator is DSNote, Auth {
 
     /// only investors that are on the memberlist can submit supplyOrders
     function supplyOrder(uint256 amount) public note {
-        require((token.hasMember(msg.sender) == true), "user-not-allowed-to-hold-token");
+        require(token.hasMember(msg.sender), "user-not-allowed-to-hold-token");
         tranche.supplyOrder(msg.sender, amount);
     }
 
     /// only investors that are on the memberlist can submit redeemOrders
     function redeemOrder(uint256 amount) public note {
-        require((token.hasMember(msg.sender) == true), "user-not-allowed-to-hold-token");
+        require(token.hasMember(msg.sender), "user-not-allowed-to-hold-token");
         token.hasMember(msg.sender);
         tranche.redeemOrder(msg.sender, amount);
     }
@@ -114,7 +114,7 @@ contract Operator is DSNote, Auth {
             uint256 remainingRedeemToken
         )
     {
-        require((token.hasMember(msg.sender) == true), "user-not-allowed-to-hold-token");
+        require(token.hasMember(msg.sender), "user-not-allowed-to-hold-token");
         return tranche.disburse(msg.sender);
     }
 
@@ -127,7 +127,7 @@ contract Operator is DSNote, Auth {
             uint256 remainingRedeemToken
         )
     {
-        require((token.hasMember(msg.sender) == true), "user-not-allowed-to-hold-token");
+        require(token.hasMember(msg.sender), "user-not-allowed-to-hold-token");
         return tranche.disburse(msg.sender, endEpoch);
     }
 
