@@ -112,7 +112,7 @@ contract Tranche is Math, Auth, FixedPoint {
         return epochs[_epoch].tokenPrice.value;
     }
 
-    function depend(bytes32 contractName, address addr) public auth {
+    function depend(bytes32 contractName, address addr) external auth {
         if (contractName == "token") {
             token = ERC20Like(addr);
         } else if (contractName == "currency") {
@@ -125,7 +125,7 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     // supplyOrder function can be used to place or revoke an supply
-    function supplyOrder(address usr, uint256 newSupplyAmount) public auth orderAllowed(usr) {
+    function supplyOrder(address usr, uint256 newSupplyAmount) external auth orderAllowed(usr) {
         users[usr].orderedInEpoch = epochTicker.currentEpoch();
 
         uint256 currentSupplyAmount = users[usr].supplyCurrencyAmount;
@@ -146,7 +146,7 @@ contract Tranche is Math, Auth, FixedPoint {
     }
 
     // redeemOrder function can be used to place or revoke a redeem
-    function redeemOrder(address usr, uint256 newRedeemAmount) public auth orderAllowed(usr) {
+    function redeemOrder(address usr, uint256 newRedeemAmount) external auth orderAllowed(usr) {
         users[usr].orderedInEpoch = epochTicker.currentEpoch();
 
         uint256 currentRedeemAmount = users[usr].redeemTokenAmount;
@@ -233,7 +233,7 @@ contract Tranche is Math, Auth, FixedPoint {
 
     // the disburse function can be used after an epoch is over to receive currency and tokens
     function disburse(address usr)
-        public
+        external
         auth
         returns (
             uint256 payoutCurrencyAmount,
@@ -302,7 +302,7 @@ contract Tranche is Math, Auth, FixedPoint {
         uint256 tokenPrice_,
         uint256 epochSupplyOrderCurrency,
         uint256 epochRedeemOrderCurrency
-    ) public auth {
+    ) external auth {
         require(waitingForUpdate == true);
         waitingForUpdate = false;
 
@@ -328,7 +328,7 @@ contract Tranche is Math, Auth, FixedPoint {
         totalRedeem = safeAdd(safeTotalSub(totalRedeem, redeemInToken), rmul(redeemInToken, safeSub(ONE, epochs[epochID].redeemFulfillment.value)));
     }
 
-    function closeEpoch() public auth returns (uint256 totalSupplyCurrency_, uint256 totalRedeemToken_) {
+    function closeEpoch() external auth returns (uint256 totalSupplyCurrency_, uint256 totalRedeemToken_) {
         require(waitingForUpdate == false);
         waitingForUpdate = true;
         return (totalSupply, totalRedeem);
@@ -414,7 +414,7 @@ contract Tranche is Math, Auth, FixedPoint {
         address erc20,
         address usr,
         uint256 amount
-    ) public auth {
+    ) external auth {
         ERC20Like(erc20).transfer(usr, amount);
     }
 
