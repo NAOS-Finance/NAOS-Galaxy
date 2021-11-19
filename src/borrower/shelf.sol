@@ -280,7 +280,7 @@ contract Shelf is DSNote, Auth, TitleOwned, Math {
 
     /// a loan can be claimed by a collector if the loan debt is above the loan threshold
     /// transfers the nft to the collector
-    function claim(uint256 loan, address usr) public auth note {
+    function claim(uint256 loan, address usr) external auth note {
         NFTLike(shelf[loan].registry).transferFrom(address(this), usr, shelf[loan].tokenId);
     }
 
