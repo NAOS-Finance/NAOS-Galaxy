@@ -57,11 +57,11 @@ contract Collector is DSNote, Auth {
     // -- Collectors --
     mapping(address => uint256) public collectors;
 
-    function relyCollector(address usr) public auth note {
+    function relyCollector(address usr) external auth note {
         collectors[usr] = 1;
     }
 
-    function denyCollector(address usr) public auth note {
+    function denyCollector(address usr) external auth note {
         collectors[usr] = 0;
     }
 
