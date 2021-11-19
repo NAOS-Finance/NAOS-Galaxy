@@ -79,8 +79,8 @@ contract Reserve is Math, Auth {
     }
 
     function _deposit(address usr, uint256 currencyAmount) internal {
-        require(currency.transferFrom(usr, self, currencyAmount), "reserve-deposit-failed");
         balance_ = safeAdd(balance_, currencyAmount);
+        require(currency.transferFrom(usr, self, currencyAmount), "reserve-deposit-failed");
     }
 
     // remove currency from the reserve
@@ -94,8 +94,8 @@ contract Reserve is Math, Auth {
     }
 
     function _payout(address usr, uint256 currencyAmount) internal {
-        require(currency.transfer(usr, currencyAmount), "reserve-payout-failed");
         balance_ = safeSub(balance_, currencyAmount);
+        require(currency.transfer(usr, currencyAmount), "reserve-payout-failed");
     }
 
     // balance handles currency requests from the borrower side
