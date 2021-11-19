@@ -57,6 +57,7 @@ contract GalaxyRoot is Auth {
     address public          withdrawAddress;
 
     constructor(address deployUsr_) public {
+        require(deployUsr_ != address(0), "deployUsr_ address cannot be 0");
         deployUsr = deployUsr_;
     }
 
