@@ -1,4 +1,4 @@
-pragma solidity >=0.5.15 <0.6.0;
+pragma solidity 0.5.15;
 import "../../../lib/galaxy-auth/src/auth.sol";
 
 contract DistTokenLike {

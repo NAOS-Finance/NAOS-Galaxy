@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity >=0.5.15 <0.6.0;
+pragma solidity 0.5.15;
 
 import {Title} from "../../../../lib/galaxy-title/src/title.sol";
 import "../interfaces.sol";
