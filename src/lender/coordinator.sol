@@ -195,7 +195,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
     /// if all orders can be fulfilled epoch is executed otherwise
     /// submission period starts
     function closeEpoch() external minimumEpochTimePassed auth {
-        require(submissionPeriod == false);
+        require(!submissionPeriod);
         lastEpochClosed = block.timestamp;
         currentEpoch = currentEpoch + 1;
 
@@ -272,7 +272,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         uint256 juniorSupply,
         uint256 seniorSupply
     ) public auth returns (int256) {
-        require(submissionPeriod == true, "submission-period-not-active");
+        require(submissionPeriod, "submission-period-not-active");
 
         int256 valid = _submitSolution(seniorRedeem, juniorRedeem, juniorSupply, seniorSupply);
 
@@ -303,7 +303,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         if (valid == SUCCESS) {
             uint256 score = scoreSolution(seniorRedeem, juniorRedeem, seniorSupply, juniorSupply);
 
-            if (gotFullValidSolution == false) {
+            if (!gotFullValidSolution) {
                 gotFullValidSolution = true;
                 _saveNewOptimum(seniorRedeem, juniorRedeem, juniorSupply, seniorSupply, score);
                 // solution is new best => 0
@@ -324,7 +324,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         // proposed solution does not satisfy all pool constraints
         // if we never received a solution which satisfies all constraints for this epoch
         // we might accept it as an improvement
-        if (gotFullValidSolution == false) {
+        if (!gotFullValidSolution) {
             return _improveScore(seniorRedeem, juniorRedeem, juniorSupply, seniorSupply);
         }
 
@@ -413,7 +413,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
     // highest possible score if solution is not violating the ratio
     function scoreRatioImprovement(Fixed27 memory newSeniorRatio) public view returns (uint256) {
         (Fixed27 memory minSeniorRatio, Fixed27 memory maxSeniorRatio) = assessor.seniorRatioBounds();
-        if (checkRatioInRange(newSeniorRatio, minSeniorRatio, maxSeniorRatio) == true) {
+        if (checkRatioInRange(newSeniorRatio, minSeniorRatio, maxSeniorRatio)) {
             // highest possible score
             return BIG_NUMBER;
         }
@@ -549,7 +549,7 @@ contract EpochCoordinator is Auth, Math, FixedPoint {
         }
 
         uint256 newReserve = safeSub(currencyAvailable, currencyOut);
-        if (poolClosing == true) {
+        if (poolClosing) {
             if (seniorSupply == 0 && juniorSupply == 0) {
                 return SUCCESS;
             }
