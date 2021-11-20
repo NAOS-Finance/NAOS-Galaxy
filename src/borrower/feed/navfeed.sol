@@ -63,7 +63,7 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
         wards[msg.sender] = 1;
     }
 
-    function init() public {
+    function init() external {
         require(ceilingRatio[0] == 0, "already-initialized");
 
         // gas optimized initialization of writeOffs and risk groups
@@ -175,7 +175,7 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
         bytes32 name,
         bytes32 nftID_,
         uint256 maturityDate_
-    ) public auth {
+    ) external auth {
         // maturity date only can be changed when there is no debt on the collateral -> futureValue == 0
         if (name == "maturityDate") {
             require((futureValue[nftID_] == 0), "can-not-change-maturityDate-outstanding-debt");
@@ -379,7 +379,7 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
         return nav_;
     }
 
-    function calcUpdateNAV() public returns (uint256) {
+    function calcUpdateNAV() external returns (uint256) {
         // approximated NAV is updated and at this point in time 100% correct
         approximatedNAV = currentNAV();
         return approximatedNAV;
