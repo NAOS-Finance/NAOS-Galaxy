@@ -73,60 +73,10 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
 
         // The following score cards just examples that are mostly optimized for the system test cases
 
-        // risk group: 0
+        // risk group: 0 Galaxy
         file(
             "riskGroup",
             0, // riskGroup:       0
-            8 * 10**26, // thresholdRatio   80%
-            6 * 10**26, // ceilingRatio     60%
-            ONE, // interestRate     1.0
-            ONE // recoveryRatePD:  1.0
-        );
-
-        // risk group: 1
-        file(
-            "riskGroup",
-            1, // riskGroup:       1
-            7 * 10**26, // thresholdRatio   70%
-            5 * 10**26, // ceilingRatio     50%
-            uint256(1000000003593629043335673583), // interestRate     12% per year
-            90 * 10**25 // recoveryRatePD:  0.9
-        );
-
-        // risk group: 2
-        file(
-            "riskGroup",
-            2, // riskGroup:       2
-            7 * 10**26, // thresholdRatio   70%
-            5 * 10**26, // ceilingRatio     50%
-            uint256(1000000564701133626865910626), // interestRate     5% per day
-            90 * 10**25 // recoveryRatePD:  0.9
-        );
-
-        // risk group: 3
-        file(
-            "riskGroup",
-            3, // riskGroup:       3
-            7 * 10**26, // thresholdRatio   70%
-            ONE, // ceilingRatio     100%
-            uint256(1000000564701133626865910626), // interestRate     5% per day
-            ONE // recoveryRatePD:  1.0
-        );
-
-        // risk group: 4 (used by collector tests)
-        file(
-            "riskGroup",
-            4, // riskGroup:       4
-            5 * 10**26, // thresholdRatio   50%
-            6 * 10**26, // ceilingRatio     60%
-            uint256(1000000564701133626865910626), // interestRate     5% per day
-            ONE // recoveryRatePD:  1.0
-        );
-
-        // risk group: 6 Galaxy
-        file(
-            "riskGroup",
-            6, // riskGroup:       6
             105**26, // thresholdRatio   105%
             ONE, // ceilingRatio     100%
             uint256(1000000001547125870000000000), // interestRate     5% per year
