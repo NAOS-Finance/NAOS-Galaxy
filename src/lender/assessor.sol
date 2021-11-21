@@ -242,10 +242,7 @@ contract Assessor is Auth, FixedPoint, Interest {
     }
 
     function seniorDebt() public view returns (uint256) {
-        if (now >= lastUpdateSeniorInterest) {
-            return chargeInterest(seniorDebt_, seniorInterestRate.value, lastUpdateSeniorInterest);
-        }
-        return seniorDebt_;
+        return chargeInterest(seniorDebt_, seniorInterestRate.value, lastUpdateSeniorInterest);
     }
 
     function seniorBalance() public view returns (uint256) {
