@@ -99,7 +99,7 @@ contract Operator is DSNote, Auth {
 
     /// only investors that are on the memberlist can submit redeemOrders
     function redeemOrder(uint256 amount) public note {
-        require((token.hasMember(msg.sender) == true), "user-not-allowed-to-hold-token");
+        require(token.hasMember(msg.sender), "user-not-allowed-to-hold-token");
         tranche.redeemOrder(msg.sender, amount);
     }
 
