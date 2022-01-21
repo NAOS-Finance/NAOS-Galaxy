@@ -77,7 +77,7 @@ contract NAVFeed is BaseNFTFeed, Interest, Buckets, FixedPoint {
         file(
             "riskGroup",
             0, // riskGroup:       0
-            105**26, // thresholdRatio   105%
+            105 * 10**25, // thresholdRatio   105%
             ONE, // ceilingRatio     100%
             uint256(1000000001547125870000000000), // interestRate     5% per year
             ONE // recoveryRatePD:  1.0
