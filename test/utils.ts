@@ -122,7 +122,7 @@ export const deployBorrower = async (rootAddr: string, currencyAddr: string) => 
   await borrowerDeployer.deployShelf()
   await borrowerDeployer.deployCollector()
   await borrowerDeployer.deploy()
-  return borrowerDeployer 
+  return borrowerDeployer
 }
 
 let reserveFab: Contract

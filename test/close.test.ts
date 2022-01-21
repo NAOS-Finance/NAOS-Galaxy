@@ -33,7 +33,7 @@ describe("Close", function () {
   let seniorInvestor: Contract
   let juniorInvestor: Contract
 
-  beforeEach(async () => {
+  before(async () => {
     accounts = await ethers.getSigners()
     await deployContracts()
     await createTestUsers()
@@ -101,7 +101,7 @@ describe("Close", function () {
 
   const createLoanAndWithdraw = async (usr: string, nftPrice: BigNumber, riskGroup: BigNumber) => {
     const { loanId, tokenId } = await createLoanAndBorrow(usr, nftPrice, riskGroup)
-    const ceiling = computeCeiling(riskGroup, nftPrice)
+    const ceiling = await computeCeiling(riskGroup, nftPrice)
     const borrower = await (await ethers.getContractFactory("Borrower")).attach(usr)
     await borrower.withdraw(loanId, ceiling, borrower.address)
     return { loanId, tokenId }
@@ -203,16 +203,15 @@ describe("Close", function () {
 
   it("Should FailCloseLoanNoPermissions", async () => {
     const { tokenId, lookupId } = await issueNFT(randomUser.address)
-    expect(
+    await expect(
       shelf.issue(collateralNFT.address, tokenId)
-    ).to.be.revertedWith("")
-    // await closeLoan(BigNumber.from("123"), lookupId)
+    ).to.be.revertedWith("nft-not-owned")
   })
 
   it("Should FailCloseLoanNotExisting", async () => {
     const { tokenId, lookupId } = await issueNFT(randomUser.address)
     const loanId = BigNumber.from("10")
-    expect(
+    await expect(
       closeLoan(loanId, lookupId)
     ).to.be.revertedWith("")
   })
@@ -221,20 +220,16 @@ describe("Close", function () {
     const { tokenId, lookupId } = await issueNFT(borrower.address)
     const loanId = await borrower.callStatic.issue(collateralNFT.address, tokenId)
     await borrower.issue(collateralNFT.address, tokenId)
-    expect(
+    await expect(
       borrower.lock(loanId)
     ).to.be.revertedWith("")
-    // await closeLoan(loanId, lookupId)
   })
 
-  it("Should FailCloseLoanHasDebt", async () => {
-    const nftPrice = utils.parseEther("200")
-    const riskGroup = BigNumber.from("1")
-    expect(
+  it("Should FailNotEnoughCurrency", async () => {
+    const nftPrice = utils.parseEther("100")
+    const riskGroup = BigNumber.from("0")
+    await expect(
       createLoanAndWithdraw(borrower.address, nftPrice, riskGroup)
-    ).to.be.revertedWith("")
-    // const { loanId, tokenId } = await createLoanAndWithdraw(borrower.address, nftPrice, riskGroup)
-    // const lookupId = await nftFeed.callStatic['nftID(address,uint256)'](collateralNFT.address, tokenId)
-    // await closeLoan(loanId, lookupId)
+    ).to.be.revertedWith("not-enough-currency-reserve")
   })
 })
