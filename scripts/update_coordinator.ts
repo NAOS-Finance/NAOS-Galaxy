@@ -18,12 +18,11 @@ async function main() {
     tx = await coordinator["file(bytes32,uint256)"](padded, 300)
     await tx.wait()
 
-    console.log('Success')
-  } else {
-    console.log('Please setup valid coordinator address')
+    return 'Update coordinator successfully!'
   }
+  throw new Error('Please setup valid coordinator address')
 }
   
 main()
-  .then(() => console.log('Update coordinator successfully!'))
+  .then(console.log)
   .catch(console.error)
