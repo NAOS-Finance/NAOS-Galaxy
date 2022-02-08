@@ -1,5 +1,5 @@
 import { ethers } from "hardhat"
-import { Contract, BigNumber } from "ethers"
+import { Contract } from "ethers"
 import { addressBook } from "./utils"
 
 async function main() {
@@ -7,37 +7,19 @@ async function main() {
   if (signers.length <= 0) {
     throw new Error("Couldn't find a signer")
   }
-
-  const ERC20 = await ethers.getContractFactory("ERC20")
-  const Assessor = await ethers.getContractFactory("Assessor")
-  const Reserve = await ethers.getContractFactory("Reserve")
-  const Coordinator = await ethers.getContractFactory("EpochCoordinator")
-  const Tranche = await ethers.getContractFactory("Tranche")
   const Memberlist = await ethers.getContractFactory("Memberlist")
-  const RestrictedToken = await ethers.getContractFactory("RestrictedToken")
-  const Operator = await ethers.getContractFactory("Operator")
-  let reserve: Contract
-  let assessor: Contract
-  let coordinator: Contract
-  let seniorTranche: Contract
   let seniorMemberlist: Contract
-  let seniorToken: Contract
-  let seniorOperator: Contract
-  let erc20: Contract
 
-  if (addressBook.erc20 && addressBook.seniorToken) {
-    erc20 = ERC20.attach(addressBook.erc20)
-    seniorTranche = Tranche.attach(addressBook.seniorTranche)
-    seniorOperator = Operator.attach(addressBook.seniorOperator)
-    seniorToken = RestrictedToken.attach(addressBook.seniorToken)
+  if (addressBook.seniorMemberlist) {
     seniorMemberlist = Memberlist.attach(addressBook.seniorMemberlist)
 
     const validUntil = Math.floor((new Date).getTime() / 1000 + 30 * 86400)
     await seniorMemberlist.updateMember('0x75ebD59631b174b31E4B72D8B1A52A897E9B0515', validUntil)
+    return 'Update senior memberlist successfully!'
   }
-  console.log('Update senior memberlist')
+  throw new Error('Please set senior memberlist address in deployments!')
 }
   
 main()
-  .then(() => console.log('Invest successfully!'))
+  .then(console.log)
   .catch(console.error)
