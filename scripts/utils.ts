@@ -13,11 +13,10 @@ const deployment = require(`../deployment/${network.name}.json`) || {}
 export const addressBook: Record<string,any> = deployment
 
 export const verifyContract = (address: string, params: Array<any>=[]) => {
-  return true
-  // return run("verify:verify", {
-  //   address: address,
-  //   constructorArguments: params,
-  // })
+  return run("verify:verify", {
+    address: address,
+    constructorArguments: params,
+  })
 }
 
 export const supplyOrder = async (erc20: Contract, tranche: Contract, operator: Contract, amount: BigNumber, users: Array<Signer>) => {
