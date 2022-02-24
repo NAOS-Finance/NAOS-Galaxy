@@ -1,6 +1,7 @@
 import { ethers, run, network } from "hardhat"
 import { Contract, Signer, utils, BigNumber } from "ethers"
 
+export const ZERO = BigNumber.from(0)
 export const ONE = BigNumber.from(10).pow(27)
 
 export const ONE_ADDRESS = '0x1111111111111111111111111111111111111111'
