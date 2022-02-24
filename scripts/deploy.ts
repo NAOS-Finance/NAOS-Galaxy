@@ -1,27 +1,18 @@
 import { ethers } from "hardhat"
 import { Contract, Signer, utils, BigNumber } from "ethers"
-import { addressBook, verifyContract, ZERO_ADDRESS, ONE_ADDRESS } from "./utils"
+import { addressBook, verifyContract, ZERO_ADDRESS, ONE_ADDRESS, ZERO, ONE } from "./utils"
 
 async function main() {
   const { BigNumber } = ethers
-  const discountRate = BigNumber.from('1000000342100000000000000000')
+  const discountRate = ONE
   const tokenName = "NAOS Mock Token"
   const tokenSymbol = "naos-mock"
-  const TENP25 = BigNumber.from(10).pow(25)
   const signers = await ethers.getSigners()
   if (signers.length <= 0) {
     throw new Error("Couldn't find any signer")
   }
-  const d: Array<Record<string,any>> = []
-  for (let i=0; i<signers.length; i++) {
-    const s = signers[i]
-    const addr = await s.getAddress()
-    d.push({
-      address: addr,
-      balance: ethers.utils.formatEther(await ethers.provider.getBalance(addr))
-    })
-  }
   const signer = signers[0]
+  const admin = signers[1]
   const ERC20 = await ethers.getContractFactory("ERC20")
   const Root = await ethers.getContractFactory("GalaxyRoot")
   let erc20: Contract
@@ -323,13 +314,14 @@ async function main() {
   let seniorOperator: Contract
   let canDeployLender = (await lenderDeployer.coordinator()).toString() != ZERO_ADDRESS && (await lenderDeployer.assessor()).toString() != ZERO_ADDRESS && (await lenderDeployer.reserve()).toString() != ZERO_ADDRESS && (await lenderDeployer.seniorTranche()).toString() != ZERO_ADDRESS
 
-  const minSeniorRate = BigNumber.from(0).mul(TENP25) // 0%
-  const maxSeniorRate = BigNumber.from(100).mul(TENP25) // 100%
+  const minSeniorRate = ZERO // 0%
+  const maxSeniorRate = ONE // 100%
   // max reserve: 10 B
   const maxReserve = utils.parseEther('1000000000')
   const maxSeniorInterestRate = BigNumber.from('1000000001547125870000000000')
+  const challengeTime = 300
   if (await lenderDeployer.deployer() !== ONE_ADDRESS) {
-    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, 300, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta", {
+    let tx = await lenderDeployer.init(minSeniorRate, maxSeniorRate, maxReserve, challengeTime, maxSeniorInterestRate, "Alpha Token", "Alpha", "Beta Token", "Beta", {
       gasLimit: 5000000
     })
     await tx.wait()
@@ -412,24 +404,25 @@ async function main() {
 
     // set first user as admin
     let promises: Array<Promise<any>> = []
-    tx = await root.relyContract(shelf.address, signer.address)
+    tx = await root.relyContract(shelf.address, admin.address)
     promises.push(tx.wait())
-    tx = await root.relyContract(pile.address, signer.address)
+    tx = await root.relyContract(pile.address, admin.address)
     promises.push(tx.wait())
-    tx = await root.relyContract(title.address, signer.address)
+    // tx = await root.relyContract(title.address, admin.address)
+    // promises.push(tx.wait())
+    tx = await root.relyContract(collector.address, admin.address)
     promises.push(tx.wait())
-    tx = await root.relyContract(collector.address, signer.address)
-    promises.push(tx.wait())
-    tx = await root.relyContract(navFeed.address, signer.address)    
-    promises.push(tx.wait())
-    // to payout left money, assign signer to reserve
-    tx = await root.relyContract(assessor.address, signer.address)
+    tx = await root.relyContract(navFeed.address, admin.address)    
     promises.push(tx.wait())
 
     // authorize first user to update investors
-    // tx = await root.relyContract(juniorMemberlist.address, signer.address)
+    // tx = await root.relyContract(juniorMemberlist.address, admin.address)
     // promises.push(tx.wait())
-    tx = await root.relyContract(seniorMemberlist.address, signer.address)
+    tx = await root.relyContract(seniorMemberlist.address, admin.address)
+    promises.push(tx.wait())
+    tx = await root.relyContract(root.address, admin.address)
+    promises.push(tx.wait())
+    tx = await root.denyContract(root.address, signer.address)
     promises.push(tx.wait())
     await Promise.all(promises)
   }

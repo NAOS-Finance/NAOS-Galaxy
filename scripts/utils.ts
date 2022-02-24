@@ -1,6 +1,7 @@
 import { ethers, run, network } from "hardhat"
 import { Contract, Signer, utils, BigNumber } from "ethers"
 
+export const ZERO = BigNumber.from(0)
 export const ONE = BigNumber.from(10).pow(27)
 
 export const ONE_ADDRESS = '0x1111111111111111111111111111111111111111'
@@ -12,10 +13,11 @@ const deployment = require(`../deployment/${network.name}.json`) || {}
 export const addressBook: Record<string,any> = deployment
 
 export const verifyContract = (address: string, params: Array<any>=[]) => {
-  return run("verify:verify", {
-    address: address,
-    constructorArguments: params,
-  })
+  return true
+  // return run("verify:verify", {
+  //   address: address,
+  //   constructorArguments: params,
+  // })
 }
 
 export const supplyOrder = async (erc20: Contract, tranche: Contract, operator: Contract, amount: BigNumber, users: Array<Signer>) => {
