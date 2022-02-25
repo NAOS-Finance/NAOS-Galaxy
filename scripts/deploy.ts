@@ -17,11 +17,11 @@ async function main() {
   const Root = await ethers.getContractFactory("GalaxyRoot")
   let erc20: Contract
   let root: Contract
+  console.log(`Deployer address: ${await signer.getAddress()}`)
+  console.log(`Admin address: ${await admin.getAddress()}`)
   if (addressBook.erc20) {
     erc20 = ERC20.attach(addressBook.erc20)
   } else {
-    console.log(`Deployer address: ${await signer.getAddress()}`)
-    
     erc20 = await ERC20.deploy(tokenName, tokenSymbol)
     await erc20.deployTransaction.wait()
     await verifyContract(erc20.address, [
@@ -312,7 +312,6 @@ async function main() {
   let seniorMemberlist: Contract
   let seniorToken: Contract
   let seniorOperator: Contract
-  let canDeployLender = (await lenderDeployer.coordinator()).toString() != ZERO_ADDRESS && (await lenderDeployer.assessor()).toString() != ZERO_ADDRESS && (await lenderDeployer.reserve()).toString() != ZERO_ADDRESS && (await lenderDeployer.seniorTranche()).toString() != ZERO_ADDRESS
 
   const minSeniorRate = ZERO // 0%
   const maxSeniorRate = ONE // 100%
@@ -390,8 +389,11 @@ async function main() {
     console.log('Coordinator address: ', await lenderDeployer.coordinator())
     coordinator = Coordinator.attach(await lenderDeployer.coordinator())
   }
+
+  let canDeployLender = (await lenderDeployer.coordinator()).toString() != ZERO_ADDRESS && (await lenderDeployer.assessor()).toString() != ZERO_ADDRESS && (await lenderDeployer.reserve()).toString() != ZERO_ADDRESS && (await lenderDeployer.seniorTranche()).toString() != ZERO_ADDRESS
   
   if (canDeployLender) {
+    console.log("DeployLender Setting");
     let tx = await lenderDeployer.deploy({
       gasLimit: 5000000
     })
@@ -403,28 +405,25 @@ async function main() {
     await tx.wait()
 
     // set first user as admin
-    let promises: Array<Promise<any>> = []
     tx = await root.relyContract(shelf.address, admin.address)
-    promises.push(tx.wait())
+    await tx.wait();
     tx = await root.relyContract(pile.address, admin.address)
-    promises.push(tx.wait())
-    // tx = await root.relyContract(title.address, admin.address)
-    // promises.push(tx.wait())
+    await tx.wait();
     tx = await root.relyContract(collector.address, admin.address)
-    promises.push(tx.wait())
+    await tx.wait();
     tx = await root.relyContract(navFeed.address, admin.address)    
-    promises.push(tx.wait())
+    await tx.wait();
 
     // authorize first user to update investors
     // tx = await root.relyContract(juniorMemberlist.address, admin.address)
     // promises.push(tx.wait())
     tx = await root.relyContract(seniorMemberlist.address, admin.address)
-    promises.push(tx.wait())
-    tx = await root.relyContract(root.address, admin.address)
-    promises.push(tx.wait())
-    tx = await root.denyContract(root.address, signer.address)
-    promises.push(tx.wait())
-    await Promise.all(promises)
+    await tx.wait();
+    tx = await root.rely(admin.address)
+    await tx.wait();
+    tx = await root.deny(signer.address)
+    await tx.wait();
+    console.log("Finish all tasks!");
   }
 }
   
