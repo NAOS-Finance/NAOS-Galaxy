@@ -17,11 +17,11 @@ async function main() {
   const Root = await ethers.getContractFactory("GalaxyRoot")
   let erc20: Contract
   let root: Contract
+  console.log(`Deployer address: ${await signer.getAddress()}`)
+  console.log(`Admin address: ${await admin.getAddress()}`)
   if (addressBook.erc20) {
     erc20 = ERC20.attach(addressBook.erc20)
   } else {
-    console.log(`Deployer address: ${await signer.getAddress()}`)
-    
     erc20 = await ERC20.deploy(tokenName, tokenSymbol)
     await erc20.deployTransaction.wait()
     await verifyContract(erc20.address, [
