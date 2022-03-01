@@ -409,6 +409,8 @@ async function main() {
     await tx.wait();
     tx = await root.relyContract(pile.address, admin.address)
     await tx.wait();
+    tx = await root.relyContract(coordinator.address, admin.address)
+    await tx.wait();
     tx = await root.relyContract(collector.address, admin.address)
     await tx.wait();
     tx = await root.relyContract(navFeed.address, admin.address)    
